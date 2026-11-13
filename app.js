@@ -4860,6 +4860,41 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Scroll Target Cue Buttons
+  document.querySelectorAll('[data-scroll-target]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.getAttribute('data-scroll-target');
+      const el = targetId ? document.getElementById(targetId) : null;
+      if (el) {
+        sfx.playClick();
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // Smooth Scroll-Reveal Contextual Blocks
+  const revealElements = Array.from(document.querySelectorAll('.reveal-on-scroll'));
+  if (revealElements.length > 0) {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reducedMotion && 'IntersectionObserver' in window) {
+      document.documentElement.classList.add('js-reveal-ready');
+      const revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              revealObserver.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.12, rootMargin: '0px 0px -48px 0px' }
+      );
+      revealElements.forEach((el) => revealObserver.observe(el));
+    } else {
+      revealElements.forEach((el) => el.classList.add('is-visible'));
+    }
+  }
+
   // Sound Toggle
   const soundBtn = document.getElementById('soundToggleBtn');
   if (soundBtn) {
