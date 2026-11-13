@@ -4249,7 +4249,7 @@ class RinCallController {
       if (mode === 'local') {
         await this.delay(240);
         const localRes = this.resolveLocalReply(text);
-        localRes.sourceLabel = 'ЛОКАЛЬНИЙ ІНТЕЛЕКТ';
+        localRes.sourceLabel = localRes.sourceLabel || 'ЛОКАЛЬНИЙ ІНТЕЛЕКТ';
         this.recordMessage('rin', localRes.reply, localRes.emotion, localRes.sourceLabel);
         this.presentRinResponse(localRes);
         return;
@@ -4483,6 +4483,35 @@ class RinCallController {
 
   resolveLocalReply(rawText) {
     const q = rawText.toLowerCase().replace(/[’ʼ`]/g, "'").trim();
+
+    // -1. Easter Egg: "67" / "6-7" / "six seven"
+    if (/(?:^|[^а-яіїєґa-z0-9])(?:6\s*[-–/.,:]?\s*7|six\s+seven|сікс\s+севен|шість\s*[-– ]?\s*сім)(?=$|[^а-яіїєґa-z0-9])/i.test(q)) {
+      this.lastLocalTopic = 'easter_egg_67';
+      if (this.sfx && typeof this.sfx.playGoal === 'function') {
+        this.sfx.playGoal();
+      }
+      const picked = this.pickFromPool('easter_egg_67', [
+        {
+          emotion: 'shocked',
+          respectDelta: 7,
+          sourceLabel: 'СЕКРЕТНИЙ ПРОТОКОЛ // 67',
+          reply: '…Ти серйозно кинув мені на закритий канал цей мем про «6-7»? Поки весь інтернет махає руками під нарізки, ти вирішив перевірити, чи зламається Ітоші Рін? Слабка спроба — але мушу визнати, секретний код 67 ти знайшов. ❄️'
+        },
+        {
+          emotion: 'disgust',
+          respectDelta: 4,
+          sourceLabel: 'СЕКРЕТНИЙ ПРОТОКОЛ // 67',
+          reply: 'Шість-сім… Сучасна «тепла вода» у вигляді цифр. Поки люди кричать «6-7» на камеру, я в голові прораховую 67 траєкторій, як вимкнути тебе з гри ще до першого пасу. 😒'
+        },
+        {
+          emotion: 'flow',
+          respectDelta: 9,
+          sourceLabel: 'СЕКРЕТНИЙ ПРОТОКОЛ // 67',
+          reply: 'Код 67 прийнято. Моя формула замість твого мему проста: 6 суперників перед штрафним, 7 десятих секунди на замах — і м’яч розриває дев’ятку в режимі Руйнівника. Активація пасхалки зарахована. 🩸'
+        }
+      ]);
+      return { ...picked };
+    }
 
     // 0. Follow-up continuation on the previous topic
     if (
