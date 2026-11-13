@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,600;1,700;1,800&family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@700;900&family=Russo+One&family=Unbounded:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20261113_hero3">
 </head>
 <body class="rin-theme">
   <!-- Background Ambience, Marionette Strings & Cyber Grid -->
@@ -144,143 +144,168 @@
       </div>
 
       <!-- ========================================================
-           HERO EXTENDED ARCHIVE OVERVIEW (SCROLL REVEAL)
+           HERO EXTENDED ARCHIVE OVERVIEW (ASYMMETRIC SCROLL BLOCKS)
            ======================================================== -->
       <div class="hero-extended-flow">
 
-        <!-- 1. About Site Block -->
-        <div id="heroOverviewBlock" class="hero-detail-band reveal-on-scroll">
-          <div class="section-header hero-band-header">
-            <div class="section-tag">// SYSTEM OVERVIEW · ПРО ЦЕЙ САЙТ</div>
-            <h2 class="section-title">ІНТЕРАКТИВНИЙ ТЕРМІНАЛ ЕГОЇСТА № 1</h2>
-            <p class="section-desc">
-              Це авторський веб-архів та симулятор, присвячений Ітоші Ріну — нападнику № 1 проєкту Blue Lock та зірці PXG. Сайт об’єднує канонічні факти з Egoist Bible і манги, балістичну міні-гру, живий діалог із самим Ріном і тест на знання його стилю гри.
-            </p>
-          </div>
+        <!-- BLOCK 1: ASYMMETRIC OVERVIEW SPLIT -->
+        <section id="heroOverviewBlock" class="hero-detail-band" aria-label="Про сайт">
+          <div class="hero-overview-split">
+            <div class="hero-overview-main reveal-on-scroll reveal-from-left">
+              <div class="section-tag">// SYSTEM OVERVIEW · ПРО ЦЕЙ САЙТ</div>
+              <h2 class="section-title">ІНТЕРАКТИВНИЙ ТЕРМІНАЛ ЕГОЇСТА № 1</h2>
+              <p class="overview-lead">
+                Це авторський веб-архів та симулятор, присвячений Ітоші Ріну — нападнику № 1 Blue Lock та зірці PXG. Тут канонічні дані з Egoist Bible і манги поєднані з фізичним 2D-симулятором ударів, автономним дзвінком самому Ріну та 20-питальним аудитом.
+              </p>
+              <div class="overview-metrics-row">
+                <div class="overview-metric">
+                  <span class="metric-num">42+</span>
+                  <span class="metric-lbl">ТЕМИ РОЗМОВИ З РІНОМ</span>
+                </div>
+                <div class="overview-metric">
+                  <span class="metric-num">20</span>
+                  <span class="metric-lbl">ПИТАНЬ ЕГО-АУДИТУ</span>
+                </div>
+                <div class="overview-metric">
+                  <span class="metric-num">2D</span>
+                  <span class="metric-lbl">БАЛІСТИКА RAYLIB</span>
+                </div>
+              </div>
+            </div>
 
-          <div class="hero-pillars-grid">
-            <article class="hero-pillar-card reveal-on-scroll reveal-delay-1">
-              <span class="pillar-index">01 // CANON LORE</span>
-              <h3 class="pillar-title">Точність манги та Egoist Bible</h3>
-              <p class="pillar-text">Зібрані підтверджені параметри біометрії, звички, хронологія становлення і розбір кожного епізоду — від снігу Камакури до Neo Egoist League.</p>
-            </article>
-            <article class="hero-pillar-card reveal-on-scroll reveal-delay-2">
-              <span class="pillar-index">02 // INTERACTIVE CORE</span>
-              <h3 class="pillar-title">Жива фізика, аудит і діалог</h3>
-              <p class="pillar-text">Замість сухої вікі-сторінки тут можна реально закручувати м’яч на полі, говорити з Ріном у прямому ефірі та перевірити власну реакцію.</p>
-            </article>
-            <article class="hero-pillar-card reveal-on-scroll reveal-delay-3">
-              <span class="pillar-index">03 // AUTONOMOUS ENGINE</span>
-              <h3 class="pillar-title">Працює швидко й безпечно</h3>
-              <p class="pillar-text">Увесь інтерактив працює прямо в браузері без сторонніх трекерів чи передачі ваших повідомлень на зовнішні сервери, з активним захистом CSP.</p>
-            </article>
+            <div class="hero-overview-side reveal-on-scroll reveal-from-right">
+              <article class="hero-pillar-card">
+                <span class="pillar-index">01 // CANON ACCURACY</span>
+                <h3 class="pillar-title">Точність манги та Egoist Bible</h3>
+                <p class="pillar-text">Усе досьє звірене з офіційними характеристиками: від зросту 186 см і Камакури до ставок NEL у 240 мільйонів єн та режиму Руйнівника.</p>
+              </article>
+              <article class="hero-pillar-card hero-pillar-card--crimson">
+                <span class="pillar-index">02 // SAFE &amp; AUTONOMOUS</span>
+                <h3 class="pillar-title">Абсолютна автономність і захист</h3>
+                <p class="pillar-text">Інтерактив працює миттєво без сторонніх серверів та витоків: активний Content Security Policy, анти-спам щит та захист від клікджекінгу.</p>
+              </article>
+            </div>
           </div>
-        </div>
+        </section>
 
-        <!-- 2. Archive Categories: What You Can Learn -->
-        <div class="hero-detail-band reveal-on-scroll">
-          <div class="section-header hero-band-header">
+        <!-- BLOCK 2: CHECKERBOARD BENTO CATEGORIES -->
+        <section class="hero-detail-band" aria-label="Категорії архіву">
+          <div class="section-header hero-band-header reveal-on-scroll">
             <div class="section-tag">// KNOWLEDGE SECTORS · КАТЕГОРІЇ АРХІВУ</div>
             <h2 class="section-title">ЩО МОЖНА ДІЗНАТИСЯ НА САЙТІ</h2>
-            <p class="section-desc">Натисни на будь-який сектор нижче, щоб миттєво перейти до потрібного розділу бази знань.</p>
+            <p class="section-desc">Кожен блок веде напряму в окремий модуль бази знань — обери потрібний сектор.</p>
           </div>
 
-          <div class="hero-categories-grid">
-            <button type="button" class="hero-cat-card reveal-on-scroll reveal-delay-1" data-jump="dossierSection">
+          <div class="hero-bento-grid">
+            <button type="button" class="hero-cat-card bento-wide reveal-on-scroll reveal-from-left" data-jump="dossierSection">
               <div class="cat-card-top">
-                <span class="cat-badge">СЕКТОР 01</span>
+                <span class="cat-badge">СЕКТОР 01 // БІОМЕТРІЯ</span>
                 <span class="cat-arrow">↗</span>
               </div>
-              <h3 class="cat-title">ДОСЬЄ ТА БІОМЕТРІЯ</h3>
-              <p class="cat-desc">Зріст 186 см, день народження 9 вересня, група крові A, раціон очадзуке, ранкова йога, хорори, оффер у 240 млн ¥ від Re Al та повна діаграма навичок нападника.</p>
-              <span class="cat-meta">Біографія · Показники · Звички</span>
+              <h3 class="cat-title">ДОСЬЄ, ХАРАКТЕР І ЗВИЧКИ ГРАВЦЯ</h3>
+              <p class="cat-desc">Зріст 186 см, 9 вересня, група крові A, раціон очадзуке із зеленим чаєм, ранкова йога, хорори на ніч, оффер від Re Al у 240 млн ¥ та 6-параметрова карта навичок нападника.</p>
+              <span class="cat-meta">Біографія · Показники · Повний профіль</span>
             </button>
 
-            <button type="button" class="hero-cat-card reveal-on-scroll reveal-delay-2" data-jump="weaponsSection">
+            <button type="button" class="hero-cat-card bento-narrow bento-accent-crimson reveal-on-scroll reveal-from-right" data-jump="weaponsSection">
               <div class="cat-card-top">
-                <span class="cat-badge">СЕКТОР 02</span>
+                <span class="cat-badge">СЕКТОР 02 // FLOW</span>
                 <span class="cat-arrow">↗</span>
               </div>
               <h3 class="cat-title">ЗБРОЯ &amp; DESTROYER FLOW</h3>
-              <p class="cat-desc">Детальний тактичний розбір закрученого удару, просторового контролю маріонеток, хижого Predator Eye та пробудження потворного інстинкту руйнування.</p>
-              <span class="cat-meta">Механіки · Тактика · Стан Flow</span>
+              <p class="cat-desc">Розбір ідеальної закрутки стопою, просторового контролю маріонеток, хижого Predator Eye та пробудження Руйнівника.</p>
+              <span class="cat-meta">Механіки · Тактика ударів</span>
             </button>
 
-            <button type="button" class="hero-cat-card reveal-on-scroll reveal-delay-3" data-jump="timelineSection">
+            <button type="button" class="hero-cat-card bento-narrow reveal-on-scroll reveal-from-left" data-jump="timelineSection">
               <div class="cat-card-top">
-                <span class="cat-badge">СЕКТОР 03</span>
+                <span class="cat-badge">СЕКТОР 03 // МАНГА</span>
                 <span class="cat-arrow">↗</span>
               </div>
               <h3 class="cat-title">ХРОНОЛОГІЯ ЕВОЛЮЦІЇ</h3>
-              <p class="cat-desc">Ключові переломні моменти по арках із фільтром етапів: дитячий розрив з Ітоші Сае, 1st/2nd Selection, перемога над U-20 і дуель з Ісагі та Кайзером у NEL.</p>
-              <span class="cat-meta">Фільтр арок · Події манги</span>
+              <p class="cat-desc">Поворотні моменти з фільтрами арок: розрив із Сае на снігу, селекції Blue Lock, бій проти U-20 і фінал NEL.</p>
+              <span class="cat-meta">Фільтр арок · Сюжетні вехи</span>
             </button>
 
-            <button type="button" class="hero-cat-card reveal-on-scroll reveal-delay-4" data-jump="gallerySection">
+            <button type="button" class="hero-cat-card bento-wide reveal-on-scroll reveal-from-right" data-jump="gallerySection">
               <div class="cat-card-top">
-                <span class="cat-badge">СЕКТОР 04</span>
+                <span class="cat-badge">СЕКТОР 04 // КАДРИ</span>
                 <span class="cat-arrow">↗</span>
               </div>
-              <h3 class="cat-title">ГАЛЕРЕЯ КАНОНІЧНИХ СЦЕН</h3>
-              <p class="cat-desc">Візуальний архів знакових голів, протистоянь і цитат Ріна з повним сюжетним контекстом, тактичним ефектом і розбором кожного кадру.</p>
-              <span class="cat-meta">Арт-кадри · Цитати · Розбір</span>
+              <h3 class="cat-title">ГАЛЕРЕЯ КАНОНІЧНИХ СЦЕН І ЦИТАТ</h3>
+              <p class="cat-desc">Колекція знакових голів, дуелей та автентичних цитат Ітоші Ріна з повним сюжетним розбором, тактичним ефектом та інтерактивним переглядом у деталях.</p>
+              <span class="cat-meta">Арт-кадри · Контекст · Розбір сцен</span>
             </button>
           </div>
-        </div>
+        </section>
 
-        <!-- 3. Interactive Activities: What To Do Here -->
-        <div class="hero-detail-band reveal-on-scroll">
-          <div class="section-header hero-band-header hero-band-header--crimson">
+        <!-- BLOCK 3: INTERACTIVE MODULES SHOWCASE -->
+        <section class="hero-detail-band" aria-label="Інтерактивні режими">
+          <div class="section-header hero-band-header hero-band-header--crimson reveal-on-scroll">
             <div class="section-tag">// ACTIVE MODULES · ЧИМ ЗАЙНЯТИСЯ</div>
             <h2 class="section-title">ЩО ЦІКАВОГО ПОРОБИТИ ПРОСТО ЗАРАЗ</h2>
-            <p class="section-desc">Три інтерактивні режими, де замість читання ти безпосередньо взаємодієш зі світом Ріна.</p>
+            <p class="section-desc">Три режими, де замість читання ти взаємодієш із характером, технікою та розумом Ріна.</p>
           </div>
 
-          <div class="hero-activities-grid">
-            <div class="hero-activity-card reveal-on-scroll reveal-delay-1">
-              <div class="activity-icon-row">
-                <span class="activity-icon">📞</span>
-                <span class="activity-chip">LIVE ДІАЛОГ</span>
+          <div class="hero-activities-bento">
+            <div class="hero-activity-featured reveal-on-scroll reveal-scale-up">
+              <div class="featured-act-left">
+                <div class="activity-icon-row">
+                  <span class="activity-icon">📞</span>
+                  <span class="activity-chip">LIVE ДІАЛОГ · 1 НА 1</span>
+                </div>
+                <h3 class="activity-title">ПОГОВОРИТИ НАПРЯМУ З ІТОШІ РІНОМ</h3>
+                <p class="activity-desc">Запитай Ріна про нього самого, Ітоші Сае, Ісагі чи будь-кого з Blue Lock, обговори сучасне життя або кинь виклик 1 на 1. Його характер, міміка, шкала поваги та інтонації на 100% тримають канон.</p>
+                <button type="button" class="bl-btn bl-btn-secondary activity-btn-inline" data-jump="callSection">
+                  <span>ВІДКРИТИ ДЗВІНОК РІНУ</span>
+                </button>
               </div>
-              <h3 class="activity-title">ПОГОВОРИТИ 1 НА 1 З ІТОШІ РІНОМ</h3>
-              <p class="activity-desc">Запитай Ріна про нього самого, Сае, Ісагі, будь-кого з Blue Lock, сучасні реалії або кинь виклик 1 на 1. Слідкуй за зміною його міміки, шкалою поваги та знайди секретну пасхалку на кшталт коду «67».</p>
-              <button type="button" class="bl-btn bl-btn-secondary activity-btn" data-jump="callSection">
-                <span>ВІДКРИТИ ДЗВІНОК РІНУ</span>
-              </button>
+              <div class="featured-act-right">
+                <div class="preview-terminal-box">
+                  <div class="preview-terminal-head">МОЖЕШ ПЕРЕВІРИТИ В ДІАЛОЗІ</div>
+                  <div class="preview-tags-wrap">
+                    <span class="preview-tag">🧊 Про тебе</span>
+                    <span class="preview-tag">❄️ Ітоші Сае</span>
+                    <span class="preview-tag">🎯 Ісагі vs Кайзер</span>
+                    <span class="preview-tag">🌐 Сучасне життя</span>
+                    <span class="preview-tag preview-tag--secret">🥚 Секретний код «67»</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div class="hero-activity-card reveal-on-scroll reveal-delay-2">
+            <div class="hero-activity-card act-wide reveal-on-scroll reveal-from-left">
               <div class="activity-icon-row">
                 <span class="activity-icon">🎮</span>
-                <span class="activity-chip">2D СИМУЛЯТОР</span>
+                <span class="activity-chip">2D СИМУЛЯТОР RAYLIB</span>
               </div>
-              <h3 class="activity-title">ЗАБИТИ ГОЛ ЗАКРУТКОЮ РІНА</h3>
-              <p class="activity-desc">Відтягни м’яч на тактичному полі 2D Raylib, налаштуй підкрутку RPM, обігни «стінку» захисників і заряди шкалу Destroyer Flow, щоб розбити оборону суперників.</p>
+              <h3 class="activity-title">ЗАБИТИ ГОЛ ФІРМОВОЮ ЗАКРУТКОЮ РІНА</h3>
+              <p class="activity-desc">Відтягни м’яч на балістичному полі, вистав кут і обертання RPM, обійди стінку захисників маріонетковою траєкторією та активуй Destroyer Flow для суперудару.</p>
               <button type="button" class="bl-btn bl-btn-primary activity-btn" data-jump="gameSection">
-                <span>ЗАПУСТИТИ МІНІ-ГРУ</span>
+                <span>ЗАПУСТИТИ МІНІ-ГРУ 2D</span>
               </button>
             </div>
 
-            <div class="hero-activity-card reveal-on-scroll reveal-delay-3">
+            <div class="hero-activity-card act-narrow reveal-on-scroll reveal-from-right">
               <div class="activity-icon-row">
                 <span class="activity-icon">🧠</span>
                 <span class="activity-chip">20 ПИТАНЬ</span>
               </div>
-              <h3 class="activity-title">ПРОЙТИ ЕГО-АУДИТ І ОТРИМАТИ РАНГ</h3>
-              <p class="activity-desc">Перевір знання канону на 4 тематичних блоках, здобудь ранг від «Теплої води» до «Рівного суперника» й переглянь детальне пояснення кожної правильної відповіді.</p>
+              <h3 class="activity-title">ЕГО-АУДИТ І РАНГ</h3>
+              <p class="activity-desc">Перевір знання 4 блоків лору, отримай ранг від «Теплої води» до «Рівного суперника» й детальний розбір помилок.</p>
               <button type="button" class="bl-btn bl-btn-ghost activity-btn" data-jump="quizContainerSection">
-                <span>ПОЧАТИ ТЕСТУВАННЯ</span>
+                <span>ПОЧАТИ ТЕСТ</span>
               </button>
             </div>
           </div>
-        </div>
+        </section>
 
-        <!-- 4. Bottom Closing Banner -->
-        <div class="hero-closing-banner reveal-on-scroll">
+        <!-- BLOCK 4: CLOSING BANNER -->
+        <div class="hero-closing-banner reveal-on-scroll reveal-scale-up">
           <div class="closing-copy">
             <span class="section-tag">// READY TO ENTER THE FIELD</span>
             <h3 class="closing-title">ОБЕРИ СВІЙ ПЕРШИЙ КРОК В АРХІВІ</h3>
-            <p class="closing-desc">Можеш почати з прямого дзвінка Ріну, перевірити техніку в симуляторі або одразу вивчити досьє.</p>
+            <p class="closing-desc">Можеш почати з прямого дзвінка Ріну, перевірити закрутку в симуляторі або відкрити досьє.</p>
           </div>
           <div class="closing-actions">
             <button type="button" class="bl-btn bl-btn-primary" data-jump="callSection">
@@ -1582,6 +1607,6 @@
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=20261113_hero3"></script>
 </body>
 </html>
