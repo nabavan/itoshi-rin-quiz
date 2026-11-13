@@ -3,6 +3,22 @@
  * Full Interactive Suite (Navigation, Quiz Engine & Physics Game)
  */
 
+// Anti-clickjacking guard: block embedding inside cross-origin iframes
+(() => {
+  if (typeof window !== 'undefined' && window.top !== window.self) {
+    try {
+      if (window.top.location.origin !== window.location.origin) {
+        window.top.location.replace(window.location.href);
+      }
+    } catch {
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.textContent = 'Доступ заборонено: вбудовування сайту на сторонніх ресурсах заблоковано.';
+      });
+      throw new Error('Blocked cross-origin frame embedding.');
+    }
+  }
+})();
+
 // -------------------------------------------------------------
 // SOUND SYNTHESIZER (Web Audio API)
 // -------------------------------------------------------------
@@ -702,10 +718,12 @@ class RaylibCanvasSimulator {
     requestAnimationFrame(this.loop);
   }
 
-  readStoredInt(key, fallback) {
+  readStoredInt(key, fallback, min = 0, max = 999999) {
     try {
-      const val = parseInt(localStorage.getItem(key), 10);
-      return Number.isFinite(val) ? val : fallback;
+      const raw = localStorage.getItem(key);
+      if (typeof raw !== 'string' || !/^-?\d+$/.test(raw.trim())) return fallback;
+      const val = parseInt(raw.trim(), 10);
+      return Number.isFinite(val) ? Math.max(min, Math.min(max, val)) : fallback;
     } catch (_) {
       return fallback;
     }
@@ -3561,9 +3579,10 @@ class RinCallController {
     };
     try {
       const raw = localStorage.getItem(RIN_CALL_STORAGE_KEY);
-      if (!raw) return defaults;
+      if (!raw || raw.length > 4096) return defaults;
       const parsed = JSON.parse(raw);
-      let loadedModel = typeof parsed.model === 'string' && parsed.model.trim() ? parsed.model.trim() : 'gemini-3.8-flash';
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return defaults;
+      let loadedModel = typeof parsed.model === 'string' && parsed.model.trim() ? parsed.model.trim().slice(0, 64) : 'gemini-3.8-flash';
       if (
         loadedModel === 'gemini-2.5-flash' ||
         loadedModel === 'gemini-2.0-flash' ||
@@ -3572,11 +3591,16 @@ class RinCallController {
       ) {
         loadedModel = 'gemini-3.8-flash';
       }
-      return {
+      const sanitized = {
         mode: ['hybrid', 'local', 'gemini'].includes(parsed.mode) ? parsed.mode : 'hybrid',
-        apiKey: typeof parsed.apiKey === 'string' ? parsed.apiKey.trim() : '',
+        apiKey: this.apiUiHidden ? '' : (typeof parsed.apiKey === 'string' ? parsed.apiKey.trim().slice(0, 256) : ''),
         model: loadedModel
       };
+      if (this.apiUiHidden && typeof parsed.apiKey === 'string' && parsed.apiKey.trim()) {
+        // Purge leftover API credentials from browser storage while API mode is disabled
+        localStorage.setItem(RIN_CALL_STORAGE_KEY, JSON.stringify(sanitized));
+      }
+      return sanitized;
     } catch {
       return defaults;
     }
@@ -3584,10 +3608,38 @@ class RinCallController {
 
   persistSettings() {
     try {
-      localStorage.setItem(RIN_CALL_STORAGE_KEY, JSON.stringify(this.settings));
+      const payload = {
+        mode: this.settings.mode,
+        apiKey: this.apiUiHidden ? '' : this.settings.apiKey,
+        model: this.settings.model
+      };
+      localStorage.setItem(RIN_CALL_STORAGE_KEY, JSON.stringify(payload));
     } catch {
       // Ignore storage quota errors in private browsing
     }
+  }
+
+  sanitizeUserInput(raw) {
+    if (typeof raw !== 'string') return '';
+    return raw
+      .replace(/[\u0000-\u001F\u007F\u200B-\u200F\u202A-\u202E\uFEFF]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 400);
+  }
+
+  isRateLimited() {
+    const now = Date.now();
+    if (!Array.isArray(this.submitTimestamps)) {
+      this.submitTimestamps = [];
+    }
+    this.submitTimestamps = this.submitTimestamps.filter((ts) => now - ts < 10000);
+    const lastTs = this.submitTimestamps[this.submitTimestamps.length - 1] || 0;
+    if (now - lastTs < 450 || this.submitTimestamps.length >= 6) {
+      return true;
+    }
+    this.submitTimestamps.push(now);
+    return false;
   }
 
   preloadEmotions() {
@@ -3603,7 +3655,7 @@ class RinCallController {
     if (this.inputForm) {
       this.inputForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const text = (this.userInput?.value || '').trim();
+        const text = this.sanitizeUserInput(this.userInput?.value || '');
         if (!text || this.isRequestPending) return;
         this.userInput.value = '';
         this.handleUserMessage(text);
@@ -3614,7 +3666,7 @@ class RinCallController {
       this.quickTopics.addEventListener('click', (e) => {
         const chip = e.target.closest('.topic-chip');
         if (!chip || this.isRequestPending) return;
-        const prompt = chip.getAttribute('data-prompt');
+        const prompt = this.sanitizeUserInput(chip.getAttribute('data-prompt') || '');
         if (prompt) {
           this.sfx.playClick();
           this.handleUserMessage(prompt);
@@ -4048,12 +4100,15 @@ class RinCallController {
     } else {
       this.historyList.innerHTML = this.history.map((item) => {
         const isRin = item.speaker === 'rin';
-        const emMeta = RIN_CALL_EMOTIONS[item.emotion]?.label || '';
+        const emMeta = this.escapeHtml(RIN_CALL_EMOTIONS[item.emotion]?.label || '');
+        const safeMeta = isRin
+          ? `${emMeta} · ${this.escapeHtml(item.source || '')}`
+          : this.escapeHtml(item.time || '');
         return `
           <div class="history-entry ${isRin ? 'is-rin' : 'is-user'}">
             <div class="history-entry-meta">
               <span>${isRin ? 'ІТОШІ РІН' : 'ТИ'}</span>
-              <span>${isRin ? `${emMeta} · ${item.source}` : item.time}</span>
+              <span>${safeMeta}</span>
             </div>
             <div class="history-entry-text">${this.escapeHtml(item.text)}</div>
           </div>
@@ -4075,7 +4130,8 @@ class RinCallController {
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   recordMessage(speaker, text, emotion = 'neutral', source = '') {
@@ -4166,7 +4222,21 @@ class RinCallController {
     }
   }
 
-  async handleUserMessage(text) {
+  async handleUserMessage(rawText) {
+    const text = this.sanitizeUserInput(rawText);
+    if (!text) return;
+
+    if (this.isRateLimited()) {
+      this.finishTypingImmediately();
+      this.presentRinResponse({
+        emotion: 'annoyed',
+        respectDelta: -2,
+        sourceLabel: 'АНТИ-СПАМ ЩИТ',
+        reply: 'Припини спамити в канал. Ти тиснеш кнопки швидше, ніж думаєш — заспокойся і формулюй по одному реченню. 😒'
+      });
+      return;
+    }
+
     this.turnCount += 1;
     this.finishTypingImmediately();
     this.recordMessage('user', text);
