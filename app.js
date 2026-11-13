@@ -4841,6 +4841,11 @@ document.addEventListener('DOMContentLoaded', () => {
       else callCtrl.onSectionLeave();
     }
 
+    const activeSection = document.getElementById(targetId);
+    if (typeof refreshScrollReveals === 'function') {
+      requestAnimationFrame(() => refreshScrollReveals(activeSection));
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
     sfx.playClick();
   }
@@ -4872,24 +4877,75 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Smooth Scroll-Reveal Contextual Blocks
+  // Portal-Wide Smooth Scroll-Reveal Animations
+  const autoRevealRules = [
+    { selector: '#dossierSection .dossier-card', alternateLR: true },
+    { selector: '#weaponsSection .weapon-card', variant: 'reveal-scale-up', stagger: 3 },
+    { selector: '#weaponsSection #weaponDetailPanel', variant: 'reveal-scale-up' },
+    { selector: '#timelineSection .timeline-item', alternateLR: true },
+    { selector: '#gallerySection .gallery-card', variant: 'reveal-scale-up', stagger: 3 },
+    { selector: '#gameSection .game-controls-panel', variant: 'reveal-from-left' },
+    { selector: '#gameSection .game-canvas-wrap', variant: 'reveal-from-right' },
+    { selector: '#quizContainerSection .quiz-intro-card', variant: 'reveal-scale-up' },
+    { selector: '.site-footer', variant: 'reveal-scale-up' }
+  ];
+
+  autoRevealRules.forEach((rule) => {
+    document.querySelectorAll(rule.selector).forEach((el, idx) => {
+      el.classList.add('reveal-on-scroll');
+      if (rule.alternateLR) {
+        el.classList.add(idx % 2 === 0 ? 'reveal-from-left' : 'reveal-from-right');
+      } else if (rule.variant) {
+        el.classList.add(rule.variant);
+      }
+      if (rule.stagger) {
+        el.classList.add(`reveal-delay-${(idx % rule.stagger) + 1}`);
+      }
+    });
+  });
+
   const revealElements = Array.from(document.querySelectorAll('.reveal-on-scroll'));
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let revealObserver = null;
+
+  function refreshScrollReveals(scopeEl = document) {
+    if (!scopeEl) return;
+    const targets = scopeEl.querySelectorAll ? Array.from(scopeEl.querySelectorAll('.reveal-on-scroll')) : [];
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    targets.forEach((el) => {
+      if (reducedMotion || !revealObserver) {
+        el.classList.add('is-visible');
+        return;
+      }
+      const rect = el.getBoundingClientRect();
+      if (rect.height === 0 && rect.width === 0) return;
+      if (rect.top < vh * 0.92 && rect.bottom > 0) {
+        el.classList.add('is-visible');
+      } else if (rect.top >= vh * 0.92) {
+        el.classList.remove('is-visible');
+      }
+    });
+  }
+
   if (revealElements.length > 0) {
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!reducedMotion && 'IntersectionObserver' in window) {
       document.documentElement.classList.add('js-reveal-ready');
-      const revealObserver = new IntersectionObserver(
+      revealObserver = new IntersectionObserver(
         (entries) => {
+          const vh = window.innerHeight || document.documentElement.clientHeight;
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               entry.target.classList.add('is-visible');
-              revealObserver.unobserve(entry.target);
+            } else if (entry.boundingClientRect.top > vh * 0.92) {
+              // Reset blocks scrolled back below the viewport so scrolling down replays smoothly
+              entry.target.classList.remove('is-visible');
             }
           });
         },
-        { threshold: 0.12, rootMargin: '0px 0px -48px 0px' }
+        { threshold: 0.14, rootMargin: '0px 0px -56px 0px' }
       );
       revealElements.forEach((el) => revealObserver.observe(el));
+      refreshScrollReveals(document.querySelector('.content-section.active'));
     } else {
       revealElements.forEach((el) => el.classList.add('is-visible'));
     }
@@ -4933,6 +4989,7 @@ document.addEventListener('DOMContentLoaded', () => {
           item.classList.add('hidden');
         }
       });
+      refreshScrollReveals(document.getElementById('timelineSection'));
     });
   });
 
