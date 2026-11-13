@@ -227,6 +227,175 @@ class SoundManager {
 }
 
 // -------------------------------------------------------------
+// BACKGROUND THEME MUSIC CONTROLLER (NORMAL RIN / DESTROYER FLOW)
+// -------------------------------------------------------------
+class ThemeMusicManager {
+  constructor() {
+    this.targetVolume = 0.28;
+    this.fadeDurationMs = 450;
+    this.enabled = true;
+    this.userPaused = false;
+    this.mode = 'normal';
+    this.fadeTimer = null;
+    this.playRequestId = 0;
+    this.unlockBound = false;
+    this.onStateChange = null;
+    this.tracks = {
+      normal: this.createAudio('assets/audio/rin_theme_normal.mp3'),
+      destroyer: this.createAudio('assets/audio/rin_theme_destroyer.mp3')
+    };
+  }
+
+  createAudio(src) {
+    const audio = new Audio(src);
+    audio.loop = true;
+    audio.preload = 'auto';
+    audio.volume = 0;
+    return audio;
+  }
+
+  isPlaying() {
+    const active = this.tracks[this.mode];
+    return Boolean(active && !active.paused && this.enabled && !this.userPaused);
+  }
+
+  emitState() {
+    if (typeof this.onStateChange === 'function') {
+      this.onStateChange({
+        mode: this.mode,
+        enabled: this.enabled,
+        userPaused: this.userPaused,
+        playing: this.isPlaying()
+      });
+    }
+  }
+
+  cancelFade() {
+    if (this.fadeTimer !== null) {
+      cancelAnimationFrame(this.fadeTimer);
+      this.fadeTimer = null;
+    }
+  }
+
+  crossfade(fromAudio, toAudio, onDone) {
+    this.cancelFade();
+    const startFrom = fromAudio ? fromAudio.volume : 0;
+    const startTo = toAudio ? toAudio.volume : 0;
+    const targetTo = toAudio ? this.targetVolume : 0;
+    const t0 = performance.now();
+
+    const step = (now) => {
+      const progress = Math.max(0, Math.min(1, (now - t0) / this.fadeDurationMs));
+      if (fromAudio) {
+        fromAudio.volume = Math.min(1, Math.max(0, startFrom * (1 - progress)));
+      }
+      if (toAudio) {
+        toAudio.volume = Math.min(this.targetVolume, Math.max(0, startTo + (targetTo - startTo) * progress));
+      }
+      if (progress < 1) {
+        this.fadeTimer = requestAnimationFrame(step);
+      } else {
+        this.fadeTimer = null;
+        if (fromAudio && fromAudio !== toAudio) {
+          fromAudio.pause();
+          fromAudio.volume = 0;
+        }
+        if (typeof onDone === 'function') onDone();
+      }
+    };
+    this.fadeTimer = requestAnimationFrame(step);
+  }
+
+  async playCurrent(resetToStart = false) {
+    if (!this.enabled || this.userPaused) {
+      this.emitState();
+      return false;
+    }
+    const incoming = this.tracks[this.mode];
+    const otherMode = this.mode === 'destroyer' ? 'normal' : 'destroyer';
+    const outgoing = this.tracks[otherMode];
+
+    if (resetToStart && incoming.paused) {
+      incoming.currentTime = 0;
+    }
+
+    const reqId = ++this.playRequestId;
+    try {
+      await incoming.play();
+      if (reqId !== this.playRequestId || this.userPaused || !this.enabled || this.tracks[this.mode] !== incoming) {
+        if (this.tracks[this.mode] !== incoming || this.userPaused || !this.enabled) {
+          incoming.pause();
+          incoming.volume = 0;
+        }
+        return false;
+      }
+      const fromTrack = !outgoing.paused ? outgoing : null;
+      this.crossfade(fromTrack, incoming);
+      this.removeUnlockListeners();
+      this.emitState();
+      return true;
+    } catch {
+      this.attachUnlockListeners();
+      this.emitState();
+      return false;
+    }
+  }
+
+  attachUnlockListeners() {
+    if (this.unlockBound) return;
+    this.unlockBound = true;
+    this._onFirstGesture = (e) => {
+      if (this.userPaused || !this.enabled) return;
+      if (e.target && e.target.closest && e.target.closest('#bgmToggleBtn')) return;
+      this.playCurrent(false);
+    };
+    document.addEventListener('pointerdown', this._onFirstGesture, { capture: true, passive: true });
+    document.addEventListener('keydown', this._onFirstGesture, { capture: true, passive: true });
+  }
+
+  removeUnlockListeners() {
+    if (!this.unlockBound) return;
+    this.unlockBound = false;
+    if (this._onFirstGesture) {
+      document.removeEventListener('pointerdown', this._onFirstGesture, { capture: true });
+      document.removeEventListener('keydown', this._onFirstGesture, { capture: true });
+    }
+  }
+
+  setMode(nextMode) {
+    const normalized = nextMode === 'destroyer' ? 'destroyer' : 'normal';
+    const changed = normalized !== this.mode;
+    this.mode = normalized;
+    if (!this.enabled || this.userPaused) {
+      this.emitState();
+      return;
+    }
+    if (changed || !this.isPlaying()) {
+      this.playCurrent(changed);
+    }
+  }
+
+  togglePlayback() {
+    if (this.userPaused || !this.enabled || !this.isPlaying()) {
+      this.enabled = true;
+      this.userPaused = false;
+      this.playCurrent(false);
+      return true;
+    }
+    this.playRequestId += 1;
+    this.userPaused = true;
+    const active = this.tracks[this.mode];
+    this.crossfade(active, null, () => {
+      this.tracks.normal.pause();
+      this.tracks.destroyer.pause();
+      this.emitState();
+    });
+    this.emitState();
+    return false;
+  }
+}
+
+// -------------------------------------------------------------
 // ITOSHI RIN AMBIENT PUPPET THREADS & AURA PARTICLES
 // -------------------------------------------------------------
 class RinAmbientFX {
@@ -5008,11 +5177,13 @@ class RinCallController {
 // -------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   const sfx = new SoundManager();
+  const bgm = new ThemeMusicManager();
 
   // Navigation Links
   const navLinks = document.querySelectorAll('.nav-link');
   const sections = document.querySelectorAll('.content-section');
   const rinEmblemBtn = document.getElementById('rinEmblemBtn');
+  const bgmToggleBtn = document.getElementById('bgmToggleBtn');
   const brandHomeBtn = document.getElementById('brandHomeBtn');
   const brandSubText = document.getElementById('brandSubText');
   const rinHudToast = document.getElementById('rinHudToast');
@@ -5021,6 +5192,32 @@ document.addEventListener('DOMContentLoaded', () => {
   let toastTimer = null;
 
   window.isRinFlowOverrideActive = () => rinFlowOverride;
+
+  function syncBgmHud(state) {
+    const isDestroyer = state.mode === 'destroyer';
+    document.body.dataset.bgmMode = state.mode;
+    document.body.dataset.bgmState = state.playing ? 'playing' : 'paused';
+    if (!bgmToggleBtn) return;
+    const label = bgmToggleBtn.querySelector('.bgm-label');
+    const icon = bgmToggleBtn.querySelector('.bgm-icon');
+    bgmToggleBtn.classList.toggle('is-playing', Boolean(state.playing));
+    bgmToggleBtn.classList.toggle('is-destroyer', isDestroyer);
+    bgmToggleBtn.classList.toggle('is-paused', Boolean(state.userPaused));
+    bgmToggleBtn.setAttribute('aria-pressed', String(!state.userPaused));
+    if (state.userPaused) {
+      if (icon) icon.textContent = '⏸️';
+      if (label) label.textContent = 'ТЕМА: ПАУЗА';
+    } else if (isDestroyer) {
+      if (icon) icon.textContent = state.playing ? '🔥' : '🩸';
+      if (label) label.textContent = 'ТЕМА: DESTROYER';
+    } else {
+      if (icon) icon.textContent = '🎵';
+      if (label) label.textContent = 'ТЕМА: RIN';
+    }
+  }
+
+  bgm.onStateChange = syncBgmHud;
+  bgm.playCurrent(false);
 
   function showHudToast(msg, isFlow = false) {
     if (!rinHudToast) return;
@@ -5053,12 +5250,28 @@ document.addEventListener('DOMContentLoaded', () => {
         brandSubText.textContent = rinFlowOverride ? '糸師 凛 // DESTROYER FLOW' : '糸師 凛 // PXG № 10';
       }
       syncFlowThemeState();
+      bgm.setMode(rinFlowOverride ? 'destroyer' : 'normal');
       if (rinFlowOverride) {
         sfx.playFlowAwaken();
-        showHudToast('🩸 DESTROYER FLOW: АУРА НИТОК АКТИВОВАНА', true);
+        showHudToast('🩸 DESTROYER FLOW: АУРА ТА ТЕМА РУЙНІВНИКА', true);
       } else {
         sfx.playClick();
-        showHudToast('🧊 ТАКТИЧНИЙ РЕЖИМ: СТАНДАРТ ВІДНОВЛЕНО', false);
+        showHudToast('🧊 ТАКТИЧНИЙ РЕЖИМ: СТАНДАРТНА ТЕМА РІНА', false);
+      }
+    });
+  }
+
+  if (bgmToggleBtn) {
+    bgmToggleBtn.addEventListener('click', () => {
+      sfx.playClick();
+      const willPlay = bgm.togglePlayback();
+      if (willPlay) {
+        showHudToast(
+          bgm.mode === 'destroyer' ? '🔥 ТЕМА РУЙНІВНИКА ВІДНОВЛЕНА' : '🎵 МУЗИЧНА ТЕМА РІНА УВІМКНЕНА',
+          bgm.mode === 'destroyer'
+        );
+      } else {
+        showHudToast('⏸️ МУЗИЧНУ ТЕМУ ПОСТАВЛЕНО НА ПАУЗУ', false);
       }
     });
   }
