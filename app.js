@@ -613,15 +613,16 @@ class RaylibCanvasSimulator {
     this.ctx = canvas.getContext('2d');
     this.sfx = sfx;
 
-    // Logical Pitch Coordinate Space
-    this.W = 920;
-    this.H = 580;
+    // Logical Pitch Coordinate Space (expanded width & pull-back margin so 100% power stays visible)
+    this.W = 1080;
+    this.H = 700;
     this.goalY = 66;
     this.goalW = 292;
     this.goalLeft = (this.W - this.goalW) / 2;
     this.goalRight = this.goalLeft + this.goalW;
     this.netDepth = 42;
     this.topBinWidth = 62;
+    this.maxPull = 170;
 
     // Storage Keys
     this.storageBestKey = 'rin_arena_best_score_v2';
@@ -645,7 +646,7 @@ class RaylibCanvasSimulator {
     this.launchVec = { vx: 0, vy: 0, powerPct: 0, angleDeg: 0 };
 
     // Ball State
-    this.spawnPos = { x: 795, y: 448 };
+    this.spawnPos = { x: 855, y: 448 };
     this.ball = {
       x: this.spawnPos.x,
       y: this.spawnPos.y,
@@ -711,56 +712,56 @@ class RaylibCanvasSimulator {
       {
         title: 'STAGE 01 // СУХИЙ ЛИСТ З КУТА',
         brief: "STAGE 01 // Закрутіть м'яч від правого флангу в дальню дев'ятку повз воротаря Blue Lock Man",
-        spawn: { x: 792, y: 446 },
+        spawn: { x: 852, y: 446 },
         recommendedSpin: -68,
         gkSpeed: 185,
         gkLabel: 'BLUE LOCK MAN',
         defenders: [
-          { baseX: 648, baseY: 266, w: 32, h: 20, ampX: 38, freq: 1.5, phase: 0, type: 'blocker', label: 'DF #4' },
-          { baseX: 495, baseY: 215, w: 30, h: 20, ampX: 28, freq: 1.1, phase: 1.7, type: 'blocker', label: 'DF #7' }
+          { baseX: 720, baseY: 266, w: 32, h: 20, ampX: 38, freq: 1.5, phase: 0, type: 'blocker', label: 'DF #4' },
+          { baseX: 575, baseY: 215, w: 30, h: 20, ampX: 28, freq: 1.1, phase: 1.7, type: 'blocker', label: 'DF #7' }
         ],
         gate: null
       },
       {
         title: 'STAGE 02 // ШТРАФНИЙ НАД СТІНКОЮ',
         brief: 'STAGE 02 // Обігніть щільну стінку захисників на 28 метрах та поцільте у верхній кут воріт',
-        spawn: { x: 535, y: 474 },
+        spawn: { x: 615, y: 468 },
         recommendedSpin: -62,
         gkSpeed: 215,
         gkLabel: 'BLM UNIT-02',
         defenders: [
-          { baseX: 438, baseY: 298, w: 30, h: 22, ampX: 14, freq: 2.3, phase: 0, type: 'wall', label: 'W1' },
-          { baseX: 474, baseY: 298, w: 30, h: 22, ampX: 14, freq: 2.3, phase: 0, type: 'wall', label: 'W2' },
-          { baseX: 510, baseY: 298, w: 30, h: 22, ampX: 14, freq: 2.3, phase: 0, type: 'wall', label: 'W3' }
+          { baseX: 518, baseY: 298, w: 30, h: 22, ampX: 14, freq: 2.3, phase: 0, type: 'wall', label: 'W1' },
+          { baseX: 554, baseY: 298, w: 30, h: 22, ampX: 14, freq: 2.3, phase: 0, type: 'wall', label: 'W2' },
+          { baseX: 590, baseY: 298, w: 30, h: 22, ampX: 14, freq: 2.3, phase: 0, type: 'wall', label: 'W3' }
         ],
         gate: null
       },
       {
         title: 'STAGE 03 // МАРІОНЕТКОВИЙ ТЕАТР 4v4',
         brief: 'STAGE 03 // Проведіть дугу крізь бірюзове вікно «МАРІОНЕТКА x2» між захисниками Ісагі й Бачіри',
-        spawn: { x: 230, y: 472 },
+        spawn: { x: 265, y: 466 },
         recommendedSpin: 56,
         gkSpeed: 225,
         gkLabel: 'BLM UNIT-03',
         defenders: [
-          { baseX: 360, baseY: 326, w: 30, h: 20, ampX: 52, freq: 1.85, phase: 0.4, type: 'blocker', label: 'ISAGI' },
-          { baseX: 550, baseY: 256, w: 30, h: 20, ampX: 60, freq: 1.65, phase: 2.1, type: 'blocker', label: 'BACHIRA' }
+          { baseX: 430, baseY: 326, w: 30, h: 20, ampX: 52, freq: 1.85, phase: 0.4, type: 'blocker', label: 'ISAGI' },
+          { baseX: 625, baseY: 256, w: 30, h: 20, ampX: 60, freq: 1.65, phase: 2.1, type: 'blocker', label: 'BACHIRA' }
         ],
-        gate: { baseX: 430, y: 290, w: 94, ampX: 48, freq: 1.0 }
+        gate: { baseX: 510, y: 290, w: 94, ampX: 48, freq: 1.0 }
       },
       {
         title: 'STAGE 04 // ПРОБУДЖЕННЯ FLOW: U-20',
         brief: 'STAGE 04 // Застосуйте Destroyer Flow проти пресингу Неру та Айку і пробийте воротаря збірної U-20',
-        spawn: { x: 460, y: 484 },
+        spawn: { x: 540, y: 476 },
         recommendedSpin: -48,
         gkSpeed: 265,
         gkLabel: 'FUKAKU U-20',
         defenders: [
-          { baseX: 375, baseY: 312, w: 32, h: 22, ampX: 72, freq: 2.2, phase: 0.2, type: 'aiku', label: 'NERU' },
-          { baseX: 545, baseY: 238, w: 36, h: 22, ampX: 85, freq: 1.9, phase: 2.4, type: 'aiku', label: 'AIKU' },
-          { baseX: 460, baseY: 364, w: 28, h: 20, ampX: 42, freq: 2.6, phase: 1.1, type: 'wall', label: 'NIO' }
+          { baseX: 455, baseY: 312, w: 32, h: 22, ampX: 72, freq: 2.2, phase: 0.2, type: 'aiku', label: 'NERU' },
+          { baseX: 625, baseY: 238, w: 36, h: 22, ampX: 85, freq: 1.9, phase: 2.4, type: 'aiku', label: 'AIKU' },
+          { baseX: 540, baseY: 364, w: 28, h: 20, ampX: 42, freq: 2.6, phase: 1.1, type: 'wall', label: 'NIO' }
         ],
-        gate: { baseX: 460, y: 175, w: 88, ampX: 65, freq: 1.3 }
+        gate: { baseX: 540, y: 175, w: 88, ampX: 65, freq: 1.3 }
       }
     ];
 
@@ -937,11 +938,11 @@ class RaylibCanvasSimulator {
 
   buildEndlessScenario(wave) {
     const spots = [
-      { x: 775, y: 452, spin: -62 },
-      { x: 165, y: 456, spin: 62 },
-      { x: 540, y: 476, spin: 50 },
-      { x: 370, y: 472, spin: -48 },
-      { x: 460, y: 492, spin: 42 }
+      { x: 845, y: 448, spin: -62 },
+      { x: 235, y: 452, spin: 62 },
+      { x: 620, y: 468, spin: 50 },
+      { x: 450, y: 466, spin: -48 },
+      { x: 540, y: 478, spin: 42 }
     ];
     const spot = spots[(wave - 1) % spots.length];
     const defs = [];
@@ -949,7 +950,7 @@ class RaylibCanvasSimulator {
 
     for (let i = 0; i < defCount; i++) {
       const bandY = 195 + i * 54;
-      const baseX = 310 + ((i * 170 + wave * 75) % 320);
+      const baseX = 390 + ((i * 170 + wave * 75) % 320);
       defs.push({
         baseX,
         baseY: bandY,
@@ -972,7 +973,7 @@ class RaylibCanvasSimulator {
       gkSpeed: Math.min(340, 195 + wave * 16),
       gkLabel: wave >= 4 ? 'OLIVER / BLM-X' : 'BLUE LOCK MAN',
       defenders: defs,
-      gate: useGate ? { baseX: 460, y: 278, w: 86, ampX: 68, freq: 1.15 } : null
+      gate: useGate ? { baseX: 540, y: 278, w: 86, ampX: 68, freq: 1.15 } : null
     };
   }
 
@@ -1145,7 +1146,7 @@ class RaylibCanvasSimulator {
       return;
     }
 
-    const maxPull = 175;
+    const maxPull = this.maxPull || 170;
     const clampedPull = Math.min(maxPull, rawDist);
     const powerNorm = (clampedPull - 18) / (maxPull - 18);
     const maxSpeed = this.flowActive ? 1240 : 1080;
@@ -1772,24 +1773,66 @@ class RaylibCanvasSimulator {
       ctx.textAlign = rinSide > 0 ? 'left' : 'right';
       ctx.fillText('RIN #10', rinX + rinSide * 15, rinY + 3);
 
+      if (this.overlayHint) {
+        this.overlayHint.style.opacity = this.isDragging ? '0' : '1';
+      }
+
       if (this.isDragging) {
-        ctx.strokeStyle = this.launchVec.powerPct >= 14
-          ? (this.flowActive ? '#ff2a5f' : '#00ffc8')
-          : 'rgba(148, 163, 184, 0.5)';
-        ctx.lineWidth = 2.5;
+        const dx = this.dragCurrent.x - this.ball.x;
+        const dy = this.dragCurrent.y - this.ball.y;
+        const rawDist = Math.hypot(dx, dy);
+        const maxPull = this.maxPull || 170;
+        const visDist = Math.min(maxPull, rawDist);
+        const nx = rawDist > 0.001 ? dx / rawDist : 0;
+        const ny = rawDist > 0.001 ? dy / rawDist : 1;
+        const handleX = Math.max(24, Math.min(this.W - 24, this.ball.x + nx * visDist));
+        const handleY = Math.max(24, Math.min(this.H - 28, this.ball.y + ny * visDist));
+
+        const activeCol = this.launchVec.powerPct >= 100
+          ? '#fde047'
+          : (this.launchVec.powerPct >= 14
+            ? (this.flowActive ? '#ff2a5f' : '#00ffc8')
+            : 'rgba(148, 163, 184, 0.5)');
+
+        // Show subtle max 100% pull radius ring around ball
+        ctx.save();
+        ctx.strokeStyle = this.flowActive ? 'rgba(255, 42, 95, 0.22)' : 'rgba(0, 255, 200, 0.2)';
+        ctx.lineWidth = 1.25;
+        ctx.setLineDash([5, 6]);
+        ctx.beginPath();
+        ctx.arc(this.ball.x, this.ball.y, maxPull, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+
+        ctx.strokeStyle = activeCol;
+        ctx.lineWidth = 2.6;
         ctx.beginPath();
         ctx.moveTo(this.ball.x, this.ball.y);
-        ctx.lineTo(this.dragCurrent.x, this.dragCurrent.y);
+        ctx.lineTo(handleX, handleY);
         ctx.stroke();
 
-        ctx.fillStyle = ctx.strokeStyle;
+        ctx.fillStyle = activeCol;
         ctx.beginPath();
-        ctx.arc(this.dragCurrent.x, this.dragCurrent.y, 6, 0, Math.PI * 2);
+        ctx.arc(handleX, handleY, this.launchVec.powerPct >= 100 ? 7.5 : 6, 0, Math.PI * 2);
         ctx.fill();
 
         if (this.launchVec.powerPct >= 14) {
-          ctx.font = "bold 12px 'Exo 2', sans-serif";
-          ctx.fillText(`${this.launchVec.powerPct}%`, this.dragCurrent.x, this.dragCurrent.y + 20);
+          const badgeText = this.launchVec.powerPct >= 100 ? 'MAX 100%' : `${this.launchVec.powerPct}%`;
+          const labelX = Math.max(52, Math.min(this.W - 52, handleX));
+          const labelY = Math.min(this.H - 12, handleY + 22);
+          ctx.fillStyle = 'rgba(5, 9, 17, 0.88)';
+          ctx.strokeStyle = activeCol;
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.roundRect(labelX - 36, labelY - 14, 72, 20, 6);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = activeCol;
+          ctx.font = "800 11.5px 'Exo 2', sans-serif";
+          ctx.textAlign = 'center';
+          ctx.fillText(badgeText, labelX, labelY);
         }
       }
       ctx.restore();

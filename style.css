@@ -1785,15 +1785,16 @@ position: relative;
 #gameCanvas {
   display: block;
   width: 100%;
-  max-width: 920px;
+  max-width: 1080px;
   height: auto;
-  aspect-ratio: 920 / 580;
+  aspect-ratio: 1080 / 700;
   background: #060a10;
   cursor: crosshair;
   touch-action: none;
 }
 
 .game-overlay-hint {
+  transition: opacity 0.18s ease;
   position: absolute;
   bottom: 12px;
   left: 50%;
