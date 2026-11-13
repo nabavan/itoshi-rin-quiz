@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ITOSHI RIN // Blue Lock Official Egoist Archive</title>
+  
+  <!-- Fonts: Authentic Blue Lock Itoshi Rin Typography (Full Cyrillic & Japanese Coverage) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,600;1,700;1,800&family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@700;900&family=Russo+One&family=Unbounded:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="rin-theme">
+  <!-- Background Ambience, Marionette Strings & Cyber Grid -->
+  <div class="bg-grid"></div>
+  <canvas id="rinAmbientCanvas" aria-hidden="true"></canvas>
+  <div class="bg-glow glow-teal"></div>
+  <div class="bg-glow glow-crimson"></div>
+  <div class="water-aura-overlay"></div>
+
+  <!-- NAVIGATION HEADER -->
+  <header class="navbar-hud">
+    <div class="nav-brand">
+      <div class="brand-logo-hex">
+        <span class="hex-inner">糸</span>
+      </div>
+      <div class="brand-text-wrap">
+        <div class="brand-main">ITOSHI RIN</div>
+        <div class="brand-sub">糸師 凛 // PXG № 10</div>
+      </div>
+    </div>
+
+    <!-- Navigation links -->
+    <nav class="nav-menu">
+      <button class="nav-link active" data-target="heroSection">ГОЛОВНА</button>
+      <button class="nav-link" data-target="dossierSection">ДОСЬЄ</button>
+      <button class="nav-link" data-target="weaponsSection">ЗБРОЯ & FLOW</button>
+      <button class="nav-link" data-target="timelineSection">ХРОНОЛОГІЯ</button>
+      <button class="nav-link" data-target="gallerySection">ГАЛЕРЕЯ</button>
+      <button class="nav-link highlight-call" data-target="callSection">📞 ДЗВІНОК РІНУ</button>
+      <button class="nav-link highlight-game" data-target="gameSection">🎮 МІНІ-ГРА 2D</button>
+      <button class="nav-link highlight-quiz" data-target="quizContainerSection">🧠 ЕГО-АУДИТ</button>
+    </nav>
+
+    <!-- Header Actions -->
+    <div class="nav-actions">
+      <button id="soundToggleBtn" class="hud-pill-btn" title="Увімкнути/вимкнути звук">
+        <span class="sound-icon">🔊</span>
+        <span class="sound-label">SFX: ON</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="page-container">
+
+    <!-- ========================================================
+         1. HERO SECTION
+         ======================================================== -->
+    <section id="heroSection" class="content-section active">
+      <div class="hero-wrapper">
+        <div class="hero-content">
+          <div class="hero-status-pill">
+            <span class="pulse-dot"></span>
+            BLUE LOCK RANK #1 // MASTER STRIKER CANDIDATE
+          </div>
+
+          <h1 class="hero-title">
+            <span class="hero-kanji">糸師 凛</span>
+            <span class="hero-english">ITOSHI RIN</span>
+          </h1>
+
+          <div class="hero-quote-box">
+            <p class="hero-quote-text">
+              «Я не граю заради красивих слів чи визнання. Мій футбол — це витягнути з тебе твою найсильнішу гордість і <em>розчавити її в прах</em>.»
+            </p>
+            <div class="hero-quote-author">// ІТОШІ РІН [ПОТВОРНЕ ЗНИЩЕННЯ]</div>
+          </div>
+
+          <!-- Hero Quick Stats Ribbon -->
+          <div class="hero-ribbon">
+            <div class="ribbon-item">
+              <span class="ribbon-val">240,000,000 ¥</span>
+              <span class="ribbon-lbl">NEL FINAL BID // #1 TIED</span>
+            </div>
+            <div class="ribbon-sep">/</div>
+            <div class="ribbon-item">
+              <span class="ribbon-val">186 CM</span>
+              <span class="ribbon-lbl">HEIGHT</span>
+            </div>
+            <div class="ribbon-sep">/</div>
+            <div class="ribbon-item">
+              <span class="ribbon-val">№ 10</span>
+              <span class="ribbon-lbl">BLUE LOCK 11 / PXG</span>
+            </div>
+          </div>
+
+          <!-- Hero CTAs -->
+          <div class="hero-buttons">
+            <button class="bl-btn bl-btn-primary" data-jump="gameSection">
+              <span>ГРАТИ В МІНІ-ГРУ 2D RAYLIB</span>
+              <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button class="bl-btn bl-btn-secondary" data-jump="quizContainerSection">
+              <span>ПРОЙТИ ЕГО-АУДИТ</span>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+            </button>
+            <button class="bl-btn bl-btn-ghost" data-jump="dossierSection">
+              <span>ДОСЬЄ ГРАВЦЯ</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Hero Visual Showcase -->
+        <div class="hero-visual">
+          <div class="visual-card-wrap">
+            <div class="visual-aura-ring" aria-hidden="true"></div>
+            <div class="visual-frame">
+              <img src="assets/rin_hero_official.webp?v=rin_hero_v2" alt="Itoshi Rin Official Visual" class="hero-rin-portrait">
+              <div class="visual-badge">PRODIGY // EGOIST #1</div>
+              <div class="visual-overlay-scanline"></div>
+              <div class="visual-corner corner-tl"></div>
+              <div class="visual-corner corner-tr"></div>
+              <div class="visual-corner corner-bl"></div>
+              <div class="visual-corner corner-br"></div>
+            </div>
+            <div class="visual-subcard">
+              <div class="subcard-title">«NURUI»</div>
+              <div class="subcard-desc">Все, що менше за абсолютний ризик — це просто тепла вода.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         2. DOSSIER & BIOMETRIC STATS
+         ======================================================== -->
+    <section id="dossierSection" class="content-section">
+      <div class="section-header">
+        <div class="section-tag">// EGOIST BIBLE CANON DATA</div>
+        <h2 class="section-title">ОФІЦІЙНЕ ДОСЬЄ ГРАВЦЯ</h2>
+        <p class="section-desc">Повні верифіковані дані про фізичні параметри, біографію та футбольні атрибути Ітоші Ріна.</p>
+      </div>
+
+      <div class="dossier-grid">
+        <!-- Biometrics Card -->
+        <div class="dossier-card">
+          <div class="dossier-avatar-wrap">
+            <img src="assets/BL_Icon_Rin_Itoshi.jpg" alt="Itoshi Rin Official Icon" class="dossier-avatar">
+            <div class="dossier-avatar-info">
+              <div class="dossier-avatar-name">ІТОШІ РІН [糸師 凛]</div>
+              <div class="dossier-avatar-tag">ID: BL-001 // S-TIER STRIKER</div>
+            </div>
+          </div>
+          <h3 class="card-title">БІОМЕТРИЧНІ ДАНІ</h3>
+          <ul class="data-list">
+            <li>
+              <span class="d-label">Повне ім'я:</span>
+              <span class="d-value">Ітоші Рін • 糸師 凛</span>
+            </li>
+            <li>
+              <span class="d-label">День народження:</span>
+              <span class="d-value">9 вересня • Знак Діва</span>
+            </li>
+            <li>
+              <span class="d-label">Вік:</span>
+              <span class="d-value">16 років, 2-й рік старшої школи</span>
+            </li>
+            <li>
+              <span class="d-label">Зріст / Вага:</span>
+              <span class="d-value">186 см / 70 кг</span>
+            </li>
+            <li>
+              <span class="d-label">Група крові:</span>
+              <span class="d-value">Група A</span>
+            </li>
+            <li>
+              <span class="d-label">Рідне місто:</span>
+              <span class="d-value">Канаґава, Японія</span>
+            </li>
+            <li>
+              <span class="d-label">Родина:</span>
+              <span class="d-value">Старший брат — Сае Ітоші, New Gen 11</span>
+            </li>
+            <li>
+              <span class="d-label">Фінальна ставка в NEL:</span>
+              <span class="d-value">240,000,000 ¥ — Топ-1 разом з Ісагі</span>
+            </li>
+            <li>
+              <span class="d-label">Клубна оферта:</span>
+              <span class="d-value">Re Al / PXG</span>
+            </li>
+            <li>
+              <span class="d-label">Улюблена страва:</span>
+              <span class="d-value">Очадзуке — рис із зеленим чаєм та рибою</span>
+            </li>
+            <li>
+              <span class="d-label">Хобі / Звички:</span>
+              <span class="d-value">Фільми жахів, щоденний стретчинг та йога</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Attributes / Radar Meters -->
+        <div class="dossier-card">
+          <h3 class="card-title">ФУТБОЛЬНІ АТРИБУТИ [PXG SYSTEM]</h3>
+          <div class="stat-meters-list">
+            <div class="stat-row">
+              <div class="stat-meta">
+                <span class="stat-name">Удар і точність</span>
+                <span class="stat-num">98 / 100</span>
+              </div>
+              <div class="stat-track"><div class="stat-bar" style="width: 98%;"></div></div>
+            </div>
+
+            <div class="stat-row">
+              <div class="stat-meta">
+                <span class="stat-name">Футбольний IQ & Бачення поля</span>
+                <span class="stat-num">99 / 100</span>
+              </div>
+              <div class="stat-track"><div class="stat-bar" style="width: 99%;"></div></div>
+            </div>
+
+            <div class="stat-row">
+              <div class="stat-meta">
+                <span class="stat-name">Пас & Підкрутка траєкторії</span>
+                <span class="stat-num">95 / 100</span>
+              </div>
+              <div class="stat-track"><div class="stat-bar" style="width: 95%;"></div></div>
+            </div>
+
+            <div class="stat-row">
+              <div class="stat-meta">
+                <span class="stat-name">Дриблінг & Контроль м'яча</span>
+                <span class="stat-num">90 / 100</span>
+              </div>
+              <div class="stat-track"><div class="stat-bar" style="width: 90%;"></div></div>
+            </div>
+
+            <div class="stat-row">
+              <div class="stat-meta">
+                <span class="stat-name">Швидкість & Стартовий ривок</span>
+                <span class="stat-num">89 / 100</span>
+              </div>
+              <div class="stat-track"><div class="stat-bar" style="width: 89%;"></div></div>
+            </div>
+
+            <div class="stat-row">
+              <div class="stat-meta">
+                <span class="stat-name">Фізична міць & Витривалість</span>
+                <span class="stat-num">88 / 100</span>
+              </div>
+              <div class="stat-track"><div class="stat-bar" style="width: 88%;"></div></div>
+            </div>
+
+            <div class="stat-row">
+              <div class="stat-meta">
+                <span class="stat-name">Захисна позиційна гра</span>
+                <span class="stat-num">87 / 100</span>
+              </div>
+              <div class="stat-track"><div class="stat-bar" style="width: 87%;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         3. WEAPONRY & FLOW STATE
+         ======================================================== -->
+    <section id="weaponsSection" class="content-section">
+      <div class="section-header">
+        <div class="section-tag">// COMBAT & TACTICAL ANALYSIS</div>
+        <h2 class="section-title">АРСЕНАЛ ЗБРОЇ ТА «FLOW»</h2>
+        <p class="section-desc">Еволюція ігрового стилю від холодного контролю до первісного демонічного розпаду. Оберіть будь-яку зброю для детального тактичного аналізу та перегляду канонічних моментів з аніме та манги.</p>
+      </div>
+
+      <div class="weapons-grid">
+        <div class="weapon-card active-weapon" data-weapon-id="curve" role="button" tabindex="0">
+          <div class="weapon-num">WEAPON 01</div>
+          <h3 class="weapon-name">ІДЕАЛЬНА ПІДКРУТКА ТА ДУГА</h3>
+          <p class="weapon-desc">
+            Рін володіє найвищою точністю підкрутки м'яча в Японії. Його удари за параболічними траєкторіями здатні оминати щільні стінки захисників, вражати ворота з «нульових» кутів та підкручуватися прямо з кутового прапорця.
+          </p>
+          <div class="weapon-card-footer">
+            <span class="weapon-badge">PRECISION: S+</span>
+            <span class="weapon-card-action">АНАЛІЗ ТА МОМЕНТИ ▶</span>
+          </div>
+        </div>
+
+        <div class="weapon-card" data-weapon-id="puppet" role="button" tabindex="0">
+          <div class="weapon-num">WEAPON 02</div>
+          <h3 class="weapon-name">МАРІОНЕТКОВИЙ ФУТБОЛ</h3>
+          <p class="weapon-desc">
+            Використання гравців на полі як шахових фігур. Рін прораховує реакцію союзників і суперників, маніпулюючи їхніми очима, кроками й диханням так, аби створити безпомилкову лінію власного розстрільного удару.
+          </p>
+          <div class="weapon-card-footer">
+            <span class="weapon-badge">SPATIAL CONTROL: 99</span>
+            <span class="weapon-card-action">АНАЛІЗ ТА МОМЕНТИ ▶</span>
+          </div>
+        </div>
+
+        <div class="weapon-card flow-special" data-weapon-id="flow" role="button" tabindex="0">
+          <div class="weapon-num">AWAKENED EGO</div>
+          <h3 class="weapon-name">СТАН FLOW: ПОТВОРНЕ ЗНИЩЕННЯ</h3>
+          <p class="weapon-desc">
+            Коли Рін скидає маску брата і входить у стан трансу, його аура стає чорно-бірюзовим виром. Він провокує суперника виявити свою абсолютну найсильнішу рису, щоб у відкритому двобої знищити його саме в його сильній точці.
+          </p>
+          <div class="weapon-card-footer">
+            <span class="weapon-badge badge-crimson">DESTRUCTION: ABSOLUTE</span>
+            <span class="weapon-card-action">АНАЛІЗ ТА МОМЕНТИ ▶</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Detailed Weapon Breakdown & Canonical Moments Container -->
+      <div id="weaponDetailPanel" class="weapon-detail-panel"></div>
+    </section>
+
+    <!-- ========================================================
+         4. TIMELINE & CHRONICLE
+         ======================================================== -->
+    <section id="timelineSection" class="content-section">
+      <div class="section-header">
+        <div class="section-tag">// COMPREHENSIVE LORE CHRONICLE</div>
+        <h2 class="section-title">ХРОНОЛОГІЯ ІТОШІ РІНА</h2>
+        <p class="section-desc">Детальний літопис становлення Ітоші Ріна: від дитячої клятви брату до переродження у найвище оціненого страйкера Японії.</p>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div class="timeline-filters">
+        <button class="t-filter-btn active" data-filter="all">УСЯ ХРОНОЛОГІЯ [11 ЕТАПІВ]</button>
+        <button class="t-filter-btn" data-filter="origins">ВИТОКИ ТА РОЗКОЛ [01–03]</button>
+        <button class="t-filter-btn" data-filter="bluelock">ВІДБІР BLUE LOCK [04–08]</button>
+        <button class="t-filter-btn" data-filter="u20">БИТВА З U-20 [09]</button>
+        <button class="t-filter-btn" data-filter="nel">NEO EGOIST LEAGUE [10–11]</button>
+      </div>
+
+      <div class="timeline-container">
+        <!-- Milestone 01 -->
+        <div class="timeline-item" data-category="origins">
+          <div class="timeline-dot"></div>
+          <div class="timeline-header-meta">
+            <span class="timeline-phase-badge">ЕТАП 01 // ДИТИНСТВО</span>
+            <span class="timeline-arc-tag">СПОГАДИ / ПРОЛОГ</span>
+          </div>
+          <div class="timeline-box">
+            <h4 class="t-heading">Відкриття таланту та дитяча обіцянка під дощем</h4>
+            <p class="t-desc">
+              Рін ріс у тіні слави свого старшого брата Сае, вважаючи його своїм абсолютним кумиром і всесвітом. Під час гри у дворі під проливним дощем Сае помічає, як маленький Рін інтуїтивно б'є по м'ячу в ту єдину мертву зону, де захисник не міг його дістати. Сае каже Ріну: <em>«Ти геній. Ми станемо найкращими у світі: я буду номером один, а ти — моїм номером два»</em>. Рін знаходить сенс свого життя у тому, щоб іти слідами брата.
+            </p>
+            <div class="t-insight-box">
+              <strong>Психологія:</strong> Повна емоційна залежність від Сае. Футбол сприймається виключно як спільна місія двох братів.
+            </div>
+          </div>
+        </div>
+
+        <!-- Milestone 02 -->
+        <div class="timeline-item" data-category="origins">
+          <div class="timeline-dot"></div>
+          <div class="timeline-header-meta">
+            <span class="timeline-phase-badge">ЕТАП 02 // САМОТНІСТЬ</span>
+            <span class="timeline-arc-tag">ПРЕ-BLUE LOCK</span>
+          </div>
+          <div class="timeline-box">
+            <h4 class="t-heading">Від'їзд Сае до Іспанії та самостійний шлях</h4>
+            <p class="t-desc">
+              У віці 13 років Сае запрошують до молодіжної академії іспанського клубу Re Al, і він залишає Японію. Рін залишається вдома сам і розпочинає виснажливі щоденні тренування до кривавих мозолів, аби до моменту повернення Сае бути гідним грати з ним на одному рівні. Рін стає беззаперечною зіркою своєї школи, однак грає за інерцією, чекаючи повернення брата.
+            </p>
+            <div class="t-insight-box">
+              <strong>Психологія:</strong> Накопичення ізоляції та кристалізація залізної дисципліни перед сном — стретчинг та витривалість.
+            </div>
+          </div>
+        </div>
+
+        <!-- Milestone 03 -->
+        <div class="timeline-item" data-category="origins">
+          <div class="timeline-dot"></div>
+          <div class="timeline-header-meta">
+            <span class="timeline-phase-badge">ЕТАП 03 // ЗРАДА</span>
+            <span class="timeline-arc-tag">ЗИМОВИЙ СНІГ / ПЕРЕЛОМ</span>
+          </div>
+          <div class="timeline-box">
+            <h4 class="t-heading">Зимовий сніг: Крах спільної мрії та розкол братів</h4>
+            <p class="t-desc">
+              Сае повертається з Іспанії спустошеним та холодним. На засніженому полі він скидає ментальну бомбу: <em>«У світовому футболі нападники — це монстри, яких мені не перевершити. Я вирішив стати найкращим плеймейкером/півзахисником. А ти тепер мусиш стати страйкером №1 замість мене»</em>. Рін у розпачі кричить, що грав лише заради брата. Сае вщент розбиває Ріна в дуелі 1-на-1, називає його слабаком і кидає фірмове: <em>«Nurui — тепла вода. Якщо не можеш грати сам — просто кидай футбол»</em>. З цього моменту любов Ріна до брата мутує у чисту лють і жагу помсти.
+            </p>
+            <div class="t-insight-box">
+              <strong>Психологія:</strong> Народження травми. Футбол стає персональною зброєю для знищення Сае та доведення власної цінності.
+            </div>
+          </div>
+        </div>
+
+        <!-- Milestone 04: First Selection & 100-Goal Challenge -->
+        <div class="timeline-item" data-category="bluelock">
+          <div class="timeline-dot"></div>
+          <div class="timeline-header-meta">
+            <span class="timeline-phase-badge">ЕТАП 04 // 1ST SELECTION</span>
+            <span class="timeline-arc-tag">ПЕРШИЙ ВІДБІР / РОЗДІЛИ 1–43</span>
+            <span class="timeline-score-chip">TOP SCORER // RANK #1 CANDIDATE</span>
+          </div>
+          <div class="timeline-box">
+            <h4 class="t-heading">Вхід у Blue Lock: Безжальний Перший відбір та випробування 100 голів</h4>
+            <p class="t-desc">
+              Отримавши запрошення від Дзінпачі Еґо, Рін заходить у двері Blue Lock з єдиною метою — знищити світовий футбол і помститися братові Сае. Під час Першого відбору 300 нападників змагаються у круговому турнірі всередині окремих стратумів. Рін виступає в іншому корпусі й повністю розносить опонентів: забиває голи будь-якої складності, перетворюючи гру на сольний виступ і вважаючи зусилля суперників банальною теплою водою. Ставши беззаперечним найкращим бомбардиром свого стратуму, Рін першим серед 125 уцілілих гравців заходить у кімнату випробування 100 голів проти штучного інтелекту Blue Lock Man. Він розстрілює голографічного воротаря з рекордною швидкістю і точністю та офіційно отримує форму з номером 1 усього комплексу Blue Lock.
+            </p>
+            <div class="t-insight-box">
+              <strong>Статус:</strong> Безапеляційний номер один проєкту перед початком командних дуелей 3v3.
+            </div>
+          </div>
+        </div>
+
+        <!-- Milestone 05: 2nd Selection Trio & 5:2 Win -->
+        <div class="timeline-item" data-category="bluelock">
+          <div class="timeline-dot"></div>
+          <div class="timeline-header-meta">
+            <span class="timeline-phase-badge">ЕТАП 05 // 2ND SELECTION</span>
+            <span class="timeline-arc-tag">ДРУГИЙ ЕТАП / РОЗДІЛИ 44–55</span>
+            <span class="timeline-score-chip">TEAM RIN 5 : 2 TEAM ISAGI</span>
+          </div>
+          <div class="timeline-box">
+            <h4 class="t-heading">Дебют Рангу №1: Початок дуелей та розгром команди Ісагі</h4>
+            <p class="t-desc">
+              Отримавши статус найсильнішого егоїста Blue Lock, Рін першим чекає на суперників у кімнаті 3v3. До нього приєднуються Джюбей Арію під номером 2 та Аоші Токіміцу під номером 3. Коли трійка Ісагі, Наґі та Бачіри кидає їм зухвалий виклик, Рін демонструє потойбічний рівень футболу: забиває прямим кутовим ударом із неймовірною траєкторією та вщент розбиває команду суперників 5:2. За правом переможця Рін забирає Бачіру Меґуру до своєї четвірки.
+            </p>
+            <div class="t-insight-box">
+              <strong>Тактика:</strong> Демонстрація «Маріонеткового футболу» — Рін бачить кожен рух суперників на 3 кроки вперед.
+            </div>
+          </div>
+        </div>
+
+        <!-- Milestone 06: Grand Rematch 4v4 -->
+        <div class="timeline-item" data-category="bluelock">
+          <div class="timeline-dot"></div>
+          <div class="timeline-header-meta">
+            <span class="timeline-phase-badge">ЕТАП 06 // ВЕЛИКИЙ РЕВАНШ</span>
+            <span class="timeline-arc-tag">ДРУГИЙ ЕТАП / РОЗДІЛИ 70–85</span>
+            <span class="timeline-score-chip">TEAM RIN 5 : 4 TEAM ISAGI</span>
+          </div>
+          <div class="timeline-box">
+            <h4 class="t-heading">Битва 4v4: Тактичний глухий кут і психологічна поразка</h4>
+            <p class="t-desc">
+              Один із найвеличніших матчів у Blue Lock: четвірка Ріна проти команди Ісагі, Наґі, Баро та Чіґірі. Ісагі починає адаптуватися до темпу Ріна і вперше передбачає його маневри. Хоча Рін забиває вирішальний п'ятий гол завдяки вдалому відскоку після ривка Бачіри з підсумковим рахунком 5:4, він вважає це власною поразкою — адже в останньому епізоді саме Ісагі прочитав політ м'яча швидше за нього. Розлючений Рін обирає Ісагі до фінальної п'ятірки не як соратника, а як заклятого ворога, якого він поклявся перевершити.
+            </p>
+            <div class="t-insight-box">
+              <strong>Психологія:</strong> Зародження доленосного суперництва з Ісагі Йоічі.
+            </div>
+          </div>
+        </div>
+
+        <!-- Milestone 07: World Five -->
+        <div class="timeline-item" data-category="bluelock">
+          <div class="timeline-dot"></div>
+          <div class="timeline-header-meta">
+            <span class="timeline-phase-badge">ЕТАП 07 // ЗІТКНЕННЯ ЗІ СВІТОМ</span>
+            <span class="timeline-arc-tag">WORLD FIVE / РОЗДІЛИ 88–93</span>
+            <span class="timeline-score-chip">WORLD 5 // 5 : 1 // TEAM RIN</span>
+          </div>
+          <div class="timeline-box">
+            <h4 class="t-heading">Матч проти World Five: Урок від світової еліти</h4>
+            <p class="t-desc">
+              Сформована п'ятірка лідерів виходить на екзаменаційний матч проти 5 світових топ-профі: Леонардо Луна, Адам Блейк, Пабло Кавасос, Дада Сілва, Жульєн Локі. Рін відкриває рахунок неймовірним дальнім ударом, шокувавши профі. Проте після цього World Five вмикають справжню силу і громлять юнаків 5:1. Цей матч підтверджує слова Сае: світ футболу сповнений безжальних монстрів.
+            </p>
+            <div class="t-insight-box">
+              <strong>Висновки:</strong> Рін усвідомлює межу своєї поточної сили і починає шукати способи якісного прориву власного его.
+            </div>
+          </div>
+        </div>
+
+        <!-- Milestone 08: 3rd Selection -->
+        <div class="timeline-item" data-category="bluelock">
+          <div class="timeline-dot"></div>
+          <div class="timeline-header-meta">
+            <span class="timeline-phase-badge">ЕТАП 08 // 3RD SELECTION</span>
+            <span class="timeline-arc-tag">ТРЕТІЙ ВІДБІР / РОЗДІЛИ 95–108</span>
+          </div>
+          <div class="timeline-box">
+            <h4 class="t-heading">Конфлікт із Шідо Рюсеєм та футболка №10 у Blue Lock 11</h4>
+            <p class="t-desc">
+              У процесі відбору на історичний матч проти збірної U-20 Рін очолює команду A разом із диким форвардом Шідо Рюсеєм. Їхні футбольні філософії виявляються діаметрально протилежними: холодний розрахунок Ріна конфліктує з хаотичним інстинктом Шідо, що призводить до регулярних бійок. Попри це, Дзінпачі Еґо оголошує Ріна капітаном Blue Lock Eleven і вручає йому священну футболку «десятки».
+            </p>
+            <div class="t-insight-box">
+              <strong>Статус:</strong> Офіційний лідер і головна ударна сила японського революційного футболу.
+            </div>
+          </div>
+        </div>
+
+        <!-- Milestone 09: U-20 Match -->
+        <div class="timeline-item" data-category="u20">
+          <div class="timeline-dot"></div>
+          <div class="timeline-header-meta">
+            <span class="timeline-phase-badge">ЕТАП 09 // ВЕЛИКА БИТВА U-20</span>
+            <span class="timeline-arc-tag">BLUE LOCK 11 VS U-20 / РОЗДІЛИ 113–148</span>
+            <span class="timeline-score-chip">BLUE LOCK 11 // 4 : 3 // U-20</span>
+          </div>
+          <div class="timeline-box">
+            <h4 class="t-heading">Пробудження Flow руйнування та післяматчева трагедія</h4>
+            <p class="t-desc">
+              Історичний матч усього проєкту. Рін грає проти збірної Японії, за яку виступає його брат Сае разом із Шідо. У першому таймі Рін забиває шедевральний гол через частокіл захисту Айку. У кульмінації другого тайму Рін скидає маску стилю брата і входить у стан первісного Flow — «Потворного знищення»: з висунутим язиком він самотужки зупиняє атаку Сае, вибиваючи м'яч у двобої 1-на-1. Але після перемоги 4:3 Сае проходить повз Ріна і публічно заявляє пресі: <em>«В японського футболу є надія... його звуть Ісагі Йоічі»</em>. Це завдає Ріну нищівної психологічної рани, перетворюючи його прагнення на абсолютну темряву.
+            </p>
+            <div class="t-insight-box">
+              <strong>Перелом:</strong> Рін усвідомлює, що навіть перемігши брата на полі, він програв у боротьбі за його визнання Ісагі.
+            </div>
+          </div>
+        </div>
+
+        <!-- Milestone 10: NEL Era -->
+        <div class="timeline-item" data-category="nel">
+          <div class="timeline-dot"></div>
+          <div class="timeline-header-meta">
+            <span class="timeline-phase-badge">ЕТАП 10 // NEO EGOIST LEAGUE</span>
+            <span class="timeline-arc-tag">PARIS X GEN / РОЗДІЛИ 155–250</span>
+            <span class="timeline-score-chip">AUCTION BID: 198,000,000 ¥</span>
+          </div>
+          <div class="timeline-box">
+            <h4 class="t-heading">Французька еволюція: Система PXG та хет-трик Manshine City</h4>
+            <p class="t-desc">
+              Рін обирає французький клуб Paris X Gen під керівництвом Жульєна Локі. Через взаємну неприязнь Ріна та Шідо Локі запроваджує революційну тактичну схему «Double Star»: почергове чергування методичної системи Ріна та інстинктивної системи Шідо за підтримки молодого плеймейкера Чарльза Шевальє. У першому матчі проти Ubers Рін робить дубль зі ставкою 36 млн ¥, а проти Manshine City оформлює історичний сольний хет-трик, піднявши свою ставку до 198 млн єн.
+            </p>
+            <div class="t-insight-box">
+              <strong>Стиль:</strong> Поєднання досконалої геометрії пасів з вибуховими ривками в атакувальні коридори.
+            </div>
+          </div>
+        </div>
+
+        <!-- Milestone 11: Absolute Apex -->
+        <div class="timeline-item" data-category="nel">
+          <div class="timeline-dot"></div>
+          <div class="timeline-header-meta">
+            <span class="timeline-phase-badge">ЕТАП 11 // АБСОЛЮТНА ВЕРШИНА</span>
+            <span class="timeline-arc-tag">ФІНАЛ NEL / РОЗДІЛИ 250–280+</span>
+            <span class="timeline-score-chip">FINAL BID: 240,000,000 ¥</span>
+          </div>
+          <div class="timeline-box">
+            <h4 class="t-heading">Фінал століття проти Bastard München, Берсерк-Flow та Оферта Re Al</h4>
+            <p class="t-desc">
+              Фінальний бій за титул королів Neo Egoist League між PXG та Bastard München. Рін стикається у прямій дуелі з Ісагі та Міхаелем Кайзером. У розпал матчу Рін робить останній ментальний прорив: він остаточно викидає з голови визнання Сае. Його справжнє, автентичне его полягає в тому, щоб жити заради знищення сильних світу сього, і головною мішенню стає саме Ісагі. Рін входить у стан неконтрольованого Берсерк-Flow і забиває фантастичний м'яч на 2:2. Попри поразку PXG 2:3, Рін завершує NEL з рекордною оцінкою у 240 000 000 ¥ — розділивши перше місце з Ісагі, та отримує офіційну пропозицію від королівського клубу Re Al!
+            </p>
+            <div class="t-insight-box">
+              <strong>Апогей:</strong> Повне переродження з «молодшого брата Сае» у самодостатнього футбольного хижака найвищого світового калібру.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         5. VISUAL GALLERY (CURATED AESTHETICS & INTERACTIVE MOMENTS)
+         ======================================================== -->
+    <section id="gallerySection" class="content-section">
+      <div class="section-header">
+        <div class="section-tag">// ARCHIVAL MEDIA & INTERACTIVE MOMENTS</div>
+        <h2 class="section-title">ГАЛЕРЕЯ</h2>
+      </div>
+
+      <div class="gallery-grid">
+        <!-- Moment 0: Клятва під дощем: Брати Ітоші -->
+        <div class="gallery-card interactive-moment" data-moment-index="0">
+          <div class="card-media-box">
+            <img src="assets/rin_resolve_football.webp" alt="Клятва під дощем: Брати Ітоші" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">ORIGINS & DUALITY</span>
+              <span class="card-ch-badge">CH. 124</span>
+            </div>
+            <div class="card-title-sm">Клятва під дощем: Брати Ітоші</div>
+            <div class="card-hint-sub">«Ти геній, Ріне» • Спільна мрія дитинства</div>
+          </div>
+        </div>
+
+        <!-- Moment 1: Зимовий розкол: Зрада Сае під снігом -->
+        <div class="gallery-card interactive-moment" data-moment-index="1">
+          <div class="card-media-box">
+            <img src="assets/rin_sae_snow_duel.webp" alt="Зимовий розкол: Зрада Сае під снігом" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">WINTER SHATTER</span>
+              <span class="card-ch-badge">CH. 125 / EP. 23</span>
+            </div>
+            <div class="card-title-sm">Зимовий розкол: Зрада Сае під снігом</div>
+            <div class="card-hint-sub">«Кидай футбол» • Народження люті та помсти</div>
+          </div>
+        </div>
+
+        <!-- Moment 2: Вхід першим: Кімната 100 голів -->
+        <div class="gallery-card interactive-moment" data-moment-index="2">
+          <div class="card-media-box">
+            <img src="assets/rin_going_first.webp" alt="Вхід першим: Кімната 100 голів" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">2ND SELECTION GATE</span>
+              <span class="card-ch-badge">CH. 43 / EP. 11</span>
+            </div>
+            <div class="card-title-sm">Вхід першим: Кімната 100 голів</div>
+            <div class="card-hint-sub">Ранг №1 серед 125 форвардів Blue Lock</div>
+          </div>
+        </div>
+
+        <!-- Moment 3: Поле битви: Холодний вирок Ісагі -->
+        <div class="gallery-card interactive-moment" data-moment-index="3">
+          <div class="card-media-box">
+            <img src="assets/rin_battlefield_c45.webp" alt="Поле битви: Холодний вирок Ісагі" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">EGO MANIFESTO</span>
+              <span class="card-ch-badge">CH. 45 / EP. 12</span>
+            </div>
+            <div class="card-title-sm">Поле битви: Холодний вирок Ісагі</div>
+            <div class="card-hint-sub">«Футбол — це війна за життя, а не забавка»</div>
+          </div>
+        </div>
+
+        <!-- Moment 4: Альянс Верхівки: Рін, Арію та Токіміцу -->
+        <div class="gallery-card interactive-moment" data-moment-index="4">
+          <div class="card-media-box">
+            <img src="assets/rin_top3_team.webp" alt="Альянс Верхівки: Рін, Арію та Токіміцу" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">TOP THREE ALLIANCE</span>
+              <span class="card-ch-badge">CH. 44 / EP. 12</span>
+            </div>
+            <div class="card-title-sm">Альянс Верхівки: Рін, Арію та Токіміцу</div>
+            <div class="card-hint-sub">Тріо №1, №2 та №3 • Неприступна фортеця</div>
+          </div>
+        </div>
+
+        <!-- Moment 5: Шедевр з кутового: Сухий лист -->
+        <div class="gallery-card interactive-moment" data-moment-index="5">
+          <div class="card-media-box">
+            <img src="assets/rin_corner_goal_anim.webp" alt="Шедевр з кутового: Сухий лист" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">PINPOINT CURVE</span>
+              <span class="card-ch-badge">CH. 47 / EP. 12</span>
+            </div>
+            <div class="card-title-sm">Шедевр з кутового: Сухий лист</div>
+            <div class="card-hint-sub">Прямий підкручений удар у дальню дев'ятку</div>
+          </div>
+        </div>
+
+        <!-- Moment 6: За правом сильного: Вибір Бачіри -->
+        <div class="gallery-card interactive-moment" data-moment-index="6">
+          <div class="card-media-box">
+            <img src="assets/rin_takes_bachira.webp" alt="За правом сильного: Вибір Бачіри" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">DRAFT PICK</span>
+              <span class="card-ch-badge">CH. 49 / EP. 13</span>
+            </div>
+            <div class="card-title-sm">За правом сильного: Вибір Бачіри</div>
+            <div class="card-hint-sub">Конфіскація дриблера • Розрив дуету з Ісагі</div>
+          </div>
+        </div>
+
+        <!-- Moment 7: Вертикальний топ-спін: Пікіруючий удар -->
+        <div class="gallery-card interactive-moment" data-moment-index="7">
+          <div class="card-media-box">
+            <img src="assets/rin_vertical_spin.webp" alt="Вертикальний топ-спін: Пікіруючий удар" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">BALLISTIC ARC</span>
+              <span class="card-ch-badge">CH. 76</span>
+            </div>
+            <div class="card-title-sm">Вертикальний топ-спін: Пікіруючий удар</div>
+            <div class="card-hint-sub">Прямий вертикальний оберт над захистом</div>
+          </div>
+        </div>
+
+        <!-- Moment 8: Реванш 4v4: Переможний відскок на 5:4 -->
+        <div class="gallery-card interactive-moment" data-moment-index="8">
+          <div class="card-media-box">
+            <img src="assets/rin_winning_goal_rematch.webp" alt="Реванш 4v4: Переможний відскок на 5:4" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">FATAL REBOUND</span>
+              <span class="card-ch-badge">CH. 84–85 / EP. 23</span>
+            </div>
+            <div class="card-title-sm">Реванш 4v4: Переможний відскок на 5:4</div>
+            <div class="card-hint-sub">Сліпий фатум • Оголошення Ісагі заклятим ворогом</div>
+          </div>
+        </div>
+
+        <!-- Moment 9: Залізна дисципліна: Щоденна йога Ріна -->
+        <div class="gallery-card interactive-moment" data-moment-index="9">
+          <div class="card-media-box">
+            <img src="assets/rin_yoga_routine.webp" alt="Залізна дисципліна: Щоденна йога Ріна" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">IRON DISCIPLINE</span>
+              <span class="card-ch-badge">EP. 24</span>
+            </div>
+            <div class="card-title-sm">Залізна дисципліна: Щоденна йога Ріна</div>
+            <div class="card-hint-sub">Стретчинг та баланс тіла перед сном</div>
+          </div>
+        </div>
+
+        <!-- Moment 10: Війна его: Рін проти Шідо Рюсея -->
+        <div class="gallery-card interactive-moment" data-moment-index="10">
+          <div class="card-media-box">
+            <img src="assets/rin_vs_shido_clash.webp" alt="Війна его: Рін проти Шідо Рюсея" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">RIN VS SHIDO</span>
+              <span class="card-ch-badge">CH. 97–100</span>
+            </div>
+            <div class="card-title-sm">Війна его: Рін проти Шідо Рюсея</div>
+            <div class="card-hint-sub">Розрахунок проти Інстинкту • Бійка в Команді A</div>
+          </div>
+        </div>
+
+        <!-- Moment 11: Капітан Blue Lock 11: Футболка №10 -->
+        <div class="gallery-card interactive-moment" data-moment-index="11">
+          <div class="card-media-box">
+            <img src="assets/rin_bl11_captain.webp" alt="Капітан Blue Lock 11: Футболка №10" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">CAPTAIN #10</span>
+              <span class="card-ch-badge">CH. 108</span>
+            </div>
+            <div class="card-title-sm">Капітан Blue Lock 11: Футболка №10</div>
+            <div class="card-hint-sub">Центральна вісь атаки проти збірної Японії</div>
+          </div>
+        </div>
+
+        <!-- Moment 12: Крижаний погляд: Зустріч братів у тунелі -->
+        <div class="gallery-card interactive-moment" data-moment-index="12">
+          <div class="card-media-box">
+            <img src="assets/rin_sae_tunnel.webp" alt="Крижаний погляд: Зустріч братів у тунелі" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">PRE-MATCH TUNNEL</span>
+              <span class="card-ch-badge">CH. 112</span>
+            </div>
+            <div class="card-title-sm">Крижаний погляд: Зустріч братів у тунелі</div>
+            <div class="card-hint-sub">Німа дуель поглядів перед 60 000 глядачів</div>
+          </div>
+        </div>
+
+        <!-- Moment 13: Гол крізь мур: Удар повз Айку -->
+        <div class="gallery-card interactive-moment" data-moment-index="13">
+          <div class="card-media-box">
+            <img src="assets/rin_u20_goal2.webp" alt="Гол крізь мур: Удар повз Айку" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">U-20 CLASH GOAL</span>
+              <span class="card-ch-badge">CH. 120</span>
+            </div>
+            <div class="card-title-sm">Гол крізь мур: Удар повз Айку</div>
+            <div class="card-hint-sub">Шедевральна дуга в кут воріт збірної U-20</div>
+          </div>
+        </div>
+
+        <!-- Moment 14: Пробудження Flow: Потворне руйнування -->
+        <div class="gallery-card interactive-moment" data-moment-index="14">
+          <div class="card-media-box">
+            <img src="assets/rin_destroyer_flow.webp" alt="Пробудження Flow: Потворне руйнування" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">BERSERKER FLOW</span>
+              <span class="card-ch-badge">CH. 146–148</span>
+            </div>
+            <div class="card-title-sm">Пробудження Flow: Потворне руйнування</div>
+            <div class="card-hint-sub">Висунутий язик • Знищення сильних сторін опонентів</div>
+          </div>
+        </div>
+
+        <!-- Moment 15: Дебют у PXG: Розгром системи Ubers -->
+        <div class="gallery-card interactive-moment" data-moment-index="15">
+          <div class="card-media-box">
+            <img src="assets/rin_pxg_ubers_goal.webp" alt="Дебют у PXG: Розгром системи Ubers" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">PARIS X GEN</span>
+              <span class="card-ch-badge">CH. 239</span>
+            </div>
+            <div class="card-title-sm">Дебют у PXG: Розгром системи Ubers</div>
+            <div class="card-hint-sub">Хірургічний гол за пас Чарльза Шевальє</div>
+          </div>
+        </div>
+
+        <!-- Moment 16: Вершина ліги: 240 млн ¥ та оферта Re Al -->
+        <div class="gallery-card interactive-moment" data-moment-index="16">
+          <div class="card-media-box">
+            <img src="assets/rin_gallery_apex_240m.webp?v=apex_face_centered" alt="Вершина ліги: 240 млн ¥ та оферта Re Al" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">NEL ERA APEX #1</span>
+              <span class="card-ch-badge">CH. 280+</span>
+            </div>
+            <div class="card-title-sm">Вершина ліги: 240 млн ¥ та оферта Re Al</div>
+            <div class="card-hint-sub">Топ-1 разом з Ісагі • Запрошення в Реал Мадрид</div>
+          </div>
+        </div>
+
+        <!-- Moment 17: Штрафний удар над стінкою у дев'ятку -->
+        <div class="gallery-card interactive-moment" data-moment-index="17">
+          <div class="card-media-box">
+            <img src="assets/rin_goal_team_red.webp" alt="Штрафний удар над стінкою у дев'ятку" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">MAGNUS FREE KICK</span>
+              <span class="card-ch-badge">CH. 78 // EP. 21</span>
+            </div>
+            <div class="card-title-sm">Штрафний удар над стінкою у дев'ятку</div>
+            <div class="card-hint-sub">Закручений постріл у міліметрі над головами стінки</div>
+          </div>
+        </div>
+
+        <!-- Moment 18: Перехоплення на випередження: Блок комбінації Ісагі -->
+        <div class="gallery-card interactive-moment" data-moment-index="18">
+          <div class="card-media-box">
+            <img src="assets/rin_stops_isagi.webp" alt="Перехоплення на випередження: Блок комбінації Ісагі" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">SPATIAL CHECKMATE</span>
+              <span class="card-ch-badge">CH. 81 // EP. 22</span>
+            </div>
+            <div class="card-title-sm">Перехоплення у сліпій зоні Ісагі</div>
+            <div class="card-hint-sub">Читання гри на чотири кроки попереду</div>
+          </div>
+        </div>
+
+        <!-- Moment 19: Пробудження Хижака: Око Руйнування -->
+        <div class="gallery-card interactive-moment" data-moment-index="19">
+          <div class="card-media-box">
+            <img src="assets/rin_predator_eye.webp" alt="Пробудження Хижака: Око Руйнування" class="gallery-img" decoding="async">
+            <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
+          </div>
+          <div class="card-info">
+            <div class="card-top-meta">
+              <span class="card-tag">DESTROYER INSTINCT</span>
+              <span class="card-ch-badge">CH. 146</span>
+            </div>
+            <div class="card-title-sm">Око Руйнування: Повний транс</div>
+            <div class="card-hint-sub">Чистий первісний інстинкт на полі U-20</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         MODAL / LIGHTBOX DIALOG FOR GALLERY MOMENTS
+         ======================================================== -->
+    <div id="galleryModal" class="gallery-modal" aria-hidden="true">
+      <div class="gallery-modal-backdrop" id="modalBackdrop"></div>
+      <div class="gallery-modal-dialog">
+        <button id="closeModalBtn" class="modal-close-btn" title="Закрити">✕</button>
+        
+        <div class="modal-layout-grid">
+          <!-- Left: Big Media Showcase -->
+          <div class="modal-media-col">
+            <div class="modal-media-frame">
+              <img id="modalImg" src="" alt="Moment Artwork" class="modal-artwork-img">
+              <div id="modalBadge" class="modal-frame-badge">FLOW STATE // U-20</div>
+              <div class="visual-corner corner-tl"></div>
+              <div class="visual-corner corner-tr"></div>
+              <div class="visual-corner corner-bl"></div>
+              <div class="visual-corner corner-br"></div>
+            </div>
+            <div class="modal-nav-toolbar">
+              <button id="prevMomentBtn" class="modal-btn-step">◀ ПОПЕРЕДНІЙ</button>
+              <div id="momentCounterText" class="moment-counter-indicator">01 / 20</div>
+              <button id="nextMomentBtn" class="modal-btn-step">НАСТУПНИЙ ▶</button>
+            </div>
+          </div>
+
+          <!-- Right: Lore Breakdown & Tactical Depth -->
+          <div class="modal-details-col">
+            <div class="modal-header-meta">
+              <span id="modalCanonTag" class="canon-tag-pill">МАТЧ U-20 // РОЗДІЛИ 146–148</span>
+              <span id="modalEgoBadge" class="ego-badge-pill">ORIGINAL EGO</span>
+            </div>
+
+            <h3 id="modalTitle" class="modal-event-title">Пробудження Flow: Потворне руйнування</h3>
+
+            <div class="modal-quote-container">
+              <p id="modalQuoteText" class="modal-quote-phrase">«Я витягну з тебе все найкраще і розтопчу перед твоїми очима!»</p>
+              <span id="modalQuoteContext" class="modal-quote-source">// Момент скидання маски Сае</span>
+            </div>
+
+            <div class="modal-narrative-section">
+              <h4 class="modal-sub-label">СУТЬ ТА ХІД ПОДІЇ В АНІМЕ / МАНЗІ:</h4>
+              <p id="modalEventNarrative" class="modal-body-desc"></p>
+            </div>
+
+            <div class="modal-narrative-section">
+              <h4 class="modal-sub-label">ТАКТИЧНИЙ ТА МЕНТАЛЬНИЙ ВПЛИВ:</h4>
+              <p id="modalTacticalImpact" class="modal-body-desc"></p>
+            </div>
+
+            <div class="modal-chips-row">
+              <div class="param-chip">
+                <span class="chip-k">ЕГО-СТАТУС:</span>
+                <span id="modalChipEgo" class="chip-v">BERSERKER FLOW</span>
+              </div>
+              <div class="param-chip">
+                <span class="chip-k">ГОЛОВНИЙ СУПЕРНИК:</span>
+                <span id="modalChipRival" class="chip-v">САЕ ІТОШІ / АЙКУ</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================
+         6. 2D TACTICAL BALLISTICS & FLOW SIMULATOR
+         ======================================================== -->
+    <section id="gameSection" class="content-section">
+      <div class="section-header">
+        <div class="section-tag">// BL-11 SPATIAL VISION & MAGNUS BALLISTICS</div>
+        <h2 class="section-title">2D АРЕНА: ITOSHI RIN FLOW SHOT</h2>
+        <p class="section-desc">
+          Розрахуйте балістичну дугу Магнуса, проведіть м'яч крізь зони маріонеток або над стінкою захисників та розкрийте руйнівний режим Flow.
+        </p>
+      </div>
+
+      <div class="game-wrapper">
+        <!-- Mode / Scenario Selector -->
+        <div class="game-scenarios-bar" role="tablist" aria-label="Сценарії гри">
+          <button class="scenario-pill active" data-scenario="0" role="tab" aria-selected="true">
+            <span class="sc-code">STAGE 01</span>
+            <span class="sc-name">Сухий лист з кута</span>
+          </button>
+          <button class="scenario-pill" data-scenario="1" role="tab" aria-selected="false">
+            <span class="sc-code">STAGE 02</span>
+            <span class="sc-name">Штрафний над стінкою</span>
+          </button>
+          <button class="scenario-pill" data-scenario="2" role="tab" aria-selected="false">
+            <span class="sc-code">STAGE 03</span>
+            <span class="sc-name">Маріонетка 4v4</span>
+          </button>
+          <button class="scenario-pill" data-scenario="3" role="tab" aria-selected="false">
+            <span class="sc-code">STAGE 04</span>
+            <span class="sc-name">Пробудження Flow U-20</span>
+          </button>
+          <button class="scenario-pill is-endless" data-scenario="4" role="tab" aria-selected="false">
+            <span class="sc-code">ENDLESS</span>
+            <span class="sc-name">Берсерк-аркада</span>
+          </button>
+        </div>
+
+        <!-- Live Telemetry HUD Strip -->
+        <div class="game-telemetry-hud">
+          <div class="hud-stat-chip">
+            <span class="chip-label">РАХУНОК</span>
+            <strong id="hudScoreVal" class="chip-number">0</strong>
+          </div>
+          <div class="hud-stat-chip">
+            <span class="chip-label">СЕРІЯ ГОЛІВ</span>
+            <strong id="hudStreakVal" class="chip-number">0x</strong>
+          </div>
+          <div class="hud-stat-chip">
+            <span class="chip-label">РЕКОРД</span>
+            <strong id="hudBestVal" class="chip-number">0</strong>
+          </div>
+          <div class="hud-flow-meter-wrap">
+            <div class="flow-meter-meta">
+              <span class="chip-label">ЗАРЯД DESTROYER FLOW</span>
+              <strong id="hudFlowPct" class="chip-number flow-pct-text">50%</strong>
+            </div>
+            <div class="flow-meter-track">
+              <div id="hudFlowFill" class="flow-meter-fill" style="width: 50%;"></div>
+            </div>
+          </div>
+          <div class="hud-shot-meta">
+            <span class="chip-label">СИЛА / ПІДКРУТКА</span>
+            <strong id="hudPowerAngle" class="chip-number">ОЧІКУВАННЯ УДАРУ</strong>
+          </div>
+        </div>
+
+        <div id="gameScenarioBrief" class="game-scenario-brief">
+          STAGE 01 // Закрутіть м'яч від кута у дальню дев'ятку повз воротаря Blue Lock Man
+        </div>
+
+        <!-- Live Game Canvas -->
+        <div class="canvas-container" id="gameCanvasWrap">
+          <canvas id="gameCanvas" width="920" height="580"></canvas>
+          <div id="gameOverlayText" class="game-overlay-hint">
+            ВІДТЯГНІТЬ М'ЯЧ НАЗАД ДЛЯ ПРИЦІЛУ ТА СИЛИ УДАРУ
+          </div>
+        </div>
+
+        <!-- On-Screen Controls & Info Bar -->
+        <div class="game-control-deck">
+          <div class="deck-cluster deck-spin-cluster">
+            <div class="cluster-header-row">
+              <span class="cluster-title">РЕГУЛЮВАННЯ ПІДКРУТКИ МАГНУСА</span>
+              <div id="spinMeterDisplay" class="spin-val-badge">0 RPM</div>
+            </div>
+            <div class="spin-slider-row">
+              <span class="spin-dir-tag">ЛІВО</span>
+              <input id="spinRangeSlider" class="spin-range-input" type="range" min="-100" max="100" step="2" value="0" aria-label="Рівень підкрутки м'яча">
+              <span class="spin-dir-tag">ПРАВО</span>
+            </div>
+            <div class="spin-controls">
+              <button id="spinLeftBtn" class="spin-btn">◀ ЛІВІШЕ [A / Q]</button>
+              <button id="spinZeroBtn" class="spin-btn spin-reset-btn">0° ПРЯМИЙ</button>
+              <button id="spinRightBtn" class="spin-btn">ПРАВІШЕ [D / E] ▶</button>
+            </div>
+          </div>
+
+          <div class="deck-cluster deck-actions-cluster">
+            <div class="cluster-title">ТАКТИЧНИЙ ТРИГЕР FLOW</div>
+            <div class="deck-action-buttons">
+              <button id="triggerFlowBtn" class="flow-trigger-btn">
+                АКТИВУВАТИ FLOW [ПРОБІЛ / F]
+              </button>
+              <button id="resetShotBtn" class="spin-btn reset-round-btn" title="Оновити позицію [R]">
+                ↺ НОВИЙ ПОСТРІЛ [R]
+              </button>
+            </div>
+            <div class="game-micro-legend">
+              <span>🎯 Перетягніть м'яч або доторкніться до поля</span>
+              <span>•</span>
+              <span>🌀 Коліщатко миші регулює дугу</span>
+              <span>•</span>
+              <span>🔥 Дев'ятка та маріонеткові ворота подвоюють очки</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         7. EGO-AUDIT (QUIZ SECTION INTEGRATED)
+         ======================================================== -->
+    <section id="quizContainerSection" class="content-section">
+      <div class="section-header">
+        <div class="section-tag">// COMPREHENSIVE KNOWLEDGE AUDIT</div>
+        <h2 class="section-title">ЕГО-АУДИТ ІТОШІ РІНА // 16 ПИТАНЬ</h2>
+        <p class="section-desc">16 запитань різної складності у 4 тематичних блоках. Перевір, чи твоє мислення не "тепла вода".</p>
+      </div>
+
+      <!-- 7.1 Quiz Screen: Active Card -->
+      <div class="quiz-card-wrapper">
+        <!-- Intro Screen Inside Section -->
+        <div id="quizIntroSubScreen" class="quiz-subscreen active">
+          <div class="quiz-intro-box">
+            <h3 class="q-intro-title">ВІДБІР НА КАНДИДАТА S-РАНГУ</h3>
+            <p class="q-intro-text">
+              Тест охоплює офіційний гайдбук <em>Egoist Bible</em>, матчі Другого відбору, битву проти молодіжної збірної U-20 та події французької команди PXG у <em>Neo Egoist League</em>.
+            </p>
+            <button id="startEmbeddedQuizBtn" class="bl-btn bl-btn-primary">
+              <span>РОЗПОЧАТИ ТЕСТУВАННЯ</span>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quiz Question Screen -->
+        <div id="quizActiveSubScreen" class="quiz-subscreen">
+          <div class="quiz-hud">
+            <div class="hud-meta">
+              <span id="currentBlockBadge" class="block-indicator">БЛОК 1: БІОГРАФІЯ</span>
+              <span class="counter-indicator">
+                ЗАПИТАННЯ <strong id="questionNumText">01</strong><span class="slash">/</span>16
+              </span>
+            </div>
+            <div class="progress-bar-track">
+              <div id="progressBarFill" class="progress-bar-fill"></div>
+            </div>
+          </div>
+
+          <div class="question-container">
+            <h3 id="questionText" class="question-text">Завантаження запитання...</h3>
+            <div id="optionsGrid" class="options-grid"></div>
+          </div>
+
+          <!-- Instant Feedback -->
+          <div id="feedbackBox" class="feedback-box">
+            <div class="feedback-header">
+              <span id="feedbackStatusIcon" class="feedback-icon">✓</span>
+              <span id="feedbackTitle" class="feedback-title">АНАЛІЗ ЕГОЇСТА</span>
+            </div>
+            <p id="feedbackExplanation" class="feedback-text"></p>
+            <div class="feedback-actions">
+              <button id="nextQuestionBtn" class="bl-btn bl-btn-next">
+                <span>ДАЛІ</span>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quiz Results SubScreen -->
+        <div id="quizResultSubScreen" class="quiz-subscreen">
+          <div class="result-badge-wrap">
+            <span class="evaluation-tag">ВІДБІР ЗАВЕРШЕНО</span>
+          </div>
+
+          <div class="rank-result-box" id="rankBox">
+            <div class="rank-title-small">ПРИСВОЄНИЙ РАНГ:</div>
+            <h3 id="rankTitle" class="rank-title">MONSTER OF DESTRUCTION</h3>
+            <div id="rankTierBadge" class="tier-badge">S+ TIER</div>
+          </div>
+
+          <div class="score-summary-grid">
+            <div class="score-main-card">
+              <div class="score-label">ПІДСУМКОВИЙ БАЛ</div>
+              <div class="score-value-wrap">
+                <span id="finalScore" class="score-big">16</span>
+                <span class="score-denom">/ 16</span>
+              </div>
+              <div id="scorePercent" class="score-sub">100% ТОЧНІСТЬ</div>
+            </div>
+
+            <div class="evaluation-quote-card">
+              <div class="quote-label">ВЕРДИКТ РІНА:</div>
+              <p id="rinVerdictQuote" class="verdict-quote">
+                «Ти бачиш поле крізь ту ж саму призму руйнування. Ми ще зустрінемось.»
+              </p>
+            </div>
+          </div>
+
+          <!-- Breakdown by Blocks -->
+          <div class="blocks-breakdown">
+            <h4 class="breakdown-title">ТОЧНІСТЬ ЗА БЛОКАМИ ЗНАНЬ</h4>
+            <div id="blockStatsList" class="block-stats-list"></div>
+          </div>
+
+          <div class="result-actions">
+            <button id="restartBtn" class="bl-btn bl-btn-secondary">
+              <span>ПРОЙТИ ЗНОВУ</span>
+            </button>
+            <button id="shareBtn" class="bl-btn bl-btn-primary">
+              <span>СКОПІЮВАТИ РЕЗУЛЬТАТ</span>
+            </button>
+            <button id="toggleReviewBtn" class="bl-btn bl-btn-ghost">
+              <span>РОЗГОРНУТИ РОЗБІР ПОМИЛОК</span>
+            </button>
+          </div>
+
+          <div id="reviewContainer" class="review-container">
+            <h4 class="review-title">ДЕТАЛЬНИЙ ЛОГ ВІДПОВІДЕЙ</h4>
+            <div id="reviewList" class="review-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================
+         7. DIRECT CALL WITH ITOSHI RIN (HYBRID VN TERMINAL)
+         ======================================================== -->
+    <section id="callSection" class="content-section" data-emotion="neutral">
+      <!-- Top Call Telemetry & Mode Controls -->
+      <div class="call-hud-bar">
+        <div class="call-hud-left">
+          <div class="call-live-pill">
+            <span class="call-rec-dot" id="callStatusDot"></span>
+            <span class="call-channel-code">ENCRYPTED LINE // 糸師 凛</span>
+          </div>
+          <span class="call-timer" id="callTimer">00:00</span>
+          <div class="call-waveform" id="callWaveform" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+
+        <div class="call-hud-right">
+          <div class="call-mode-badge" id="callActiveModeBadge" title="Автономний інтелект Ітоші Ріна">
+            <span class="mode-dot"></span>
+            <span id="callActiveModeLabel">РЕЖИМ: ЛОКАЛЬНИЙ ІНТЕЛЕКТ</span>
+          </div>
+          <button id="callApiSettingsBtn" class="call-hud-btn is-accent" type="button" hidden aria-hidden="true">
+            <span>🔑 API / РЕЖИМ</span>
+          </button>
+          <button id="callHistoryBtn" class="call-hud-btn" type="button">
+            <span>📜 ЛОГ</span>
+          </button>
+          <button id="callResetBtn" class="call-hud-btn" type="button" title="Скинути поточний дзвінок">
+            <span>↻ ЗАНОВО</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Call Stage: Centerpiece Rin + Dialogue Square Underneath -->
+      <div class="call-main-stage" id="callMainStage" data-emotion="neutral">
+        <!-- Tactical HUD Overlays & Respect Telemetry -->
+        <div class="call-stage-bg-aura" aria-hidden="true"></div>
+        <div class="call-marionette-threads" aria-hidden="true">
+          <svg viewBox="0 0 800 520" preserveAspectRatio="none">
+            <line x1="120" y1="0" x2="365" y2="210" class="thread-line" />
+            <line x1="680" y1="0" x2="435" y2="210" class="thread-line" />
+            <line x1="250" y1="0" x2="395" y2="240" class="thread-line" />
+            <line x1="550" y1="0" x2="405" y2="240" class="thread-line" />
+            <circle cx="400" cy="215" r="155" class="stage-reticle-ring" />
+            <circle cx="400" cy="215" r="205" class="stage-reticle-outer" />
+          </svg>
+        </div>
+
+        <div class="call-stage-meta-top">
+          <div class="call-respect-widget">
+            <span class="respect-lbl">СТАВЛЕННЯ РІНА:</span>
+            <span class="respect-rank" id="callRespectRank">ЗНЕВАГА</span>
+            <div class="respect-bar-track">
+              <div class="respect-bar-fill" id="callRespectBar" style="width: 35%"></div>
+            </div>
+          </div>
+
+          <div class="call-emotion-pill" id="callEmotionPill">
+            <span class="emotion-dot"></span>
+            <span id="callEmotionLabel">ХОЛОДНИЙ СПОКІЙ</span>
+          </div>
+        </div>
+
+        <!-- Centered Itoshi Rin Dynamic Expression Frame -->
+        <div class="call-portrait-zone">
+          <div class="rin-portrait-spotlight" aria-hidden="true"></div>
+          <div class="rin-portrait-stack" id="rinPortraitStack">
+            <img id="rinPortraitLayerA" class="rin-call-portrait is-visible" src="assets/call/rin_call_neutral.webp" alt="Ітоші Рін — відеозв'язок">
+            <img id="rinPortraitLayerB" class="rin-call-portrait" src="assets/call/rin_call_neutral.webp" alt="" aria-hidden="true">
+          </div>
+          <div class="portrait-bottom-fade" aria-hidden="true"></div>
+        </div>
+
+        <!-- Styled Designer Square / Box Directly Under Rin -->
+        <div class="rin-dialogue-square" id="rinDialogueBox" role="region" aria-label="Репліка Ітоші Ріна">
+          <span class="sq-corner sq-tl" aria-hidden="true"></span>
+          <span class="sq-corner sq-tr" aria-hidden="true"></span>
+          <span class="sq-corner sq-bl" aria-hidden="true"></span>
+          <span class="sq-corner sq-br" aria-hidden="true"></span>
+
+          <div class="dialogue-sq-header">
+            <div class="speaker-identity">
+              <span class="speaker-kanji">糸師 凛</span>
+              <span class="speaker-name">ІТОШІ РІН</span>
+              <span class="speaker-source-tag" id="callReplySourceTag">СИСТЕМА</span>
+            </div>
+            <div class="dialogue-sq-actions">
+              <span class="dialogue-typing-indicator" id="callTypingIndicator">АНАЛІЗ ВІДПОВІДІ...</span>
+              <button id="callSkipTypingBtn" class="skip-typing-btn" type="button" hidden>ПРОПУСТИТИ ⏭</button>
+            </div>
+          </div>
+
+          <div class="dialogue-sq-body" id="callDialogueScroll">
+            <p class="dialogue-sq-text" id="rinDialogueText"></p>
+          </div>
+        </div>
+
+        <!-- Quick Topic Chips & Message Input Dock -->
+        <div class="call-controls-dock">
+          <div class="call-quick-topics" id="callQuickTopics" aria-label="Швидкі теми для Ріна">
+            <button type="button" class="topic-chip" data-prompt="Розкажи про себе — хто ти, чим живеш і яка твоя мета?">🧊 Про тебе</button>
+            <button type="button" class="topic-chip" data-prompt="Як оцінюєш мене?">⚡ Оціни мене</button>
+            <button type="button" class="topic-chip" data-prompt="Розкажи про Ітоші Сае і вашу дуель.">❄️ Ітоші Сае</button>
+            <button type="button" class="topic-chip" data-prompt="Хто сильніший — Ісагі чи Кайзер?">🎯 Ісагі vs Кайзер</button>
+            <button type="button" class="topic-chip" data-prompt="Згадай матч Blue Lock 11 проти U-20.">⚔️ Бій vs U-20</button>
+            <button type="button" class="topic-chip" data-prompt="Що таке твій справжній Flow Руйнівника?">🩸 Flow Руйнівника</button>
+            <button type="button" class="topic-chip" data-prompt="Як ставишся до TikTok, нейромереж і сучасного життя?">🌐 Сучасне життя</button>
+            <button type="button" class="topic-chip" data-prompt="Зіграймо 1 на 1 прямо зараз, слабак!">🔥 Виклик 1 на 1</button>
+          </div>
+
+          <form id="callInputForm" class="call-input-form" autocomplete="off">
+            <div class="call-input-wrap">
+              <span class="input-prompt-prefix">&gt;_</span>
+              <input
+                type="text"
+                id="callUserInput"
+                class="call-user-input"
+                maxlength="400"
+                placeholder="Скажи щось Ітоші Ріну..."
+                aria-label="Повідомлення для Ітоші Ріна"
+              >
+            </div>
+            <button type="submit" id="callSendBtn" class="call-send-btn">
+              <span>НАДІСЛАТИ</span>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- CALL API & MODE SETTINGS MODAL (HIDDEN IN LOCAL-ONLY MODE) -->
+  <div id="callSettingsModal" class="gallery-modal call-modal" aria-hidden="true" hidden>
+    <div class="gallery-modal-backdrop" id="callSettingsBackdrop"></div>
+    <div class="gallery-modal-dialog call-settings-dialog" role="dialog" aria-modal="true" aria-labelledby="callSettingsTitle">
+      <button id="closeCallSettingsBtn" class="modal-close-btn" type="button" title="Закрити">✕</button>
+
+      <div class="call-modal-header">
+        <span class="section-tag">// HYBRID AI LINK CONFIGURATION</span>
+        <h3 id="callSettingsTitle" class="call-modal-title">НАЛАШТУВАННЯ ДЗВІНКА ТА GEMINI API</h3>
+        <p class="call-modal-desc">
+          Обери режим інтелекту Ріна та за бажанням встав свій ключ Google Gemini API — ключ зберігається лише локально у твоєму браузері.
+        </p>
+      </div>
+
+      <div class="call-settings-body">
+        <div class="setting-group">
+          <label class="setting-label">РЕЖИМ ВІДПОВІДЕЙ</label>
+          <div class="mode-selector-grid" id="callModeSelector">
+            <button type="button" class="mode-option-btn active" data-mode="hybrid">
+              <span class="mode-opt-title">ГІБРИДНИЙ</span>
+              <span class="mode-opt-desc">Gemini AI при наявності ключа, інакше автономний Рін</span>
+            </button>
+            <button type="button" class="mode-option-btn" data-mode="local">
+              <span class="mode-opt-title">ЛОКАЛЬНИЙ РУШІЙ</span>
+              <span class="mode-opt-desc">Швидкий офлайн-діалог без інтернету й запитів API</span>
+            </button>
+            <button type="button" class="mode-option-btn" data-mode="gemini">
+              <span class="mode-opt-title">ТІЛЬКИ GEMINI AI</span>
+              <span class="mode-opt-desc">Жива генерація фраз та міміки через твій API-ключ</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label" for="geminiApiKeyInput">GEMINI API КЛЮЧ</label>
+          <div class="api-key-row">
+            <input
+              type="password"
+              id="geminiApiKeyInput"
+              class="call-setting-input"
+              placeholder="Встав ключ виду AIza..."
+              autocomplete="off"
+              spellcheck="false"
+            >
+            <button type="button" id="toggleApiKeyVisBtn" class="call-hud-btn" title="Показати або приховати ключ">👁️</button>
+          </div>
+          <p class="setting-hint">
+            Ключ можна створити безкоштовно у <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer" class="setting-link">Google AI Studio</a>. У код сайту він не записується.
+          </p>
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label" for="geminiModelSelect">МОДЕЛЬ GEMINI</label>
+          <select id="geminiModelSelect" class="call-setting-select">
+            <option value="gemini-3.8-flash">gemini-3.8-flash — актуальна, швидка й рекомендована</option>
+            <option value="gemini-3.8-pro">gemini-3.8-pro — глибокий психологічний відіграш</option>
+            <option value="gemini-3-flash-preview">gemini-3-flash-preview — резервна серії 3</option>
+            <option value="gemini-2.5-flash">gemini-2.5-flash — лише для старих проєктів</option>
+          </select>
+        </div>
+
+        <div class="call-api-test-status" id="callApiTestStatus">
+          Статус: ключ ще не перевірено.
+        </div>
+
+        <div class="call-settings-actions">
+          <button type="button" id="testGeminiKeyBtn" class="bl-btn bl-btn-secondary">
+            <span>ПЕРЕВІРИТИ З'ЄДНАННЯ</span>
+          </button>
+          <button type="button" id="saveCallSettingsBtn" class="bl-btn bl-btn-primary">
+            <span>ЗБЕРЕГТИ ТА ЗАСТОСУВАТИ</span>
+          </button>
+          <button type="button" id="clearGeminiKeyBtn" class="bl-btn bl-btn-ghost">
+            <span>ОЧИСТИТИ КЛЮЧ</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALL DIALOGUE LOG MODAL -->
+  <div id="callHistoryModal" class="gallery-modal call-modal" aria-hidden="true">
+    <div class="gallery-modal-backdrop" id="callHistoryBackdrop"></div>
+    <div class="gallery-modal-dialog call-history-dialog" role="dialog" aria-modal="true" aria-labelledby="callHistoryTitle">
+      <button id="closeCallHistoryBtn" class="modal-close-btn" type="button" title="Закрити">✕</button>
+      <div class="call-modal-header">
+        <span class="section-tag">// ENCRYPTED TRANSCRIPT</span>
+        <h3 id="callHistoryTitle" class="call-modal-title">ІСТОРІЯ РОЗМОВИ З РІНОМ</h3>
+      </div>
+      <div class="call-history-list" id="callHistoryList"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="f-logo">BLUE LOCK // ITOSHI RIN FAN ARCHIVE</span>
+        <span class="f-sub">Dedicated to the #1 Striker of Blue Lock // 糸師 凛</span>
+      </div>
+      <div class="footer-nav">
+        <span>BL-11 Ballistics & Flow Arena</span>
+        <span class="sep">•</span>
+        <span>Egoist Bible Lore</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
