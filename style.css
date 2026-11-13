@@ -4768,15 +4768,6 @@ html.js-reveal-ready .reveal-delay-4.is-visible { transition-delay: 0.23s; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html.js-reveal-ready .reveal-on-scroll,
-  html.js-reveal-ready .reveal-on-scroll.reveal-from-left,
-  html.js-reveal-ready .reveal-on-scroll.reveal-from-right,
-  html.js-reveal-ready .reveal-on-scroll.reveal-scale-up {
-    opacity: 1;
-    transform: none;
-    filter: none;
-    transition: none;
-  }
   .hero-scroll-cue {
     animation: none;
   }

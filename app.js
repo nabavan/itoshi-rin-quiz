@@ -4905,7 +4905,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const revealElements = Array.from(document.querySelectorAll('.reveal-on-scroll'));
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   let revealObserver = null;
 
   function refreshScrollReveals(scopeEl = document) {
@@ -4913,7 +4912,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const targets = scopeEl.querySelectorAll ? Array.from(scopeEl.querySelectorAll('.reveal-on-scroll')) : [];
     const vh = window.innerHeight || document.documentElement.clientHeight;
     targets.forEach((el) => {
-      if (reducedMotion || !revealObserver) {
+      if (!revealObserver) {
         el.classList.add('is-visible');
         return;
       }
@@ -4928,7 +4927,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (revealElements.length > 0) {
-    if (!reducedMotion && 'IntersectionObserver' in window) {
+    if ('IntersectionObserver' in window) {
       document.documentElement.classList.add('js-reveal-ready');
       revealObserver = new IntersectionObserver(
         (entries) => {
