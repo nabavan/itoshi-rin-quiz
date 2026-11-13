@@ -86,23 +86,24 @@ body.rin-theme {
   width: 600px;
   height: 600px;
   border-radius: 50%;
-  filter: blur(160px);
+  filter: blur(64px);
   opacity: 0.22;
   pointer-events: none;
   z-index: 0;
+  will-change: transform, opacity;
   transition: opacity 0.65s ease, transform 0.85s ease;
 }
 
 .glow-teal {
   top: -150px;
   left: -100px;
-  background: radial-gradient(circle, var(--accent-cyan) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(0, 255, 200, 0.72) 0%, rgba(0, 255, 200, 0.22) 38%, transparent 72%);
 }
 
 .glow-crimson {
   bottom: -150px;
   right: -100px;
-  background: radial-gradient(circle, var(--accent-crimson) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 42, 95, 0.72) 0%, rgba(255, 42, 95, 0.22) 38%, transparent 72%);
 }
 
 body.flow-mode-active .glow-crimson {
@@ -139,6 +140,7 @@ body.flow-mode-active .glow-teal {
   backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(0, 255, 200, 0.18);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+  will-change: transform;
 }
 
 .nav-brand {
@@ -149,14 +151,70 @@ body.flow-mode-active .glow-teal {
 }
 
 .brand-logo-hex {
+  position: relative;
   width: 42px;
   height: 42px;
+  padding: 0;
+  border: 1px solid rgba(0, 255, 200, 0.55);
   background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-teal-dark) 100%);
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 18px rgba(0, 255, 200, 0.45);
+  cursor: pointer;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, background 0.3s ease, border-color 0.3s ease;
+}
+
+.brand-logo-hex:hover {
+  transform: translateY(-1px) scale(1.06);
+  box-shadow: 0 0 26px rgba(0, 255, 200, 0.72);
+}
+
+.brand-logo-hex:active {
+  transform: scale(0.95);
+}
+
+.brand-logo-hex:focus-visible,
+.brand-home-btn:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 3px;
+}
+
+.brand-logo-hex.is-flow-armed {
+  background: linear-gradient(135deg, #ff2a5f 0%, #930d38 55%, #00ffc8 100%);
+  border-color: rgba(255, 42, 95, 0.85);
+  box-shadow: 0 0 26px rgba(255, 42, 95, 0.72), 0 0 12px rgba(0, 255, 200, 0.45);
+  animation: rinEmblemPulse 2.1s infinite ease-in-out;
+}
+
+.brand-logo-hex.is-flow-armed .hex-inner {
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.75);
+}
+
+@keyframes rinEmblemPulse {
+  0%, 100% {
+    box-shadow: 0 0 22px rgba(255, 42, 95, 0.65), 0 0 10px rgba(0, 255, 200, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 34px rgba(255, 42, 95, 0.95), 0 0 18px rgba(0, 255, 200, 0.65);
+  }
+}
+
+.brand-home-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.brand-home-btn:hover {
+  opacity: 0.92;
+  transform: translateX(1px);
 }
 
 .hex-inner {
@@ -164,6 +222,7 @@ body.flow-mode-active .glow-teal {
   font-size: 1.35rem;
   font-weight: 900;
   color: #06080d;
+  transition: color 0.25s ease;
 }
 
 .brand-main {
@@ -4770,5 +4829,54 @@ html.js-reveal-ready .reveal-delay-4.is-visible { transition-delay: 0.23s; }
 @media (prefers-reduced-motion: reduce) {
   .hero-scroll-cue {
     animation: none;
+  }
+}
+
+/* ==========================================================================
+   RIN HUD TOAST & PAINT CONTAINMENT OPTIMIZATIONS
+   ========================================================================== */
+.rin-hud-toast {
+  position: fixed;
+  top: 78px;
+  left: 1.75rem;
+  z-index: 140;
+  padding: 0.62rem 1.05rem;
+  border-radius: 8px;
+  background: rgba(8, 13, 22, 0.94);
+  border: 1px solid rgba(0, 255, 200, 0.48);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55), 0 0 18px rgba(0, 255, 200, 0.18);
+  color: #e6fff8;
+  font-family: var(--font-hud);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.97);
+  transition: opacity 0.24s ease, transform 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rin-hud-toast.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.rin-hud-toast.is-flow {
+  border-color: rgba(255, 42, 95, 0.65);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6), 0 0 22px rgba(255, 42, 95, 0.28);
+  color: #ffe5ec;
+}
+
+.gallery-card,
+.timeline-item,
+.dossier-card {
+  contain: layout style;
+}
+
+@media (max-width: 640px) {
+  .rin-hud-toast {
+    left: 1rem;
+    right: 1rem;
+    text-align: center;
   }
 }

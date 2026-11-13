@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,600;1,700;1,800&family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@700;900&family=Russo+One&family=Unbounded:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=20261113_wc6">
+  <link rel="stylesheet" href="style.css?v=20261113_opt7">
 </head>
 <body class="rin-theme">
   <!-- Background Ambience, Marionette Strings & Cyber Grid -->
@@ -25,13 +25,15 @@
   <!-- NAVIGATION HEADER -->
   <header class="navbar-hud">
     <div class="nav-brand">
-      <div class="brand-logo-hex">
+      <button type="button" id="rinEmblemBtn" class="brand-logo-hex" title="Активувати Destroyer Flow // Ауру ниток" aria-pressed="false" aria-label="Перемкнути режим Destroyer Flow">
         <span class="hex-inner">糸</span>
-      </div>
-      <div class="brand-text-wrap">
-        <div class="brand-main">ITOSHI RIN</div>
-        <div class="brand-sub">糸師 凛 // PXG № 10</div>
-      </div>
+      </button>
+      <button type="button" id="brandHomeBtn" class="brand-home-btn" title="Повернутися на Головну">
+        <div class="brand-text-wrap">
+          <div class="brand-main">ITOSHI RIN</div>
+          <div class="brand-sub" id="brandSubText">糸師 凛 // PXG № 10</div>
+        </div>
+      </button>
     </div>
 
     <!-- Navigation links -->
@@ -54,6 +56,8 @@
       </button>
     </div>
   </header>
+
+  <div id="rinHudToast" class="rin-hud-toast" role="status" aria-live="polite" aria-hidden="true"></div>
 
   <div class="page-container">
 
@@ -119,7 +123,7 @@
           <div class="visual-card-wrap">
             <div class="visual-aura-ring" aria-hidden="true"></div>
             <div class="visual-frame">
-              <img src="assets/rin_hero_official.webp?v=rin_hero_v2" alt="Itoshi Rin Official Visual" class="hero-rin-portrait">
+              <img src="assets/rin_hero_official.webp?v=rin_hero_v2" alt="Itoshi Rin Official Visual" class="hero-rin-portrait" decoding="async" fetchpriority="high">
               <div class="visual-badge">PRODIGY // EGOIST #1</div>
               <div class="visual-overlay-scanline"></div>
               <div class="visual-corner corner-tl"></div>
@@ -335,7 +339,7 @@
         <!-- Biometrics Card -->
         <div class="dossier-card">
           <div class="dossier-avatar-wrap">
-            <img src="assets/BL_Icon_Rin_Itoshi.jpg" alt="Itoshi Rin Official Icon" class="dossier-avatar">
+            <img src="assets/BL_Icon_Rin_Itoshi.jpg" alt="Itoshi Rin Official Icon" class="dossier-avatar" loading="lazy" decoding="async">
             <div class="dossier-avatar-info">
               <div class="dossier-avatar-name">ІТОШІ РІН [糸師 凛]</div>
               <div class="dossier-avatar-tag">ID: BL-001 // S-TIER STRIKER</div>
@@ -808,7 +812,7 @@
         <!-- Moment 0: Клятва під дощем: Брати Ітоші -->
         <div class="gallery-card interactive-moment" data-moment-index="0">
           <div class="card-media-box">
-            <img src="assets/rin_resolve_football.webp" alt="Клятва під дощем: Брати Ітоші" class="gallery-img" decoding="async">
+            <img src="assets/rin_resolve_football.webp" alt="Клятва під дощем: Брати Ітоші" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -824,7 +828,7 @@
         <!-- Moment 1: Зимовий розкол: Зрада Сае під снігом -->
         <div class="gallery-card interactive-moment" data-moment-index="1">
           <div class="card-media-box">
-            <img src="assets/rin_sae_snow_duel.webp" alt="Зимовий розкол: Зрада Сае під снігом" class="gallery-img" decoding="async">
+            <img src="assets/rin_sae_snow_duel.webp" alt="Зимовий розкол: Зрада Сае під снігом" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -840,7 +844,7 @@
         <!-- Moment 2: Вхід першим: Кімната 100 голів -->
         <div class="gallery-card interactive-moment" data-moment-index="2">
           <div class="card-media-box">
-            <img src="assets/rin_going_first.webp" alt="Вхід першим: Кімната 100 голів" class="gallery-img" decoding="async">
+            <img src="assets/rin_going_first.webp" alt="Вхід першим: Кімната 100 голів" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -856,7 +860,7 @@
         <!-- Moment 3: Поле битви: Холодний вирок Ісагі -->
         <div class="gallery-card interactive-moment" data-moment-index="3">
           <div class="card-media-box">
-            <img src="assets/rin_battlefield_c45.webp" alt="Поле битви: Холодний вирок Ісагі" class="gallery-img" decoding="async">
+            <img src="assets/rin_battlefield_c45.webp" alt="Поле битви: Холодний вирок Ісагі" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -872,7 +876,7 @@
         <!-- Moment 4: Альянс Верхівки: Рін, Арію та Токіміцу -->
         <div class="gallery-card interactive-moment" data-moment-index="4">
           <div class="card-media-box">
-            <img src="assets/rin_top3_team.webp" alt="Альянс Верхівки: Рін, Арію та Токіміцу" class="gallery-img" decoding="async">
+            <img src="assets/rin_top3_team.webp" alt="Альянс Верхівки: Рін, Арію та Токіміцу" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -888,7 +892,7 @@
         <!-- Moment 5: Шедевр з кутового: Сухий лист -->
         <div class="gallery-card interactive-moment" data-moment-index="5">
           <div class="card-media-box">
-            <img src="assets/rin_corner_goal_anim.webp" alt="Шедевр з кутового: Сухий лист" class="gallery-img" decoding="async">
+            <img src="assets/rin_corner_goal_anim.webp" alt="Шедевр з кутового: Сухий лист" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -904,7 +908,7 @@
         <!-- Moment 6: За правом сильного: Вибір Бачіри -->
         <div class="gallery-card interactive-moment" data-moment-index="6">
           <div class="card-media-box">
-            <img src="assets/rin_takes_bachira.webp" alt="За правом сильного: Вибір Бачіри" class="gallery-img" decoding="async">
+            <img src="assets/rin_takes_bachira.webp" alt="За правом сильного: Вибір Бачіри" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -920,7 +924,7 @@
         <!-- Moment 7: Вертикальний топ-спін: Пікіруючий удар -->
         <div class="gallery-card interactive-moment" data-moment-index="7">
           <div class="card-media-box">
-            <img src="assets/rin_vertical_spin.webp" alt="Вертикальний топ-спін: Пікіруючий удар" class="gallery-img" decoding="async">
+            <img src="assets/rin_vertical_spin.webp" alt="Вертикальний топ-спін: Пікіруючий удар" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -936,7 +940,7 @@
         <!-- Moment 8: Реванш 4v4: Переможний відскок на 5:4 -->
         <div class="gallery-card interactive-moment" data-moment-index="8">
           <div class="card-media-box">
-            <img src="assets/rin_winning_goal_rematch.webp" alt="Реванш 4v4: Переможний відскок на 5:4" class="gallery-img" decoding="async">
+            <img src="assets/rin_winning_goal_rematch.webp" alt="Реванш 4v4: Переможний відскок на 5:4" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -952,7 +956,7 @@
         <!-- Moment 9: Залізна дисципліна: Щоденна йога Ріна -->
         <div class="gallery-card interactive-moment" data-moment-index="9">
           <div class="card-media-box">
-            <img src="assets/rin_yoga_routine.webp" alt="Залізна дисципліна: Щоденна йога Ріна" class="gallery-img" decoding="async">
+            <img src="assets/rin_yoga_routine.webp" alt="Залізна дисципліна: Щоденна йога Ріна" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -968,7 +972,7 @@
         <!-- Moment 10: Війна его: Рін проти Шідо Рюсея -->
         <div class="gallery-card interactive-moment" data-moment-index="10">
           <div class="card-media-box">
-            <img src="assets/rin_vs_shido_clash.webp" alt="Війна его: Рін проти Шідо Рюсея" class="gallery-img" decoding="async">
+            <img src="assets/rin_vs_shido_clash.webp" alt="Війна его: Рін проти Шідо Рюсея" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -984,7 +988,7 @@
         <!-- Moment 11: Капітан Blue Lock 11: Футболка №10 -->
         <div class="gallery-card interactive-moment" data-moment-index="11">
           <div class="card-media-box">
-            <img src="assets/rin_bl11_captain.webp" alt="Капітан Blue Lock 11: Футболка №10" class="gallery-img" decoding="async">
+            <img src="assets/rin_bl11_captain.webp" alt="Капітан Blue Lock 11: Футболка №10" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -1000,7 +1004,7 @@
         <!-- Moment 12: Крижаний погляд: Зустріч братів у тунелі -->
         <div class="gallery-card interactive-moment" data-moment-index="12">
           <div class="card-media-box">
-            <img src="assets/rin_sae_tunnel.webp" alt="Крижаний погляд: Зустріч братів у тунелі" class="gallery-img" decoding="async">
+            <img src="assets/rin_sae_tunnel.webp" alt="Крижаний погляд: Зустріч братів у тунелі" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -1016,7 +1020,7 @@
         <!-- Moment 13: Гол крізь мур: Удар повз Айку -->
         <div class="gallery-card interactive-moment" data-moment-index="13">
           <div class="card-media-box">
-            <img src="assets/rin_u20_goal2.webp" alt="Гол крізь мур: Удар повз Айку" class="gallery-img" decoding="async">
+            <img src="assets/rin_u20_goal2.webp" alt="Гол крізь мур: Удар повз Айку" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -1032,7 +1036,7 @@
         <!-- Moment 14: Пробудження Flow: Потворне руйнування -->
         <div class="gallery-card interactive-moment" data-moment-index="14">
           <div class="card-media-box">
-            <img src="assets/rin_destroyer_flow.webp" alt="Пробудження Flow: Потворне руйнування" class="gallery-img" decoding="async">
+            <img src="assets/rin_destroyer_flow.webp" alt="Пробудження Flow: Потворне руйнування" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -1048,7 +1052,7 @@
         <!-- Moment 15: Дебют у PXG: Розгром системи Ubers -->
         <div class="gallery-card interactive-moment" data-moment-index="15">
           <div class="card-media-box">
-            <img src="assets/rin_pxg_ubers_goal.webp" alt="Дебют у PXG: Розгром системи Ubers" class="gallery-img" decoding="async">
+            <img src="assets/rin_pxg_ubers_goal.webp" alt="Дебют у PXG: Розгром системи Ubers" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -1064,7 +1068,7 @@
         <!-- Moment 16: Вершина ліги: 240 млн ¥ та оферта Re Al -->
         <div class="gallery-card interactive-moment" data-moment-index="16">
           <div class="card-media-box">
-            <img src="assets/rin_gallery_apex_240m.webp?v=apex_face_centered" alt="Вершина ліги: 240 млн ¥ та оферта Re Al" class="gallery-img" decoding="async">
+            <img src="assets/rin_gallery_apex_240m.webp?v=apex_face_centered" alt="Вершина ліги: 240 млн ¥ та оферта Re Al" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -1080,7 +1084,7 @@
         <!-- Moment 17: Штрафний удар над стінкою у дев'ятку -->
         <div class="gallery-card interactive-moment" data-moment-index="17">
           <div class="card-media-box">
-            <img src="assets/rin_goal_team_red.webp" alt="Штрафний удар над стінкою у дев'ятку" class="gallery-img" decoding="async">
+            <img src="assets/rin_goal_team_red.webp" alt="Штрафний удар над стінкою у дев'ятку" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -1096,7 +1100,7 @@
         <!-- Moment 18: Перехоплення на випередження: Блок комбінації Ісагі -->
         <div class="gallery-card interactive-moment" data-moment-index="18">
           <div class="card-media-box">
-            <img src="assets/rin_stops_isagi.webp" alt="Перехоплення на випередження: Блок комбінації Ісагі" class="gallery-img" decoding="async">
+            <img src="assets/rin_stops_isagi.webp" alt="Перехоплення на випередження: Блок комбінації Ісагі" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -1112,7 +1116,7 @@
         <!-- Moment 19: Пробудження Хижака: Око Руйнування -->
         <div class="gallery-card interactive-moment" data-moment-index="19">
           <div class="card-media-box">
-            <img src="assets/rin_predator_eye.webp" alt="Пробудження Хижака: Око Руйнування" class="gallery-img" decoding="async">
+            <img src="assets/rin_predator_eye.webp" alt="Пробудження Хижака: Око Руйнування" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -1128,7 +1132,7 @@
         <!-- Moment 20: World Cup Japan 4:0 Nigeria Goal -->
         <div class="gallery-card interactive-moment" data-moment-index="20">
           <div class="card-media-box">
-            <img src="assets/rin_wc_nigeria_goal.jpg" alt="Японія 4:0 Нігерія: Третій гол Ріна на ЧС U-20" class="gallery-img" decoding="async">
+            <img src="assets/rin_wc_nigeria_goal.jpg" alt="Японія 4:0 Нігерія: Третій гол Ріна на ЧС U-20" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -1144,7 +1148,7 @@
         <!-- Moment 21: Group of Death vs France U-20 -->
         <div class="gallery-card interactive-moment" data-moment-index="21">
           <div class="card-media-box">
-            <img src="assets/call/rin_call_flow.webp" alt="Дуель із Францією U-20 у Групі смерті" class="gallery-img" decoding="async">
+            <img src="assets/call/rin_call_flow.webp" alt="Дуель із Францією U-20 у Групі смерті" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -1160,7 +1164,7 @@
         <!-- Moment 22: 50 Days Prep & Bunny Iglesias -->
         <div class="gallery-card interactive-moment" data-moment-index="22">
           <div class="card-media-box">
-            <img src="assets/Rin_u20_alternative.png" alt="Топ-23 Японії на ЧС U-20 і новий суперник Банні Іґлесіас" class="gallery-img" decoding="async">
+            <img src="assets/Rin_u20_alternative.png" alt="Топ-23 Японії на ЧС U-20 і новий суперник Банні Іґлесіас" class="gallery-img" loading="lazy" decoding="async">
             <div class="moment-click-prompt">🔍 РОЗГОРНУТИ МОМЕНТ</div>
           </div>
           <div class="card-info">
@@ -1544,8 +1548,8 @@
         <div class="call-portrait-zone">
           <div class="rin-portrait-spotlight" aria-hidden="true"></div>
           <div class="rin-portrait-stack" id="rinPortraitStack">
-            <img id="rinPortraitLayerA" class="rin-call-portrait is-visible" src="assets/call/rin_call_neutral.webp" alt="Ітоші Рін — відеозв'язок">
-            <img id="rinPortraitLayerB" class="rin-call-portrait" src="assets/call/rin_call_neutral.webp" alt="" aria-hidden="true">
+            <img id="rinPortraitLayerA" class="rin-call-portrait is-visible" src="assets/call/rin_call_neutral.webp" alt="Ітоші Рін — відеозв'язок" decoding="async">
+            <img id="rinPortraitLayerB" class="rin-call-portrait" src="assets/call/rin_call_neutral.webp" alt="" aria-hidden="true" loading="lazy" decoding="async">
           </div>
           <div class="portrait-bottom-fade" aria-hidden="true"></div>
         </div>
@@ -1719,6 +1723,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=20261113_wc6"></script>
+  <script src="app.js?v=20261113_opt7" defer></script>
 </body>
 </html>

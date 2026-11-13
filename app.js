@@ -243,7 +243,11 @@ class RinAmbientFX {
     this.resize();
     this.initParticles();
 
-    window.addEventListener('resize', () => this.resize());
+    let resizeTimer = null;
+    window.addEventListener('resize', () => {
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => this.resize(), 120);
+    }, { passive: true });
     window.addEventListener('pointermove', (e) => {
       if (e.pointerType === 'mouse') {
         this.mouse.x = e.clientX;
@@ -309,11 +313,11 @@ class RinAmbientFX {
       if (this.mouse.active) {
         const dx = this.mouse.x - p.x;
         const dy = this.mouse.y - p.y;
-        const dist = Math.hypot(dx, dy);
-        if (dist < 170) {
-          const op = (1 - dist / 170) * 0.2;
+        const distSq = dx * dx + dy * dy;
+        if (distSq < 28900) {
+          const op = (1 - Math.sqrt(distSq) / 170) * (isFlow ? 0.28 : 0.2);
           ctx.strokeStyle = isFlow ? `rgba(255, 42, 95, ${op})` : `rgba(0, 255, 200, ${op})`;
-          ctx.lineWidth = 0.85;
+          ctx.lineWidth = isFlow ? 1.0 : 0.85;
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(this.mouse.x, this.mouse.y);
@@ -323,9 +327,11 @@ class RinAmbientFX {
 
       for (let j = i + 1; j < this.particles.length; j++) {
         const q = this.particles[j];
-        const d = Math.hypot(p.x - q.x, p.y - q.y);
-        if (d < 125) {
-          const lineAlpha = (1 - d / 125) * 0.08;
+        const dx = p.x - q.x;
+        const dy = p.y - q.y;
+        const dSq = dx * dx + dy * dy;
+        if (dSq < 15625) {
+          const lineAlpha = (1 - Math.sqrt(dSq) / 125) * (isFlow ? 0.12 : 0.08);
           ctx.strokeStyle = isFlow ? `rgba(255, 42, 95, ${lineAlpha})` : `rgba(0, 255, 200, ${lineAlpha})`;
           ctx.lineWidth = 0.7;
           ctx.beginPath();
@@ -762,8 +768,19 @@ class RaylibCanvasSimulator {
     this.initListeners();
     this.loadScenario(0, true);
     this.lastTime = performance.now();
+    this.rafId = null;
     this.loop = this.loop.bind(this);
-    requestAnimationFrame(this.loop);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this.pauseLoop();
+      } else if (document.getElementById('gameSection')?.classList.contains('active')) {
+        this.resumeLoop();
+      }
+    });
+    this.draw();
+    if (document.getElementById('gameSection')?.classList.contains('active')) {
+      this.resumeLoop();
+    }
   }
 
   readStoredInt(key, fallback, min = 0, max = 999999) {
@@ -793,7 +810,11 @@ class RaylibCanvasSimulator {
   }
 
   initListeners() {
-    window.addEventListener('resize', () => this.handleResize());
+    let simResizeTimer = null;
+    window.addEventListener('resize', () => {
+      if (simResizeTimer) clearTimeout(simResizeTimer);
+      simResizeTimer = setTimeout(() => this.handleResize(), 120);
+    }, { passive: true });
 
     const getCanvasPos = (e) => {
       const rect = this.canvas.getBoundingClientRect();
@@ -1076,7 +1097,8 @@ class RaylibCanvasSimulator {
 
     const gameSecActive = document.getElementById('gameSection')?.classList.contains('active');
     if (gameSecActive) {
-      document.body.classList.toggle('flow-mode-active', this.flowActive);
+      const overrideOn = typeof window.isRinFlowOverrideActive === 'function' && window.isRinFlowOverrideActive();
+      document.body.classList.toggle('flow-mode-active', Boolean(this.flowActive || overrideOn));
     }
 
     if (this.triggerFlowBtn) {
@@ -1464,13 +1486,31 @@ class RaylibCanvasSimulator {
     }
   }
 
+  pauseLoop() {
+    if (this.rafId) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+  }
+
+  resumeLoop() {
+    if (!this.rafId && !document.hidden) {
+      this.lastTime = performance.now();
+      this.rafId = requestAnimationFrame(this.loop);
+    }
+  }
+
   loop(now) {
+    if (document.hidden || !document.getElementById('gameSection')?.classList.contains('active')) {
+      this.rafId = null;
+      return;
+    }
     const dt = Math.min(0.033, Math.max(0.001, (now - this.lastTime) / 1000));
     this.lastTime = now;
 
     this.update(dt);
     this.draw();
-    requestAnimationFrame(this.loop);
+    this.rafId = requestAnimationFrame(this.loop);
   }
 
   draw() {
@@ -4929,14 +4969,61 @@ document.addEventListener('DOMContentLoaded', () => {
   // Navigation Links
   const navLinks = document.querySelectorAll('.nav-link');
   const sections = document.querySelectorAll('.content-section');
+  const rinEmblemBtn = document.getElementById('rinEmblemBtn');
+  const brandHomeBtn = document.getElementById('brandHomeBtn');
+  const brandSubText = document.getElementById('brandSubText');
+  const rinHudToast = document.getElementById('rinHudToast');
   let callCtrl = null;
+  let rinFlowOverride = false;
+  let toastTimer = null;
+
+  window.isRinFlowOverrideActive = () => rinFlowOverride;
+
+  function showHudToast(msg, isFlow = false) {
+    if (!rinHudToast) return;
+    rinHudToast.textContent = msg;
+    rinHudToast.classList.toggle('is-flow', Boolean(isFlow));
+    rinHudToast.classList.add('is-visible');
+    rinHudToast.setAttribute('aria-hidden', 'false');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      rinHudToast.classList.remove('is-visible');
+      rinHudToast.setAttribute('aria-hidden', 'true');
+    }, 2400);
+  }
 
   function syncFlowThemeState(activeSectionId) {
+    const currentId = activeSectionId || document.querySelector('.content-section.active')?.id || 'heroSection';
     const activeWeaponId = document.querySelector('.weapon-card.active-weapon')?.getAttribute('data-weapon-id');
-    const weaponsFlow = activeSectionId === 'weaponsSection' && activeWeaponId === 'flow';
-    const gameFlow = activeSectionId === 'gameSection' && window.gameSim && window.gameSim.flowActive;
-    const callFlow = activeSectionId === 'callSection' && callCtrl && callCtrl.isFlowMoodActive();
-    document.body.classList.toggle('flow-mode-active', Boolean(weaponsFlow || gameFlow || callFlow));
+    const weaponsFlow = currentId === 'weaponsSection' && activeWeaponId === 'flow';
+    const gameFlow = currentId === 'gameSection' && window.gameSim && window.gameSim.flowActive;
+    const callFlow = currentId === 'callSection' && callCtrl && callCtrl.isFlowMoodActive();
+    document.body.classList.toggle('flow-mode-active', Boolean(rinFlowOverride || weaponsFlow || gameFlow || callFlow));
+  }
+
+  if (rinEmblemBtn) {
+    rinEmblemBtn.addEventListener('click', () => {
+      rinFlowOverride = !rinFlowOverride;
+      rinEmblemBtn.setAttribute('aria-pressed', String(rinFlowOverride));
+      rinEmblemBtn.classList.toggle('is-flow-armed', rinFlowOverride);
+      if (brandSubText) {
+        brandSubText.textContent = rinFlowOverride ? '糸師 凛 // DESTROYER FLOW' : '糸師 凛 // PXG № 10';
+      }
+      syncFlowThemeState();
+      if (rinFlowOverride) {
+        sfx.playFlowAwaken();
+        showHudToast('🩸 DESTROYER FLOW: АУРА НИТОК АКТИВОВАНА', true);
+      } else {
+        sfx.playClick();
+        showHudToast('🧊 ТАКТИЧНИЙ РЕЖИМ: СТАНДАРТ ВІДНОВЛЕНО', false);
+      }
+    });
+  }
+
+  if (brandHomeBtn) {
+    brandHomeBtn.addEventListener('click', () => {
+      switchSection('heroSection');
+    });
   }
 
   callCtrl = new RinCallController(sfx, syncFlowThemeState);
@@ -4953,8 +5040,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     syncFlowThemeState(targetId);
-    if (targetId === 'gameSection' && window.gameSim) {
-      window.gameSim.handleResize();
+    if (window.gameSim) {
+      if (targetId === 'gameSection') {
+        window.gameSim.handleResize();
+        window.gameSim.resumeLoop();
+      } else {
+        window.gameSim.pauseLoop();
+      }
     }
     if (callCtrl) {
       if (targetId === 'callSection') callCtrl.onSectionEnter();
