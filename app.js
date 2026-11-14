@@ -239,6 +239,7 @@ class ThemeMusicManager {
     this.fadeTimer = null;
     this.playRequestId = 0;
     this.unlockBound = false;
+    this.voicePausedByClip = false;
     this.onStateChange = null;
     this.tracks = {
       normal: this.createAudio('assets/audio/rin_theme_normal.mp3'),
@@ -249,7 +250,7 @@ class ThemeMusicManager {
   createAudio(src) {
     const audio = new Audio(src);
     audio.loop = true;
-    audio.preload = 'auto';
+    audio.preload = 'none';
     audio.volume = 0;
     return audio;
   }
@@ -376,6 +377,10 @@ class ThemeMusicManager {
   }
 
   togglePlayback() {
+    this.voicePausedByClip = false;
+    if (window.voiceArchive) {
+      window.voiceArchive.stopPlayback(false);
+    }
     if (this.userPaused || !this.enabled || !this.isPlaying()) {
       this.enabled = true;
       this.userPaused = false;
@@ -392,6 +397,36 @@ class ThemeMusicManager {
     });
     this.emitState();
     return false;
+  }
+
+  /** Pause background BGM cleanly while a character voice quote plays. */
+  pauseForVoice() {
+    const active = this.tracks[this.mode];
+    const shouldResume = !this.userPaused && this.enabled && active && !active.paused;
+    if (shouldResume) {
+      this.voicePausedByClip = true;
+    }
+    this.cancelFade();
+    this.playRequestId += 1;
+    this.tracks.normal.pause();
+    this.tracks.normal.volume = 0;
+    this.tracks.destroyer.pause();
+    this.tracks.destroyer.volume = 0;
+    this.emitState();
+  }
+
+  /** Restore background BGM only if it was actively playing before the voice clip started. */
+  resumeAfterVoice() {
+    if (!this.voicePausedByClip) {
+      this.emitState();
+      return;
+    }
+    this.voicePausedByClip = false;
+    if (this.enabled && !this.userPaused) {
+      this.playCurrent(false);
+    } else {
+      this.emitState();
+    }
   }
 }
 
@@ -988,6 +1023,9 @@ class RaylibCanvasSimulator {
 
     const getCanvasPos = (e) => {
       const rect = this.canvas.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) {
+        return { x: this.W * 0.5, y: this.H * 0.5 };
+      }
       return {
         x: (e.clientX - rect.left) * (this.W / rect.width),
         y: (e.clientY - rect.top) * (this.H / rect.height)
@@ -5173,13 +5211,1135 @@ class RinCallController {
   }
 }
 
+// -------------------------------------------------------------
+// SHARED SVG RADAR GEOMETRY BUILDER
+// -------------------------------------------------------------
+function escapeV2Html(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/**
+ * Render an N-axis polar radar SVG with optional secondary series for head-to-head comparison.
+ * @param {object} opts
+ * @returns {string}
+ */
+function buildRadarSvg(opts) {
+  const {
+    labels,
+    primaryValues,
+    secondaryValues = null,
+    primaryColor = '#00ffc8',
+    primaryFill = 'rgba(0, 255, 200, 0.24)',
+    secondaryColor = '#ff2a5f',
+    secondaryFill = 'rgba(255, 42, 95, 0.18)',
+    size = 310,
+    radius = 96,
+    showValues = true,
+    cssClass = 'dossier-radar-svg'
+  } = opts;
+
+  const cx = size / 2;
+  const cy = size / 2;
+  const count = labels.length;
+  const levels = [0.25, 0.5, 0.75, 1];
+
+  const getPoint = (idx, ratio, extraRadius = 0) => {
+    const angle = (-Math.PI / 2) + (idx * 2 * Math.PI) / count;
+    const r = radius * ratio + extraRadius;
+    return [cx + Math.cos(angle) * r, cy + Math.sin(angle) * r];
+  };
+
+  const toPointsAttr = (vals) => vals.map((v, i) => {
+    const [x, y] = getPoint(i, Math.max(0, Math.min(100, v)) / 100);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+
+  const ringsSvg = levels.map((lvl) => {
+    const pts = labels.map((_, i) => {
+      const [x, y] = getPoint(i, lvl);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    return `<polygon points="${pts}" fill="none" stroke="rgba(255,255,255,${lvl === 1 ? '0.2' : '0.09'})" stroke-width="1"/>`;
+  }).join('');
+
+  const spokesAndLabelsSvg = labels.map((lbl, i) => {
+    const [ex, ey] = getPoint(i, 1);
+    const [lx, ly] = getPoint(i, 1, 22);
+    const val = primaryValues[i];
+    const cos = Math.cos((-Math.PI / 2) + (i * 2 * Math.PI) / count);
+    const anchor = Math.abs(cos) < 0.2 ? 'middle' : (cos > 0 ? 'start' : 'end');
+    const dyVal = ly < cy ? '-0.15em' : '0.35em';
+    return `
+      <line x1="${cx}" y1="${cy}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+      <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}" dy="${dyVal}" fill="#cbd5e1" font-family="Orbitron, sans-serif" font-size="9.5" font-weight="700">${escapeV2Html(lbl)}${showValues ? ` ${val}` : ''}</text>
+    `;
+  }).join('');
+
+  const secondarySvg = secondaryValues ? `
+    <polygon points="${toPointsAttr(secondaryValues)}" fill="${secondaryFill}" stroke="${secondaryColor}" stroke-width="2" stroke-linejoin="round"/>
+    ${secondaryValues.map((v, i) => {
+      const [x, y] = getPoint(i, Math.max(0, Math.min(100, v)) / 100);
+      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.4" fill="${secondaryColor}" stroke="#060a12" stroke-width="1.2"/>`;
+    }).join('')}
+  ` : '';
+
+  const primarySvg = `
+    <polygon points="${toPointsAttr(primaryValues)}" fill="${primaryFill}" stroke="${primaryColor}" stroke-width="2.2" stroke-linejoin="round"/>
+    ${primaryValues.map((v, i) => {
+      const [x, y] = getPoint(i, Math.max(0, Math.min(100, v)) / 100);
+      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.8" fill="${primaryColor}" stroke="#060a12" stroke-width="1.3"/>`;
+    }).join('')}
+  `;
+
+  return `<svg viewBox="0 0 ${size} ${size}" class="${cssClass}" role="img" aria-hidden="true">${ringsSvg}${spokesAndLabelsSvg}${secondarySvg}${primarySvg}</svg>`;
+}
+
+/** Populate Dossier Card 2 with Rin's 7-Axis Spatial Attribute Radar. */
+function renderDossierAttributeRadar() {
+  const host = document.getElementById('dossierAttrRadarWrap');
+  if (!host) return;
+  host.innerHTML = buildRadarSvg({
+    labels: ['УДАР', 'ОБРОБКА', 'ПАС', 'ШВИДК.', 'ФІЗИКА', 'ДРІБЛ.', 'ЗАХИСТ'],
+    primaryValues: [98, 99, 95, 90, 89, 88, 87],
+    size: 320,
+    radius: 94,
+    showValues: true,
+    cssClass: 'dossier-radar-svg'
+  });
+}
+
+// -------------------------------------------------------------
+// GALLERY BILINGUAL VOICE QUOTES ARCHIVE (JP & EN)
+// -------------------------------------------------------------
+const VOICE_ARCHIVE_CLIPS = [
+  {
+    id: 'q1_sightseeing',
+    mood: 'cold',
+    episode: 'EP. 24 · СВІТОВИЙ ВІДБІР',
+    moodTag: 'ХОЛОДНИЙ ТИСК',
+    title: 'Екскурсія закінчиться травмою',
+    quoteJp: '「君たちの日本の観光旅行はトラウマになるよ。」',
+    romaji: 'Kimi-tachi no Nihon no kankou ryokou wa torauma ni naru yo.',
+    quoteEn: '“Your little Japanese sightseeing trip is gonna turn traumatic.”',
+    quoteUk: '«Ваша маленька екскурсія Японією закінчиться справжньою травмою.»',
+    context: 'Вихід Ітоші Ріна на матч Другого відбору проти збірної світових зірок із крижаною впевненістю.',
+    audioJp: 'assets/audio/voices/rin_q1_sightseeing_jp.mp3',
+    audioEn: 'assets/audio/voices/rin_q1_sightseeing_en.mp3'
+  },
+  {
+    id: 'q2_lukewarm',
+    mood: 'cold',
+    episode: 'EP. 26 · ТЕСТ НА ТОП-РІВЕНЬ',
+    moodTag: 'ПОВНА ЗНЕВАГА',
+    title: 'Прісний рівень футболу',
+    quoteJp: '「もういい。大体わかった。お前らのレベル、ぬるすぎて死にそうだぜ。」',
+    romaji: 'Mou ii. Daitai wakatta. Omaera no reberu, nurusugite shinisou da ze.',
+    quoteEn: '“If you play soccer that half-baked... You\'re never gonna make my heart race.”',
+    quoteUk: '«Годі, усе зрозуміло. Ваш рівень настільки прісний, що можна заснути просто на полі.»',
+    context: 'Ключовий вирок Ріна суперникам, який задає планку жорстокої точності в усьому Blue Lock.',
+    audioJp: 'assets/audio/voices/rin_q2_lukewarm_jp.mp3',
+    audioEn: 'assets/audio/voices/rin_q2_lukewarm_en.mp3'
+  },
+  {
+    id: 'q3_fullburst',
+    mood: 'cold',
+    episode: 'EP. 27 · КОНТРОЛЬ БАЛАНСУ',
+    moodTag: 'ТАКТИЧНА ФІЗИКА',
+    title: 'Точка опори: Full Burst',
+    quoteJp: '「頭が高え、回れおっさん。重心：フルバースト！」',
+    romaji: 'Zu ga takee, maware ossan. Juushin: Furu Bāsuto!',
+    quoteEn: '“Know your place, piss off old man! Center of gravity: Full burst!”',
+    quoteUk: '«Знай своє місце і розвертайся, старий. Зміщення центру ваги: повний вибух!»',
+    context: 'Демонстрація силового контролю корпусу та використання інерції захисника проти нього самого.',
+    audioJp: 'assets/audio/voices/rin_q3_fullburst_jp.mp3',
+    audioEn: 'assets/audio/voices/rin_q3_fullburst_en.mp3'
+  },
+  {
+    id: 'q4_destroyer',
+    mood: 'destroyer',
+    episode: 'EP. 35–36 · МАТЧ BL VS U-20',
+    moodTag: 'ПРОБУДЖЕННЯ FLOW',
+    title: 'Стан потворного руйнування',
+    quoteJp: '「気持ち悪ぃ… 殺す、殺す、殺す！ぶっ壊す！ぐちゃぐちゃにしてやる！」',
+    romaji: 'Kimochi warii... Korosu, korosu, korosu! Bukkowasu! Guchagucha ni shite yaru!',
+    quoteEn: '“It makes me want to puke! I\'LL MANGLE YOU!”',
+    quoteUk: '«Аж нудить від вашої фальші… Розтрощу вас і виверну навиворіт прямо на газоні!»',
+    context: 'Перший прорив справжнього стану Руйнівника, коли Рін скидає тінь брата та ламає захист U-20.',
+    audioJp: 'assets/audio/voices/rin_q4_destroyer_jp.mp3',
+    audioEn: 'assets/audio/voices/rin_q4_destroyer_en.mp3'
+  },
+  {
+    id: 'q5_unleash',
+    mood: 'destroyer',
+    episode: 'EP. 36 · ФІНАЛЬНИЙ ШТУРМ U-20',
+    moodTag: 'БЕРСЕРК-АУРА',
+    title: 'Знищити все, що стримує',
+    quoteJp: '「俺の可能性を縛るな！まとわりついてくんじゃねえ、クソ潔！」',
+    romaji: 'Ore no kanousei wo shibaru na! Matowari tsuite kun ja nee, kuso Isagi!',
+    quoteEn: '“One more left... I\'ll tear it apart! Destroy everything and everyone that binds me! Kill it!”',
+    quoteUk: '«Не смій сковувати мій потенціал! Знищу кожного, хто намагається мене втримати!»',
+    context: 'Репліка на межі виснаження у вирішальній атаці проти збірної Японії U-20.',
+    audioJp: 'assets/audio/voices/rin_q5_unleash_jp.mp3',
+    audioEn: 'assets/audio/voices/rin_q5_unleash_en.mp3'
+  },
+  {
+    id: 'q6_egoist',
+    mood: 'destroyer',
+    episode: 'EP. 38 · СПРАВЖНЄ Я РІНА',
+    moodTag: 'ABSOLUTE EGOIST',
+    title: 'Я — Ітоші Рін, чистий егоїст',
+    quoteJp: '「この憤りを信じる。破壊衝動に身を委ねろ。俺は俺だ！俺はエゴイスト… 糸師凛だ！！」',
+    romaji: 'Kono ikidoori wo shinjiru. Hakai shoudou ni mi wo yudanero. Ore wa ore da! Ore wa egoisuto... Itoshi Rin da!!',
+    quoteEn: '“Screw it all! Screw the revenge shit, screw the rivals shit, screw the brother shit! Anything that ties me down makes me sick to my stomach!”',
+    quoteUk: '«До біса помсту, суперників і навіть брата! Я — це я. Чистий егоїст… Ітоші Рін!»',
+    context: 'Остаточне відродження: Рін відкидає нав’язані ролі й грає виключно заради власної руйнівної пристрасті.',
+    audioJp: 'assets/audio/voices/rin_q6_egoist_jp.mp3',
+    audioEn: 'assets/audio/voices/rin_q6_egoist_en.mp3'
+  }
+];
+
+class VoiceArchiveController {
+  /**
+   * Coordinate Gallery sub-tabs (Frames vs Bilingual Voice Quotes) and synchronized MP3 playback.
+   */
+  constructor(bgm, sfx, onToast) {
+    this.bgm = bgm;
+    this.sfx = sfx;
+    this.onToast = onToast;
+    this.tabFramesBtn = document.getElementById('galleryTabFrames');
+    this.tabVoicesBtn = document.getElementById('galleryTabVoices');
+    this.framesPanel = document.getElementById('galleryFramesPanel');
+    this.voicesPanel = document.getElementById('galleryVoicesPanel');
+    this.gridEl = document.getElementById('voiceQuotesGrid');
+    this.filterBtns = document.querySelectorAll('.voice-filter-btn');
+    this.nowBar = document.getElementById('voiceNowPlayingBar');
+    this.vnpLabel = document.getElementById('vnpLabel');
+    this.vnpTitle = document.getElementById('vnpTitle');
+    this.vnpStopBtn = document.getElementById('vnpStopBtn');
+
+    this.activeFilter = 'all';
+    this.activeTrack = null; // { id, lang }
+    this.audio = new Audio();
+    this.audio.preload = 'metadata';
+
+    if (!this.gridEl) return;
+    this.bindEvents();
+    this.renderCards();
+  }
+
+  formatTime(sec) {
+    if (!Number.isFinite(sec) || sec < 0) return '00:00';
+    const whole = Math.floor(sec);
+    const mins = Math.floor(whole / 60);
+    const rem = whole % 60;
+    return `${String(mins).padStart(2, '0')}:${String(rem).padStart(2, '0')}`;
+  }
+
+  bindEvents() {
+    [this.tabFramesBtn, this.tabVoicesBtn].forEach((btn) => {
+      if (!btn) return;
+      btn.addEventListener('click', () => {
+        const nextTab = btn.getAttribute('data-gallery-tab');
+        this.switchSubTab(nextTab);
+        if (this.sfx) this.sfx.playClick();
+      });
+    });
+
+    this.filterBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        this.activeFilter = btn.getAttribute('data-voice-filter') || 'all';
+        this.filterBtns.forEach((b) => b.classList.toggle('active', b === btn));
+        this.renderCards();
+        this.syncPlaybackUI();
+        if (this.sfx) this.sfx.playClick();
+      });
+    });
+
+    if (this.vnpStopBtn) {
+      this.vnpStopBtn.addEventListener('click', () => this.stopPlayback(true));
+    }
+
+    this.audio.addEventListener('timeupdate', () => this.updateProgressUI());
+    this.audio.addEventListener('loadedmetadata', () => this.updateProgressUI());
+    this.audio.addEventListener('ended', () => {
+      this.activeTrack = null;
+      document.body.removeAttribute('data-voice-playing');
+      this.syncPlaybackUI();
+      if (this.bgm) this.bgm.resumeAfterVoice();
+    });
+    this.audio.addEventListener('error', () => {
+      this.activeTrack = null;
+      document.body.removeAttribute('data-voice-playing');
+      this.syncPlaybackUI();
+      if (this.bgm) this.bgm.resumeAfterVoice();
+      if (typeof this.onToast === 'function') {
+        this.onToast('Не вдалося завантажити голосовий запис', true);
+      }
+    });
+  }
+
+  switchSubTab(tabName) {
+    const isVoices = tabName === 'voices';
+    if (this.tabFramesBtn) {
+      this.tabFramesBtn.classList.toggle('active', !isVoices);
+      this.tabFramesBtn.setAttribute('aria-selected', String(!isVoices));
+    }
+    if (this.tabVoicesBtn) {
+      this.tabVoicesBtn.classList.toggle('active', isVoices);
+      this.tabVoicesBtn.setAttribute('aria-selected', String(isVoices));
+    }
+    if (this.framesPanel) {
+      this.framesPanel.hidden = isVoices;
+      this.framesPanel.classList.toggle('is-active', !isVoices);
+    }
+    if (this.voicesPanel) {
+      this.voicesPanel.hidden = !isVoices;
+      this.voicesPanel.classList.toggle('is-active', isVoices);
+    }
+    if (!isVoices) {
+      this.stopPlayback(true);
+    }
+  }
+
+  renderCards() {
+    const items = VOICE_ARCHIVE_CLIPS.filter((clip) => (
+      this.activeFilter === 'all' || clip.mood === this.activeFilter
+    ));
+
+    this.gridEl.innerHTML = items.map((clip) => `
+      <article class="voice-card ${clip.mood === 'destroyer' ? 'is-destroyer' : ''}" data-voice-id="${clip.id}">
+        <div class="voice-card-top">
+          <span class="voice-ep-badge">${escapeV2Html(clip.episode)}</span>
+          <span class="voice-mood-tag">${escapeV2Html(clip.moodTag)}</span>
+        </div>
+
+        <h4 class="voice-scene-title">${escapeV2Html(clip.title)}</h4>
+
+        <div class="voice-quotes-stack">
+          <div class="voice-quote-line"><span class="q-tag">JP</span>${escapeV2Html(clip.quoteJp)}</div>
+          <div class="voice-romaji">${escapeV2Html(clip.romaji)}</div>
+          <div class="voice-quote-line is-en"><span class="q-tag">EN</span>${escapeV2Html(clip.quoteEn)}</div>
+          <div class="voice-quote-line is-uk"><span class="q-tag">UA</span>${escapeV2Html(clip.quoteUk)}</div>
+        </div>
+
+        <div class="voice-controls-row">
+          <button type="button" class="voice-lang-btn is-jp" data-clip-id="${clip.id}" data-lang="jp">
+            <span class="vbtn-icon">▶</span>
+            <span>🇯🇵 ЯПОНСЬКА · JP</span>
+          </button>
+          <button type="button" class="voice-lang-btn is-en" data-clip-id="${clip.id}" data-lang="en">
+            <span class="vbtn-icon">▶</span>
+            <span>🇬🇧 АНГЛІЙСЬКА · EN</span>
+          </button>
+        </div>
+
+        <div class="voice-scrubber-row">
+          <input type="range" class="voice-progress-range" data-range-id="${clip.id}" min="0" max="100" value="0" aria-label="Прогрес відтворення ${escapeV2Html(clip.title)}">
+          <span class="voice-time-readout" data-time-id="${clip.id}">00:00 / 00:00</span>
+        </div>
+
+        <p class="voice-context-note">${escapeV2Html(clip.context)}</p>
+      </article>
+    `).join('');
+
+    this.gridEl.querySelectorAll('.voice-lang-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const clipId = btn.getAttribute('data-clip-id');
+        const lang = btn.getAttribute('data-lang');
+        this.toggleClip(clipId, lang);
+      });
+    });
+
+    this.gridEl.querySelectorAll('.voice-progress-range').forEach((range) => {
+      range.addEventListener('input', () => {
+        const id = range.getAttribute('data-range-id');
+        if (!this.activeTrack || this.activeTrack.id !== id) return;
+        if (Number.isFinite(this.audio.duration) && this.audio.duration > 0) {
+          this.audio.currentTime = (Number(range.value) / 100) * this.audio.duration;
+          this.updateProgressUI();
+        }
+      });
+    });
+  }
+
+  async toggleClip(clipId, lang) {
+    const clip = VOICE_ARCHIVE_CLIPS.find((c) => c.id === clipId);
+    if (!clip) return;
+
+    const isSameTrack = this.activeTrack && this.activeTrack.id === clipId && this.activeTrack.lang === lang;
+    if (isSameTrack) {
+      if (this.audio.paused) {
+        if (this.bgm) this.bgm.pauseForVoice();
+        document.body.dataset.voicePlaying = 'true';
+        try {
+          await this.audio.play();
+        } catch {
+          return;
+        }
+        this.syncPlaybackUI();
+      } else {
+        this.stopPlayback(true);
+      }
+      return;
+    }
+
+    const src = lang === 'en' ? clip.audioEn : clip.audioJp;
+    this.audio.pause();
+    this.audio.src = src;
+    this.audio.currentTime = 0;
+    this.activeTrack = { id: clipId, lang };
+
+    if (this.bgm) this.bgm.pauseForVoice();
+    document.body.dataset.voicePlaying = 'true';
+
+    try {
+      await this.audio.play();
+    } catch {
+      this.activeTrack = null;
+      document.body.removeAttribute('data-voice-playing');
+      if (this.bgm) this.bgm.resumeAfterVoice();
+    }
+    this.syncPlaybackUI();
+  }
+
+  stopPlayback(restoreBgm = true) {
+    this.audio.pause();
+    this.audio.currentTime = 0;
+    this.activeTrack = null;
+    document.body.removeAttribute('data-voice-playing');
+    this.syncPlaybackUI();
+    if (restoreBgm && this.bgm) {
+      this.bgm.resumeAfterVoice();
+    }
+  }
+
+  pauseOnLeave() {
+    if (this.activeTrack || !this.audio.paused) {
+      this.stopPlayback(true);
+    }
+  }
+
+  updateProgressUI() {
+    if (!this.activeTrack) return;
+    const range = this.gridEl.querySelector(`[data-range-id="${this.activeTrack.id}"]`);
+    const readout = this.gridEl.querySelector(`[data-time-id="${this.activeTrack.id}"]`);
+    const cur = this.audio.currentTime || 0;
+    const dur = Number.isFinite(this.audio.duration) ? this.audio.duration : 0;
+    if (range) {
+      range.value = dur > 0 ? String(Math.round((cur / dur) * 100)) : '0';
+    }
+    if (readout) {
+      readout.textContent = `${this.formatTime(cur)} / ${this.formatTime(dur)}`;
+    }
+  }
+
+  syncPlaybackUI() {
+    const isPlaying = Boolean(this.activeTrack && !this.audio.paused);
+    this.gridEl.querySelectorAll('.voice-card').forEach((card) => {
+      const id = card.getAttribute('data-voice-id');
+      const cardActive = isPlaying && this.activeTrack.id === id;
+      card.classList.toggle('is-playing', cardActive);
+      if (!this.activeTrack || this.activeTrack.id !== id) {
+        const range = card.querySelector('.voice-progress-range');
+        const timeEl = card.querySelector('.voice-time-readout');
+        if (range) range.value = '0';
+        if (timeEl) timeEl.textContent = '00:00 / 00:00';
+      }
+    });
+
+    this.gridEl.querySelectorAll('.voice-lang-btn').forEach((btn) => {
+      const id = btn.getAttribute('data-clip-id');
+      const lang = btn.getAttribute('data-lang');
+      const active = isPlaying && this.activeTrack.id === id && this.activeTrack.lang === lang;
+      btn.classList.toggle('is-active-track', active);
+      const icon = btn.querySelector('.vbtn-icon');
+      if (icon) icon.textContent = active ? '⏸' : '▶';
+    });
+
+    if (this.nowBar) {
+      this.nowBar.hidden = !isPlaying;
+      if (isPlaying) {
+        const clip = VOICE_ARCHIVE_CLIPS.find((c) => c.id === this.activeTrack.id);
+        if (this.vnpLabel) {
+          this.vnpLabel.textContent = this.activeTrack.lang === 'en'
+            ? 'АКТИВНИЙ ЗАПИС · АНГЛІЙСЬКА ОЗВУЧКА EN'
+            : 'АКТИВНИЙ ЗАПИС · ЯПОНСЬКА ОЗВУЧКА JP';
+        }
+        if (this.vnpTitle && clip) {
+          this.vnpTitle.textContent = `${clip.title} · ${clip.episode}`;
+        }
+      }
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// TACTICAL PLAYBOOK CANVAS SIMULATOR (#tacticalSection)
+// -------------------------------------------------------------
+const TACTICAL_PLAYS_DATA = {
+  u20_outside: {
+    tag: 'BLUE LOCK 11 VS JAPAN U-20',
+    curve: '34° TRIVELA',
+    speed: '118 КМ/ГОД',
+    ego: '96 / ПЕРЕРОСТАННЯ',
+    isDestroyer: false,
+    rinPath: [{ x: 0.24, y: 0.72 }, { x: 0.48, y: 0.54 }, { x: 0.67, y: 0.34 }],
+    ballCtrl: { x: 0.85, y: 0.14 },
+    ballEnd: { x: 0.94, y: 0.44 },
+    allies: [{ label: 'ISAGI', x: 0.56, y: 0.72 }, { label: 'BACHIRA', x: 0.41, y: 0.28 }],
+    defenders: [{ label: 'AIKU', x: 0.77, y: 0.41 }, { label: 'NIO', x: 0.68, y: 0.56 }, { label: 'GK', x: 0.93, y: 0.5 }],
+    marionetteLinks: [[0, 1]],
+    phases: [
+      {
+        title: 'Фаза 01: Стягування блоку Айку',
+        desc: 'Рін навмисно входить у півфланг під кутом, змушуючи Олівера Айку перекрити ближній кут і відкрити зовнішній коридор.'
+      },
+      {
+        title: 'Фаза 02: Зміщення під праву зовнішню',
+        desc: 'Замість стандартного зміщення в центр Рін підрізає траєкторію правою зовнішньою стороною стопи, ламаючи таймінг захисника.'
+      },
+      {
+        title: 'Фаза 03: Висока дуга Trivela',
+        desc: 'М’яч обгинає руки воротаря по зовнішній параболі та опускається точно під дальню штангу з мінімальним кутом атаки.'
+      }
+    ]
+  },
+  blind_corner: {
+    tag: 'BLUE LOCK // СТАНДАРТ ІЗ НУЛЬОВОГО КУТА',
+    curve: '42° СУХИЙ ЛИСТ',
+    speed: '104 КМ/ГОД',
+    ego: '94 / МАЕСТРО ДУГИ',
+    isDestroyer: false,
+    rinPath: [{ x: 0.94, y: 0.93 }, { x: 0.94, y: 0.9 }, { x: 0.92, y: 0.86 }],
+    ballCtrl: { x: 0.8, y: 0.72 },
+    ballEnd: { x: 0.94, y: 0.42 },
+    allies: [{ label: 'ARYU', x: 0.86, y: 0.54 }, { label: 'TOKI', x: 0.82, y: 0.39 }],
+    defenders: [{ label: 'DEF 1', x: 0.88, y: 0.61 }, { label: 'DEF 2', x: 0.87, y: 0.48 }, { label: 'GK', x: 0.93, y: 0.52 }],
+    marionetteLinks: [],
+    phases: [
+      {
+        title: 'Фаза 01: Прорахунок сліпої зони біля прапорця',
+        desc: 'Гравці штрафного очікують високу подачу на Арю чи Токіміцу, залишаючи верхній край дальньої дев’ятки неконтрольованим.'
+      },
+      {
+        title: 'Фаза 02: Екстремальний Магнус-імпульс',
+        desc: 'Рін вкладає у м’яч зворотне бокове обертання, зміщуючи траєкторію подачі на кілька метрів у польоті.'
+      },
+      {
+        title: 'Фаза 03: Пряме влучання без дотику',
+        desc: 'Оминаючи перекладину та витягнуту руку кіпера, кутовий перетворюється на самостійний гол чистої геометрії.'
+      }
+    ]
+  },
+  puppet_web: {
+    tag: 'ДРУГИЙ ВІДБІР · МАРІОНЕТКОВИЙ КОНТРОЛЬ 4v4',
+    curve: '28° ХІРУРГІЧНА ДУГА',
+    speed: '112 КМ/ГОД',
+    ego: '97 / ЛЯЛЬКАР',
+    isDestroyer: false,
+    rinPath: [{ x: 0.2, y: 0.5 }, { x: 0.46, y: 0.43 }, { x: 0.65, y: 0.5 }],
+    ballCtrl: { x: 0.79, y: 0.68 },
+    ballEnd: { x: 0.94, y: 0.55 },
+    allies: [{ label: 'ARYU', x: 0.52, y: 0.22 }, { label: 'TOKI', x: 0.6, y: 0.78 }],
+    defenders: [{ label: 'ISAGI', x: 0.63, y: 0.36 }, { label: 'NAGI', x: 0.74, y: 0.61 }, { label: 'BACHIRA', x: 0.55, y: 0.55 }],
+    marionetteLinks: [[0, 2], [1, 1], [0, 0]],
+    phases: [
+      {
+        title: 'Фаза 01: Зчитування его Бачіри та Ісагі',
+        desc: 'Рін заздалегідь визначає оптимальну дію для кожного суперника і будує пастку саме навколо їхніх кращих рішень.'
+      },
+      {
+        title: 'Фаза 02: Маніпуляція відкриванням союзників',
+        desc: 'Натягнуті нитки уваги примушують Наґі та Ісагі зміститися у вказані сектори, оголюючи центральний шов.'
+      },
+      {
+        title: 'Фаза 03: Розстріл через створений коридор',
+        desc: 'Уся комбінація завершується точним пострілом Ріна саме туди, де жоден опонент фізично не встигає закрити лінію.'
+      }
+    ]
+  },
+  destroyer_crash: {
+    tag: 'NEO EGOIST LEAGUE · PXG VS BASTARD MUNCHEN',
+    curve: '31° CRASH-DRIVE',
+    speed: '126 КМ/ГОД',
+    ego: '100 / БЕРСЕРК',
+    isDestroyer: true,
+    rinPath: [{ x: 0.26, y: 0.3 }, { x: 0.52, y: 0.47 }, { x: 0.71, y: 0.52 }],
+    ballCtrl: { x: 0.83, y: 0.35 },
+    ballEnd: { x: 0.94, y: 0.46 },
+    allies: [{ label: 'CHARLES', x: 0.38, y: 0.62 }, { label: 'NANASE', x: 0.44, y: 0.21 }],
+    defenders: [{ label: 'KAISER', x: 0.71, y: 0.46 }, { label: 'ISAGI', x: 0.66, y: 0.64 }, { label: 'GK', x: 0.93, y: 0.5 }],
+    marionetteLinks: [[0, 0]],
+    phases: [
+      {
+        title: 'Фаза 01: Прямий контакт корпус-у-корпус із Кайзером',
+        desc: 'У режимі Руйнівника Рін відмовляється уникати боротьби й цілеспрямовано приймає силовий тиск Міхаеля Кайзера.'
+      },
+      {
+        title: 'Фаза 02: Поглинання зіткнення в падінні',
+        desc: 'Навіть втрачаючи баланс, Рін використовує імпульс Кайзера як точку розкрутки та витискає неможливий кут удару.'
+      },
+      {
+        title: 'Фаза 03: Демонічний Crash-Shot у дев’ятку',
+        desc: 'М’яч зривається з підйому прямо під час зіткнення, перетворюючи найсильнішу зброю суперника на фон для поразки.'
+      }
+    ]
+  },
+  predator_nigeria: {
+    tag: 'ЧС U-20 · ЯПОНІЯ VS НІГЕРІЯ',
+    curve: '26° ХИЖА РАКЕТНА ДУГА',
+    speed: '129 КМ/ГОД',
+    ego: '99 / WORLD LEVEL',
+    isDestroyer: true,
+    rinPath: [{ x: 0.22, y: 0.62 }, { x: 0.49, y: 0.55 }, { x: 0.73, y: 0.38 }],
+    ballCtrl: { x: 0.85, y: 0.26 },
+    ballEnd: { x: 0.94, y: 0.58 },
+    allies: [{ label: 'ISAGI', x: 0.61, y: 0.69 }, { label: 'SHIDOU', x: 0.76, y: 0.73 }],
+    defenders: [{ label: 'ONA', x: 0.68, y: 0.42 }, { label: 'CB', x: 0.78, y: 0.53 }, { label: 'GK', x: 0.93, y: 0.49 }],
+    marionetteLinks: [],
+    phases: [
+      {
+        title: 'Фаза 01: Predator Eye сканує таймінг воротаря',
+        desc: 'Рін читає момент перенесення ваги кіпера Нігерії та приховує напрямок замаху за спиною центрального захисника.'
+      },
+      {
+        title: 'Фаза 02: Злам пресингу ривком під себе',
+        desc: 'Короткий вибуховий дотик залишає двох опорників позаду без шансу на підкат.'
+      },
+      {
+        title: 'Фаза 03: Блискавичне завершення хет-трику',
+        desc: 'Максимальна швидкість польоту розриває ближню шістку, фіксуючи світовий статус нового лідера Японії.'
+      }
+    ]
+  }
+};
+
+class TacticalPlaybookController {
+  /**
+   * Animated 2D canvas simulation engine displaying Rin's canonical tactical sequences.
+   */
+  constructor(sfx) {
+    this.sfx = sfx;
+    this.canvas = document.getElementById('tacticalPlayCanvas');
+    this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
+    this.playTabs = document.querySelectorAll('.tactical-play-tab');
+    this.phaseBtns = document.querySelectorAll('.tactical-phase-btn');
+    this.playPauseBtn = document.getElementById('tacticalPlayPauseBtn');
+    this.playIcon = document.getElementById('tacticalPlayIcon');
+    this.playLabel = document.getElementById('tacticalPlayLabel');
+    this.restartBtn = document.getElementById('tacticalRestartBtn');
+
+    this.tagEl = document.getElementById('tacticalPhaseTag');
+    this.titleEl = document.getElementById('tacticalPhaseTitle');
+    this.descEl = document.getElementById('tacticalPhaseDesc');
+    this.curveEl = document.getElementById('tacticalMetricCurve');
+    this.speedEl = document.getElementById('tacticalMetricSpeed');
+    this.egoEl = document.getElementById('tacticalMetricEgo');
+
+    this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.activePlayId = 'u20_outside';
+    this.progress = this.reducedMotion ? 0.92 : 0.08;
+    this.isPlaying = !this.reducedMotion;
+    this.isSectionVisible = false;
+    this.lastTs = 0;
+    this.rafId = null;
+
+    if (!this.canvas || !this.ctx) return;
+    this.bindEvents();
+    this.syncReadout();
+    this.syncPlaybackButton();
+    this.drawFrame();
+  }
+
+  bindEvents() {
+    this.playTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const nextId = tab.getAttribute('data-play');
+        if (!TACTICAL_PLAYS_DATA[nextId]) return;
+        this.activePlayId = nextId;
+        this.progress = this.reducedMotion ? 0.92 : 0.02;
+        this.playTabs.forEach((b) => {
+          const active = b === tab;
+          b.classList.toggle('active', active);
+          b.setAttribute('aria-selected', String(active));
+        });
+        this.syncReadout();
+        this.drawFrame();
+        if (this.sfx) this.sfx.playClick();
+      });
+    });
+
+    this.phaseBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.getAttribute('data-phase') || '0', 10);
+        this.progress = idx === 0 ? 0.14 : (idx === 1 ? 0.52 : 0.88);
+        this.syncReadout();
+        this.drawFrame();
+        if (this.sfx) this.sfx.playClick();
+      });
+    });
+
+    if (this.playPauseBtn) {
+      this.playPauseBtn.addEventListener('click', () => {
+        this.isPlaying = !this.isPlaying;
+        this.syncPlaybackButton();
+        if (this.isPlaying && this.isSectionVisible) this.startLoop();
+        else this.stopLoop();
+        if (this.sfx) this.sfx.playClick();
+      });
+    }
+
+    if (this.restartBtn) {
+      this.restartBtn.addEventListener('click', () => {
+        this.progress = 0.01;
+        this.syncReadout();
+        this.drawFrame();
+        if (this.sfx) this.sfx.playClick();
+      });
+    }
+  }
+
+  onEnter() {
+    this.isSectionVisible = true;
+    this.drawFrame();
+    if (this.isPlaying) this.startLoop();
+  }
+
+  onLeave() {
+    this.isSectionVisible = false;
+    this.stopLoop();
+  }
+
+  syncPlaybackButton() {
+    if (!this.playPauseBtn) return;
+    this.playPauseBtn.setAttribute('aria-pressed', String(this.isPlaying));
+    if (this.playIcon) this.playIcon.textContent = this.isPlaying ? '⏸' : '▶';
+    if (this.playLabel) this.playLabel.textContent = this.isPlaying ? 'ПАУЗА' : 'ВІДТВОРИТИ';
+  }
+
+  startLoop() {
+    if (this.rafId !== null || this.reducedMotion) return;
+    this.lastTs = performance.now();
+    const tick = (now) => {
+      const dt = Math.min(0.05, Math.max(0, (now - this.lastTs) / 1000));
+      this.lastTs = now;
+      if (this.isPlaying && this.isSectionVisible) {
+        this.progress += dt * 0.145;
+        if (this.progress > 1.15) this.progress = 0;
+        this.syncReadout();
+        this.drawFrame();
+        this.rafId = requestAnimationFrame(tick);
+      } else {
+        this.rafId = null;
+      }
+    };
+    this.rafId = requestAnimationFrame(tick);
+  }
+
+  stopLoop() {
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+  }
+
+  getPhaseIndex() {
+    const clamped = Math.min(1, this.progress);
+    if (clamped < 0.34) return 0;
+    if (clamped < 0.72) return 1;
+    return 2;
+  }
+
+  syncReadout() {
+    const play = TACTICAL_PLAYS_DATA[this.activePlayId];
+    if (!play) return;
+    const phaseIdx = this.getPhaseIndex();
+    const phase = play.phases[phaseIdx] || play.phases[0];
+
+    if (this.tagEl) this.tagEl.textContent = play.tag;
+    if (this.titleEl) this.titleEl.textContent = phase.title;
+    if (this.descEl) this.descEl.textContent = phase.desc;
+    if (this.curveEl) this.curveEl.textContent = play.curve;
+    if (this.speedEl) this.speedEl.textContent = play.speed;
+    if (this.egoEl) this.egoEl.textContent = play.ego;
+
+    this.phaseBtns.forEach((btn, i) => {
+      btn.classList.toggle('active', i === phaseIdx);
+    });
+  }
+
+  evalQuadBezier(p0, cp, p1, t) {
+    const u = 1 - t;
+    return {
+      x: u * u * p0.x + 2 * u * t * cp.x + t * t * p1.x,
+      y: u * u * p0.y + 2 * u * t * cp.y + t * t * p1.y
+    };
+  }
+
+  drawFrame() {
+    const canvas = this.canvas;
+    const ctx = this.ctx;
+    if (!canvas || !ctx) return;
+
+    const W = canvas.width;
+    const H = canvas.height;
+    const play = TACTICAL_PLAYS_DATA[this.activePlayId];
+    const tTotal = Math.min(1, Math.max(0, this.progress));
+    const accent = play.isDestroyer ? '#ff2a5f' : '#00ffc8';
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Pitch Background & Tactical Grid
+    const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+    bgGrad.addColorStop(0, '#040a14');
+    bgGrad.addColorStop(1, '#071421');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.strokeStyle = 'rgba(0, 255, 200, 0.06)';
+    ctx.lineWidth = 1;
+    for (let x = 45; x < W; x += 45) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    }
+    for (let y = 45; y < H; y += 45) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+    }
+
+    // Half-Pitch Markings (Right Goal)
+    const margin = 28;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(margin, margin, W - margin * 2, H - margin * 2);
+
+    // Center Circle Arc & Penalty Area
+    ctx.beginPath();
+    ctx.arc(margin, H / 2, 74, -Math.PI / 2, Math.PI / 2);
+    ctx.stroke();
+
+    const boxW = 165;
+    const boxH = 260;
+    ctx.strokeRect(W - margin - boxW, (H - boxH) / 2, boxW, boxH);
+    ctx.strokeRect(W - margin - 62, (H - 135) / 2, 62, 135);
+
+    // Goal Post Highlight
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(W - margin, H / 2 - 46);
+    ctx.lineTo(W - margin + 10, H / 2 - 46);
+    ctx.lineTo(W - margin + 10, H / 2 + 46);
+    ctx.lineTo(W - margin, H / 2 + 46);
+    ctx.stroke();
+
+    // Interpolate Rin Run & Ball Flight
+    const runT = Math.min(1, tTotal / 0.56);
+    const shotT = tTotal <= 0.52 ? 0 : Math.min(1, (tTotal - 0.52) / 0.48);
+
+    const p0 = { x: play.rinPath[0].x * W, y: play.rinPath[0].y * H };
+    const p1 = { x: play.rinPath[1].x * W, y: play.rinPath[1].y * H };
+    const p2 = { x: play.rinPath[2].x * W, y: play.rinPath[2].y * H };
+
+    const rinPos = this.evalQuadBezier(p0, p1, p2, runT);
+    const shotStart = p2;
+    const shotCtrl = { x: play.ballCtrl.x * W, y: play.ballCtrl.y * H };
+    const shotEnd = { x: play.ballEnd.x * W, y: play.ballEnd.y * H };
+
+    // Puppet Manipulation Links
+    if (play.marionetteLinks.length) {
+      ctx.save();
+      ctx.setLineDash([5, 6]);
+      ctx.strokeStyle = play.isDestroyer ? 'rgba(255, 42, 95, 0.52)' : 'rgba(250, 204, 21, 0.45)';
+      ctx.lineWidth = 1.6;
+      play.marionetteLinks.forEach(([defIdx]) => {
+        const d = play.defenders[defIdx];
+        if (!d) return;
+        ctx.beginPath();
+        ctx.moveTo(rinPos.x, rinPos.y);
+        ctx.lineTo(d.x * W, d.y * H);
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    // Dribble Spline Guide
+    ctx.save();
+    ctx.setLineDash([6, 6]);
+    ctx.strokeStyle = 'rgba(0, 255, 200, 0.45)';
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.moveTo(p0.x, p0.y);
+    ctx.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y);
+    ctx.stroke();
+    ctx.restore();
+
+    // Curved Shot Guide & Active Glowing Trail
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(shotStart.x, shotStart.y);
+    ctx.quadraticCurveTo(shotCtrl.x, shotCtrl.y, shotEnd.x, shotEnd.y);
+    ctx.stroke();
+    ctx.restore();
+
+    if (shotT > 0) {
+      ctx.save();
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 4.2;
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = accent;
+      ctx.beginPath();
+      const steps = 28;
+      for (let i = 0; i <= steps; i += 1) {
+        const st = (i / steps) * shotT;
+        const pt = this.evalQuadBezier(shotStart, shotCtrl, shotEnd, st);
+        if (i === 0) ctx.moveTo(pt.x, pt.y);
+        else ctx.lineTo(pt.x, pt.y);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // Predator Eye Vision Cone during Approach/Strike
+    ctx.save();
+    const aimAngle = Math.atan2(shotEnd.y - rinPos.y, shotEnd.x - rinPos.x);
+    ctx.fillStyle = play.isDestroyer ? 'rgba(255, 42, 95, 0.11)' : 'rgba(0, 255, 200, 0.09)';
+    ctx.beginPath();
+    ctx.moveTo(rinPos.x, rinPos.y);
+    ctx.arc(rinPos.x, rinPos.y, 170, aimAngle - 0.18, aimAngle + 0.18);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // Allies
+    play.allies.forEach((ally) => {
+      const ax = ally.x * W;
+      const ay = ally.y * H;
+      ctx.fillStyle = '#0ea5e9';
+      ctx.beginPath(); ctx.arc(ax, ay, 11, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#bae6fd';
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+      ctx.fillStyle = '#e0f2fe';
+      ctx.font = '700 10px Orbitron, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(ally.label, ax, ay - 16);
+    });
+
+    // Defenders
+    play.defenders.forEach((def) => {
+      const dx = def.x * W;
+      const dy = def.y * H;
+      ctx.fillStyle = def.label === 'GK' ? '#f59e0b' : '#dc2626';
+      ctx.beginPath(); ctx.arc(dx, dy, 12, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#fecaca';
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+      ctx.fillStyle = '#fca5a5';
+      ctx.font = '700 10px Orbitron, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(def.label, dx, dy - 17);
+    });
+
+    // Itoshi Rin Node
+    ctx.save();
+    ctx.shadowBlur = 18;
+    ctx.shadowColor = accent;
+    ctx.fillStyle = accent;
+    ctx.beginPath();
+    ctx.arc(rinPos.x, rinPos.y, 15, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = '#041016';
+    ctx.font = '800 11px Orbitron, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('10', rinPos.x, rinPos.y);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '800 11px Orbitron, sans-serif';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText('RIN', rinPos.x, rinPos.y - 21);
+
+    // Ball Node
+    const ballPos = shotT > 0
+      ? this.evalQuadBezier(shotStart, shotCtrl, shotEnd, shotT)
+      : { x: rinPos.x + 14, y: rinPos.y + 8 };
+
+    ctx.save();
+    ctx.shadowBlur = 16;
+    ctx.shadowColor = '#ffffff';
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(ballPos.x, ballPos.y, 7.2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+// -------------------------------------------------------------
+// RIVAL DUEL COMPARATOR CONTROLLER (#tacticalSection)
+// -------------------------------------------------------------
+const RIN_BASE_METRICS = [98, 88, 95, 96, 90, 89];
+const DUEL_AXIS_LABELS = ['УДАР', 'ДРІБЛІНГ', 'VISION', 'КЛАТЧ', 'ШВИДКІСТЬ', 'ФІЗИКА'];
+
+const RIVAL_PROFILES = {
+  sae: {
+    legend: 'ІТОШІ САЕ · REAL #10',
+    record: 'СТАТУС: NEW GEN WORLD XI',
+    stats: [91, 98, 99, 94, 89, 86],
+    verdictTitle: 'Хірург півзахисту vs Чистий Руйнівник',
+    verdictText: 'Сае переважає в дріблінгу та пасовій геометрії, проте в завершенні атак і ментальному тиску фінальної третини Рін уже виходить на рівень справжньої паритетної дуелі.'
+  },
+  isagi: {
+    legend: 'ІСАГІ ЙОІЧІ · BASTARD #11',
+    record: 'ЦІННІСТЬ: 240M ¥ · РАВНИЙ ПІК',
+    stats: [88, 79, 99, 98, 84, 81],
+    verdictTitle: 'Адаптивний Metavision проти Тотальної Дуелі 1v1',
+    verdictText: 'Ісагі зрівнявся за читанням поля та реалізацією Two-Gun Volley, але індивідуальна техніка удару, підкрутка та фізичний тиск Ріна залишаються стабільно вищими.'
+  },
+  kaiser: {
+    legend: 'МІХАЕЛЬ КАЙЗЕР · BM #10',
+    record: 'ЦІННІСТЬ: 320M ¥ · NEW GEN XI',
+    stats: [99, 86, 93, 93, 91, 88],
+    verdictTitle: 'Kaiser Impact проти Непередбачуваного Flow',
+    verdictText: 'Німецький нападник володіє найшвидшим замахом удару у світі, проте Рін у режимі Берсерка нав’язує контактний тиск і розбиває раціональну дистанцію Кайзера.'
+  },
+  shidou: {
+    legend: 'РЮСЕЙ ШІДО · PXG #99',
+    record: 'ЦІННІСТЬ: 160M ¥ · ПОДВІЙНИЙ АС',
+    stats: [95, 76, 80, 92, 91, 95],
+    verdictTitle: 'Первісні рефлекси проти Контрольованого Хаосу',
+    verdictText: 'Шідо смертельно небезпечний у штрафному з будь-якої акробатичної позиції, та інтелектуальна глибина комбінацій і дальній постріл роблять Ріна більш універсальною зброєю.'
+  },
+  loki: {
+    legend: 'ЖУЛЬЄН ЛОКІ · PXG MASTER',
+    record: 'СТАТУС: WORLD STAR · СВІТОВА ЕЛІТА',
+    stats: [94, 96, 92, 95, 100, 91],
+    verdictTitle: 'Надзвуковий спринт проти Тактичної Еволюції',
+    verdictText: 'Локі зберігає беззаперечну перевагу у вибуховій швидкості світового класу, однак дуель із ним у лізі NEL стала головним каталізатором пробудження Ріна.'
+  }
+};
+
+class RivalComparatorController {
+  /**
+   * Compare Itoshi Rin's 6 core battle attributes against major rivals with live SVG radar and delta bars.
+   */
+  constructor(sfx) {
+    this.sfx = sfx;
+    this.pills = document.querySelectorAll('.rival-pill');
+    this.radarHost = document.getElementById('duelRadarContainer');
+    this.barsHost = document.getElementById('duelBarsList');
+    this.edgePill = document.getElementById('duelEdgeBadge');
+    this.legendLabel = document.getElementById('duelRivalLegendLabel');
+    this.recordEl = document.getElementById('duelCanonRecord');
+    this.verdictTitleEl = document.getElementById('duelVerdictTitle');
+    this.verdictTextEl = document.getElementById('duelVerdictText');
+    this.activeRival = 'sae';
+
+    if (!this.radarHost || !this.barsHost) return;
+    this.bindEvents();
+    this.render();
+  }
+
+  bindEvents() {
+    this.pills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        const key = pill.getAttribute('data-rival');
+        if (!RIVAL_PROFILES[key]) return;
+        this.activeRival = key;
+        this.pills.forEach((p) => {
+          const active = p === pill;
+          p.classList.toggle('active', active);
+          p.setAttribute('aria-selected', String(active));
+        });
+        this.render();
+        if (this.sfx) this.sfx.playClick();
+      });
+    });
+  }
+
+  render() {
+    const rival = RIVAL_PROFILES[this.activeRival];
+    if (!rival) return;
+
+    if (this.legendLabel) this.legendLabel.textContent = rival.legend;
+    if (this.recordEl) this.recordEl.textContent = rival.record;
+    if (this.verdictTitleEl) this.verdictTitleEl.textContent = rival.verdictTitle;
+    if (this.verdictTextEl) this.verdictTextEl.textContent = rival.verdictText;
+
+    const rinAvg = RIN_BASE_METRICS.reduce((a, b) => a + b, 0) / RIN_BASE_METRICS.length;
+    const rivalAvg = rival.stats.reduce((a, b) => a + b, 0) / rival.stats.length;
+    const diff = rinAvg - rivalAvg;
+
+    if (this.edgePill) {
+      this.edgePill.textContent = `RIN EDGE: ${diff >= 0 ? '+' : ''}${diff.toFixed(1)}`;
+      this.edgePill.classList.toggle('is-negative', diff < 0);
+    }
+
+    this.radarHost.innerHTML = buildRadarSvg({
+      labels: DUEL_AXIS_LABELS,
+      primaryValues: RIN_BASE_METRICS,
+      secondaryValues: rival.stats,
+      size: 310,
+      radius: 94,
+      showValues: false,
+      cssClass: 'duel-radar-svg'
+    });
+
+    this.barsHost.innerHTML = '';
+    DUEL_AXIS_LABELS.forEach((lbl, idx) => {
+      const rinVal = RIN_BASE_METRICS[idx];
+      const rVal = rival.stats[idx];
+      const delta = rinVal - rVal;
+
+      const row = document.createElement('div');
+      row.className = 'duel-bar-row';
+
+      const head = document.createElement('div');
+      head.className = 'duel-bar-head';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.textContent = `${lbl} · RIN ${rinVal} vs ${rVal}`;
+
+      const deltaSpan = document.createElement('span');
+      deltaSpan.className = `duel-delta ${delta > 0 ? '' : (delta < 0 ? 'is-loss' : 'is-even')}`;
+      deltaSpan.textContent = delta > 0 ? `+${delta}` : String(delta);
+
+      head.append(nameSpan, deltaSpan);
+
+      const track = document.createElement('div');
+      track.className = 'duel-dual-track';
+
+      const barRin = document.createElement('div');
+      barRin.className = 'duel-track-rin';
+      barRin.style.width = `${rinVal}%`;
+
+      const barRival = document.createElement('div');
+      barRival.className = 'duel-track-rival';
+      barRival.style.width = `${rVal}%`;
+
+      track.append(barRin, barRival);
+      row.append(head, track);
+      this.barsHost.appendChild(row);
+    });
+  }
+}
+
+// -------------------------------------------------------------
 // SITE PORTAL CONTROLLER
 // -------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   const sfx = new SoundManager();
   const bgm = new ThemeMusicManager();
 
-  // Navigation Links
+  // Navigation Links & Mobile Drawer
+  const navbarHud = document.querySelector('.navbar-hud');
+  const mobileNavToggleBtn = document.getElementById('mobileNavToggleBtn');
   const navLinks = document.querySelectorAll('.nav-link');
   const sections = document.querySelectorAll('.content-section');
   const rinEmblemBtn = document.getElementById('rinEmblemBtn');
@@ -5190,6 +6350,39 @@ document.addEventListener('DOMContentLoaded', () => {
   let callCtrl = null;
   let rinFlowOverride = false;
   let toastTimer = null;
+
+  function setMobileDrawerOpen(open) {
+    if (!navbarHud || !mobileNavToggleBtn) return;
+    navbarHud.classList.toggle('nav-open', Boolean(open));
+    mobileNavToggleBtn.setAttribute('aria-expanded', String(Boolean(open)));
+  }
+
+  if (mobileNavToggleBtn && navbarHud) {
+    mobileNavToggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = !navbarHud.classList.contains('nav-open');
+      setMobileDrawerOpen(willOpen);
+      sfx.playClick();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (navbarHud.classList.contains('nav-open') && !navbarHud.contains(e.target)) {
+        setMobileDrawerOpen(false);
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && navbarHud.classList.contains('nav-open')) {
+        setMobileDrawerOpen(false);
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 1080 && navbarHud.classList.contains('nav-open')) {
+        setMobileDrawerOpen(false);
+      }
+    }, { passive: true });
+  }
 
   window.isRinFlowOverrideActive = () => rinFlowOverride;
 
@@ -5285,6 +6478,7 @@ document.addEventListener('DOMContentLoaded', () => {
   callCtrl = new RinCallController(sfx, syncFlowThemeState);
 
   function switchSection(targetId) {
+    setMobileDrawerOpen(false);
     sections.forEach(sec => {
       sec.classList.remove('active');
       if (sec.id === targetId) sec.classList.add('active');
@@ -5303,6 +6497,13 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         window.gameSim.pauseLoop();
       }
+    }
+    if (window.tacticalPlaybook) {
+      if (targetId === 'tacticalSection') window.tacticalPlaybook.onEnter();
+      else window.tacticalPlaybook.onLeave();
+    }
+    if (window.voiceArchive && targetId !== 'gallerySection') {
+      window.voiceArchive.pauseOnLeave();
     }
     if (callCtrl) {
       if (targetId === 'callSection') callCtrl.onSectionEnter();
@@ -5350,6 +6551,8 @@ document.addEventListener('DOMContentLoaded', () => {
     { selector: '#dossierSection .dossier-card', alternateLR: true },
     { selector: '#weaponsSection .weapon-card', variant: 'reveal-scale-up', stagger: 3 },
     { selector: '#weaponsSection #weaponDetailPanel', variant: 'reveal-scale-up' },
+    { selector: '#tacticalSection .tactical-board-card', variant: 'reveal-from-left' },
+    { selector: '#tacticalSection .rival-duel-card', variant: 'reveal-from-right' },
     { selector: '#timelineSection .timeline-item', alternateLR: true },
     { selector: '#gallerySection .gallery-card', variant: 'reveal-scale-up', stagger: 3 },
     { selector: '#gameSection .game-controls-panel', variant: 'reveal-from-left' },
@@ -5514,6 +6717,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function openMomentModal(idx) {
+    if (window.voiceArchive) {
+      window.voiceArchive.pauseOnLeave();
+    }
     renderMoment(idx);
     if (galleryModal) {
       galleryModal.classList.add('active');
@@ -5587,6 +6793,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize Embedded Quiz
   window.embeddedQuiz = new EmbeddedQuizApp(sfx);
 
+  // Initialize Dossier Radar, Bilingual Voice Archive, Tactical Playbook & Rival Comparator
+  renderDossierAttributeRadar();
+  window.voiceArchive = new VoiceArchiveController(bgm, sfx, showHudToast);
+  window.tacticalPlaybook = new TacticalPlaybookController(sfx);
+  window.rivalComparator = new RivalComparatorController(sfx);
+
 
   // -------------------------------------------------------------
   // INTERACTIVE WEAPON DETAIL & CANONICAL MOMENTS CONTROLLER
@@ -5641,7 +6853,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="weapon-moment-name">${mom.title}</div>
           <div class="weapon-moment-narrative">${mom.narrative}</div>
           <div class="weapon-moment-quote">${mom.quote}</div>
-          <button class="open-moment-in-gallery-btn" data-gallery-idx="${mom.galleryIndex}">
+          <button type="button" class="open-moment-in-gallery-btn" data-gallery-idx="${mom.galleryIndex}">
             <span>🔍 РОЗГОРНУТИ В ГАЛЕРЕЇ</span>
           </button>
         </div>

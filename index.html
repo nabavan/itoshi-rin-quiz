@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,600;1,700;1,800&family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@700;900&family=Russo+One&family=Unbounded:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=20261113_quiz2">
+  <link rel="stylesheet" href="style.css?v=20261114_v4">
 </head>
 <body class="rin-theme">
   <!-- Background Ambience, Marionette Strings & Cyber Grid -->
@@ -37,15 +37,16 @@
     </div>
 
     <!-- Navigation links -->
-    <nav class="nav-menu">
-      <button class="nav-link active" data-target="heroSection">ГОЛОВНА</button>
-      <button class="nav-link" data-target="dossierSection">ДОСЬЄ</button>
-      <button class="nav-link" data-target="weaponsSection">ЗБРОЯ & FLOW</button>
-      <button class="nav-link" data-target="timelineSection">ХРОНОЛОГІЯ</button>
-      <button class="nav-link" data-target="gallerySection">ГАЛЕРЕЯ</button>
-      <button class="nav-link highlight-call" data-target="callSection">📞 ДЗВІНОК РІНУ</button>
-      <button class="nav-link highlight-game" data-target="gameSection">🎮 МІНІ-ГРА 2D</button>
-      <button class="nav-link highlight-quiz" data-target="quizContainerSection">🧠 ЕГО-АУДИТ</button>
+    <nav class="nav-menu" id="mainNavMenu" aria-label="Головна навігація">
+      <button type="button" class="nav-link active" data-target="heroSection">ГОЛОВНА</button>
+      <button type="button" class="nav-link" data-target="dossierSection">ДОСЬЄ</button>
+      <button type="button" class="nav-link" data-target="weaponsSection">ЗБРОЯ &amp; FLOW</button>
+      <button type="button" class="nav-link" data-target="tacticalSection">⚔️ ТАКТИКА &amp; ДУЕЛІ</button>
+      <button type="button" class="nav-link" data-target="timelineSection">ХРОНОЛОГІЯ</button>
+      <button type="button" class="nav-link" data-target="gallerySection">ГАЛЕРЕЯ</button>
+      <button type="button" class="nav-link highlight-call" data-target="callSection">📞 ДЗВІНОК</button>
+      <button type="button" class="nav-link highlight-game" data-target="gameSection">🎮 АРЕНА 2D</button>
+      <button type="button" class="nav-link highlight-quiz" data-target="quizContainerSection">🧠 ЕГО-АУДИТ</button>
     </nav>
 
     <!-- Header Actions -->
@@ -53,10 +54,15 @@
       <button id="bgmToggleBtn" type="button" class="hud-pill-btn bgm-pill-btn" title="Увімкнути або вимкнути музичну тему Ріна" aria-pressed="true">
         <span class="bgm-icon">🎵</span>
         <span class="bgm-label">ТЕМА: RIN</span>
+        <span class="bgm-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       </button>
       <button id="soundToggleBtn" type="button" class="hud-pill-btn" title="Увімкнути/вимкнути звукові ефекти">
         <span class="sound-icon">🔊</span>
         <span class="sound-label">SFX: ON</span>
+      </button>
+      <button id="mobileNavToggleBtn" type="button" class="hud-pill-btn mobile-nav-toggle" aria-expanded="false" aria-controls="mainNavMenu" aria-label="Відкрити або закрити навігацію">
+        <span class="burger-lines" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="mobile-nav-label">МЕНЮ</span>
       </button>
     </div>
   </header>
@@ -108,15 +114,15 @@
 
           <!-- Hero CTAs -->
           <div class="hero-buttons">
-            <button class="bl-btn bl-btn-primary" data-jump="gameSection">
+            <button type="button" class="bl-btn bl-btn-primary" data-jump="gameSection">
               <span>ГРАТИ В МІНІ-ГРУ 2D RAYLIB</span>
               <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
             </button>
-            <button class="bl-btn bl-btn-secondary" data-jump="quizContainerSection">
+            <button type="button" class="bl-btn bl-btn-secondary" data-jump="quizContainerSection">
               <span>ПРОЙТИ ЕГО-АУДИТ</span>
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
             </button>
-            <button class="bl-btn bl-btn-ghost" data-jump="dossierSection">
+            <button type="button" class="bl-btn bl-btn-ghost" data-jump="dossierSection">
               <span>ДОСЬЄ ГРАВЦЯ</span>
             </button>
           </div>
@@ -411,7 +417,7 @@
                 <span class="stat-name">Удар і точність</span>
                 <span class="stat-num">98 / 100</span>
               </div>
-              <div class="stat-track"><div class="stat-bar" style="width: 98%;"></div></div>
+              <div class="stat-track"><div class="stat-bar stat-bar--98"></div></div>
             </div>
 
             <div class="stat-row">
@@ -419,7 +425,7 @@
                 <span class="stat-name">Футбольний IQ & Бачення поля</span>
                 <span class="stat-num">99 / 100</span>
               </div>
-              <div class="stat-track"><div class="stat-bar" style="width: 99%;"></div></div>
+              <div class="stat-track"><div class="stat-bar stat-bar--99"></div></div>
             </div>
 
             <div class="stat-row">
@@ -427,7 +433,7 @@
                 <span class="stat-name">Пас & Підкрутка траєкторії</span>
                 <span class="stat-num">95 / 100</span>
               </div>
-              <div class="stat-track"><div class="stat-bar" style="width: 95%;"></div></div>
+              <div class="stat-track"><div class="stat-bar stat-bar--95"></div></div>
             </div>
 
             <div class="stat-row">
@@ -435,7 +441,7 @@
                 <span class="stat-name">Дриблінг & Контроль м'яча</span>
                 <span class="stat-num">90 / 100</span>
               </div>
-              <div class="stat-track"><div class="stat-bar" style="width: 90%;"></div></div>
+              <div class="stat-track"><div class="stat-bar stat-bar--90"></div></div>
             </div>
 
             <div class="stat-row">
@@ -443,7 +449,7 @@
                 <span class="stat-name">Швидкість & Стартовий ривок</span>
                 <span class="stat-num">89 / 100</span>
               </div>
-              <div class="stat-track"><div class="stat-bar" style="width: 89%;"></div></div>
+              <div class="stat-track"><div class="stat-bar stat-bar--89"></div></div>
             </div>
 
             <div class="stat-row">
@@ -451,7 +457,7 @@
                 <span class="stat-name">Фізична міць & Витривалість</span>
                 <span class="stat-num">88 / 100</span>
               </div>
-              <div class="stat-track"><div class="stat-bar" style="width: 88%;"></div></div>
+              <div class="stat-track"><div class="stat-bar stat-bar--88"></div></div>
             </div>
 
             <div class="stat-row">
@@ -459,8 +465,17 @@
                 <span class="stat-name">Захисна позиційна гра</span>
                 <span class="stat-num">87 / 100</span>
               </div>
-              <div class="stat-track"><div class="stat-bar" style="width: 87%;"></div></div>
+              <div class="stat-track"><div class="stat-bar stat-bar--87"></div></div>
             </div>
+          </div>
+
+          <!-- 7-Axis Spatial Radar Overlay -->
+          <div class="dossier-radar-box">
+            <div class="dossier-radar-head">
+              <span class="dossier-radar-tag">// MULTI-AXIS PERFORMANCE PROFILE</span>
+              <span class="dossier-radar-score">OVR 96.4</span>
+            </div>
+            <div id="dossierAttrRadarWrap" class="dossier-radar-wrap" aria-label="Діаграма футбольних атрибутів Ітоші Ріна"></div>
           </div>
         </div>
       </div>
@@ -519,6 +534,110 @@
     </section>
 
     <!-- ========================================================
+         3B. TACTICAL PLAYBOOK & RIVAL DUEL COMPARATOR
+         ======================================================== -->
+    <section id="tacticalSection" class="content-section">
+      <div class="section-header">
+        <div class="section-tag">// PXG MATCH ANALYTICS &amp; SPATIAL SIMULATION</div>
+        <h2 class="section-title">ТАКТИЧНА ДОШКА &amp; ДУЕЛІ СУПЕРНИКІВ</h2>
+        <p class="section-desc">Інтерактивна симуляція канонічних комбінацій Ітоші Ріна з покадровим розбором руху та живий двосторонній компаратор параметрів проти головних антагоністів Blue Lock.</p>
+      </div>
+
+      <div class="tactical-deck-grid">
+        <!-- Interactive Pitch Playbook -->
+        <article class="tactical-board-card">
+          <div class="tactical-card-header">
+            <div>
+              <span class="tactical-kicker">// 2D PITCH TRAJECTORY ENGINE</span>
+              <h3 class="tactical-card-title">КАНОНІЧНИЙ РОЗБІР КОМБІНАЦІЙ</h3>
+            </div>
+            <div class="tactical-playback-controls">
+              <button type="button" id="tacticalPlayPauseBtn" class="tactical-ctrl-btn is-primary" aria-pressed="true">
+                <span id="tacticalPlayIcon">⏸</span>
+                <span id="tacticalPlayLabel">ПАУЗА</span>
+              </button>
+              <button type="button" id="tacticalRestartBtn" class="tactical-ctrl-btn" title="Перезапустити симуляцію">↺ СПОЧАТКУ</button>
+            </div>
+          </div>
+
+          <div class="tactical-plays-tabs" role="tablist" aria-label="Канонічні комбінації Ріна">
+            <button type="button" class="tactical-play-tab active" data-play="u20_outside" role="tab" aria-selected="true">01 · TRIVELA VS U-20</button>
+            <button type="button" class="tactical-play-tab" data-play="blind_corner" role="tab" aria-selected="false">02 · КУТОВИЙ СУХИЙ ЛИСТ</button>
+            <button type="button" class="tactical-play-tab" data-play="puppet_web" role="tab" aria-selected="false">03 · МАРІОНЕТКА 4v4</button>
+            <button type="button" class="tactical-play-tab" data-play="destroyer_crash" role="tab" aria-selected="false">04 · CRASH-SHOT VS KAISER</button>
+            <button type="button" class="tactical-play-tab" data-play="predator_nigeria" role="tab" aria-selected="false">05 · ХЕТ-ТРИК VS НІГЕРІЯ</button>
+          </div>
+
+          <div class="tactical-canvas-frame">
+            <canvas id="tacticalPlayCanvas" width="900" height="500" aria-label="Анімована тактична схема дій Ітоші Ріна на футбольному полі"></canvas>
+            <div class="visual-corner corner-tl"></div>
+            <div class="visual-corner corner-tr"></div>
+            <div class="visual-corner corner-bl"></div>
+            <div class="visual-corner corner-br"></div>
+          </div>
+
+          <div class="tactical-phase-bar">
+            <div class="tactical-phase-pills" role="group" aria-label="Фаза комбінації">
+              <button type="button" class="tactical-phase-btn active" data-phase="0">ФАЗА 01 // ПОЗИЦІЯ</button>
+              <button type="button" class="tactical-phase-btn" data-phase="1">ФАЗА 02 // РОЗКРИТТЯ</button>
+              <button type="button" class="tactical-phase-btn" data-phase="2">ФАЗА 03 // ФІНІШ</button>
+            </div>
+            <div class="tactical-telemetry-pills">
+              <span class="tele-badge">ДУГА: <strong id="tacticalMetricCurve">34° ОФСАЙД-СІТКА</strong></span>
+              <span class="tele-badge">ШВИДКІСТЬ: <strong id="tacticalMetricSpeed">118 КМ/ГОД</strong></span>
+              <span class="tele-badge is-ego">ІНДЕКС ЕГО: <strong id="tacticalMetricEgo">99 / DESTROYER</strong></span>
+            </div>
+          </div>
+
+          <div class="tactical-phase-readout">
+            <div class="readout-meta">
+              <span id="tacticalPhaseTag" class="readout-tag">BLUE LOCK 11 VS JAPAN U-20</span>
+              <h4 id="tacticalPhaseTitle" class="readout-title">Фаза 01: Стягування блоку Айку</h4>
+            </div>
+            <p id="tacticalPhaseDesc" class="readout-desc"></p>
+          </div>
+        </article>
+
+        <!-- Head-to-Head Rival Comparator -->
+        <article class="rival-duel-card">
+          <div class="tactical-card-header">
+            <div>
+              <span class="tactical-kicker">// EGOIST VERSUS MATRIX</span>
+              <h3 class="tactical-card-title">КОМПАРАТОР ДУЕЛЕЙ</h3>
+            </div>
+            <span id="duelEdgeBadge" class="duel-edge-pill">RIN EDGE: +2.4</span>
+          </div>
+
+          <div class="rival-selector-row" role="tablist" aria-label="Оберіть суперника для порівняння з Ріном">
+            <button type="button" class="rival-pill active" data-rival="sae" role="tab" aria-selected="true">❄️ ІТОШІ САЕ</button>
+            <button type="button" class="rival-pill" data-rival="isagi" role="tab" aria-selected="false">🧩 ІСАГІ ЙОІЧІ</button>
+            <button type="button" class="rival-pill" data-rival="kaiser" role="tab" aria-selected="false">🥀 М. КАЙЗЕР</button>
+            <button type="button" class="rival-pill" data-rival="shidou" role="tab" aria-selected="false">💥 Р. ШІДО</button>
+            <button type="button" class="rival-pill" data-rival="loki" role="tab" aria-selected="false">⚡ Ж. ЛОКІ</button>
+          </div>
+
+          <div class="duel-legend-strip">
+            <span class="duel-legend-item is-rin"><i></i> ІТОШІ РІН · PXG #10</span>
+            <span class="duel-legend-item is-rival"><i></i> <span id="duelRivalLegendLabel">ІТОШІ САЕ · REAL #10</span></span>
+          </div>
+
+          <div id="duelRadarContainer" class="duel-radar-wrap" aria-label="Порівняльна діаграма параметрів гравців"></div>
+
+          <div id="duelBarsList" class="duel-bars-list"></div>
+
+          <div class="duel-verdict-box">
+            <div class="duel-verdict-head">
+              <span class="duel-verdict-kicker">// ТАКТИЧНИЙ ВЕРДИКТ ДУЕЛІ</span>
+              <span id="duelCanonRecord" class="duel-record-tag">ЦІННІСТЬ: 240M ¥ VS N/A</span>
+            </div>
+            <h4 id="duelVerdictTitle" class="duel-verdict-title"></h4>
+            <p id="duelVerdictText" class="duel-verdict-desc"></p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ========================================================
          4. TIMELINE & CHRONICLE
          ======================================================== -->
     <section id="timelineSection" class="content-section">
@@ -530,12 +649,12 @@
 
       <!-- Filter Tabs -->
       <div class="timeline-filters">
-        <button class="t-filter-btn active" data-filter="all">УСЯ ХРОНОЛОГІЯ [14 ЕТАПІВ]</button>
-        <button class="t-filter-btn" data-filter="origins">ВИТОКИ ТА РОЗКОЛ [01–03]</button>
-        <button class="t-filter-btn" data-filter="bluelock">ВІДБІР BLUE LOCK [04–08]</button>
-        <button class="t-filter-btn" data-filter="u20">БИТВА З U-20 [09]</button>
-        <button class="t-filter-btn" data-filter="nel">NEO EGOIST LEAGUE [10–11]</button>
-        <button class="t-filter-btn" data-filter="wc">ЧС U-20 [12–14]</button>
+        <button type="button" class="t-filter-btn active" data-filter="all">УСЯ ХРОНОЛОГІЯ [14 ЕТАПІВ]</button>
+        <button type="button" class="t-filter-btn" data-filter="origins">ВИТОКИ ТА РОЗКОЛ [01–03]</button>
+        <button type="button" class="t-filter-btn" data-filter="bluelock">ВІДБІР BLUE LOCK [04–08]</button>
+        <button type="button" class="t-filter-btn" data-filter="u20">БИТВА З U-20 [09]</button>
+        <button type="button" class="t-filter-btn" data-filter="nel">NEO EGOIST LEAGUE [10–11]</button>
+        <button type="button" class="t-filter-btn" data-filter="wc">ЧС U-20 [12–14]</button>
       </div>
 
       <div class="timeline-container">
@@ -808,10 +927,24 @@
          ======================================================== -->
     <section id="gallerySection" class="content-section">
       <div class="section-header">
-        <div class="section-tag">// ARCHIVAL MEDIA & INTERACTIVE MOMENTS</div>
+        <div class="section-tag">// ARCHIVAL MEDIA &amp; INTERACTIVE MOMENTS</div>
         <h2 class="section-title">ГАЛЕРЕЯ</h2>
       </div>
 
+      <div class="gallery-subnav" role="tablist" aria-label="Підрозділи галереї">
+        <button type="button" class="gallery-subtab active" id="galleryTabFrames" data-gallery-tab="frames" role="tab" aria-selected="true" aria-controls="galleryFramesPanel">
+          <span class="subtab-icon">🖼️</span>
+          <span>КАНОНІЧНІ КАДРИ</span>
+          <span class="subtab-count">23</span>
+        </button>
+        <button type="button" class="gallery-subtab" id="galleryTabVoices" data-gallery-tab="voices" role="tab" aria-selected="false" aria-controls="galleryVoicesPanel">
+          <span class="subtab-icon">🎙️</span>
+          <span>КУЛЬТОВІ ФРАЗИ · JP &amp; EN</span>
+          <span class="subtab-count">6</span>
+        </button>
+      </div>
+
+      <div id="galleryFramesPanel" class="gallery-subpanel is-active" role="tabpanel" aria-labelledby="galleryTabFrames">
       <div class="gallery-grid">
         <!-- Moment 0: Клятва під дощем: Брати Ітоші -->
         <div class="gallery-card interactive-moment" data-moment-index="0">
@@ -1181,72 +1314,36 @@
           </div>
         </div>
       </div>
-    </section>
+      </div>
 
-    <!-- ========================================================
-         MODAL / LIGHTBOX DIALOG FOR GALLERY MOMENTS
-         ======================================================== -->
-    <div id="galleryModal" class="gallery-modal" aria-hidden="true">
-      <div class="gallery-modal-backdrop" id="modalBackdrop"></div>
-      <div class="gallery-modal-dialog">
-        <button id="closeModalBtn" class="modal-close-btn" title="Закрити">✕</button>
-        
-        <div class="modal-layout-grid">
-          <!-- Left: Big Media Showcase -->
-          <div class="modal-media-col">
-            <div class="modal-media-frame">
-              <img id="modalImg" src="" alt="Moment Artwork" class="modal-artwork-img">
-              <div id="modalBadge" class="modal-frame-badge">FLOW STATE // U-20</div>
-              <div class="visual-corner corner-tl"></div>
-              <div class="visual-corner corner-tr"></div>
-              <div class="visual-corner corner-bl"></div>
-              <div class="visual-corner corner-br"></div>
-            </div>
-            <div class="modal-nav-toolbar">
-              <button id="prevMomentBtn" class="modal-btn-step">◀ ПОПЕРЕДНІЙ</button>
-              <div id="momentCounterText" class="moment-counter-indicator">01 / 20</div>
-              <button id="nextMomentBtn" class="modal-btn-step">НАСТУПНИЙ ▶</button>
-            </div>
+      <div id="galleryVoicesPanel" class="gallery-subpanel" role="tabpanel" aria-labelledby="galleryTabVoices" hidden>
+        <div class="voices-header-panel">
+          <div class="voices-intro-copy">
+            <div class="voices-kicker">// ORIGINAL ANIME VOICE CLIPS · KOUKI UCHIYAMA &amp; MATT SHIPMAN</div>
+            <h3 class="voices-panel-title">КУЛЬТОВІ ФРАЗИ ІТОШІ РІНА</h3>
+            <p class="voices-panel-desc">Оберіть культову сцену з епізодів першого та другого сезонів Blue Lock і перемикайтеся між японською та англійською озвучкою прямо в архіві. Фонова музика автоматично призупиняється на час репліки та відновлюється після завершення.</p>
           </div>
-
-          <!-- Right: Lore Breakdown & Tactical Depth -->
-          <div class="modal-details-col">
-            <div class="modal-header-meta">
-              <span id="modalCanonTag" class="canon-tag-pill">МАТЧ U-20 // РОЗДІЛИ 146–148</span>
-              <span id="modalEgoBadge" class="ego-badge-pill">ORIGINAL EGO</span>
-            </div>
-
-            <h3 id="modalTitle" class="modal-event-title">Пробудження Flow: Потворне руйнування</h3>
-
-            <div class="modal-quote-container">
-              <p id="modalQuoteText" class="modal-quote-phrase">«Я витягну з тебе все найкраще і розтопчу перед твоїми очима!»</p>
-              <span id="modalQuoteContext" class="modal-quote-source">// Момент скидання маски Сае</span>
-            </div>
-
-            <div class="modal-narrative-section">
-              <h4 class="modal-sub-label">СУТЬ ТА ХІД ПОДІЇ В АНІМЕ / МАНЗІ:</h4>
-              <p id="modalEventNarrative" class="modal-body-desc"></p>
-            </div>
-
-            <div class="modal-narrative-section">
-              <h4 class="modal-sub-label">ТАКТИЧНИЙ ТА МЕНТАЛЬНИЙ ВПЛИВ:</h4>
-              <p id="modalTacticalImpact" class="modal-body-desc"></p>
-            </div>
-
-            <div class="modal-chips-row">
-              <div class="param-chip">
-                <span class="chip-k">ЕГО-СТАТУС:</span>
-                <span id="modalChipEgo" class="chip-v">BERSERKER FLOW</span>
-              </div>
-              <div class="param-chip">
-                <span class="chip-k">ГОЛОВНИЙ СУПЕРНИК:</span>
-                <span id="modalChipRival" class="chip-v">САЕ ІТОШІ / АЙКУ</span>
-              </div>
-            </div>
+          <div class="voice-filter-pills" role="group" aria-label="Фільтр культових фраз">
+            <button type="button" class="voice-filter-btn active" data-voice-filter="all">УСІ МОМЕНТИ [6]</button>
+            <button type="button" class="voice-filter-btn" data-voice-filter="cold">ХОЛОДНИЙ КОНТРОЛЬ [3]</button>
+            <button type="button" class="voice-filter-btn" data-voice-filter="destroyer">СТАН РУЙНІВНИКА [3]</button>
           </div>
         </div>
+
+        <div id="voiceQuotesGrid" class="voice-quotes-grid"></div>
+
+        <div id="voiceNowPlayingBar" class="voice-now-playing-bar" hidden>
+          <div class="vnp-left">
+            <span class="vnp-pulse-dot" aria-hidden="true"></span>
+            <div>
+              <div id="vnpLabel" class="vnp-label">АКТИВНИЙ ЗАПИС</div>
+              <div id="vnpTitle" class="vnp-title">—</div>
+            </div>
+          </div>
+          <button type="button" id="vnpStopBtn" class="vnp-stop-btn">⏹ ЗУПИНИТИ ЗВУК</button>
+        </div>
       </div>
-    </div>
+    </section>
 
     <!-- ========================================================
          6. 2D TACTICAL BALLISTICS & FLOW SIMULATOR
@@ -1263,23 +1360,23 @@
       <div class="game-wrapper">
         <!-- Mode / Scenario Selector -->
         <div class="game-scenarios-bar" role="tablist" aria-label="Сценарії гри">
-          <button class="scenario-pill active" data-scenario="0" role="tab" aria-selected="true">
+          <button type="button" class="scenario-pill active" data-scenario="0" role="tab" aria-selected="true">
             <span class="sc-code">STAGE 01</span>
             <span class="sc-name">Сухий лист з кута</span>
           </button>
-          <button class="scenario-pill" data-scenario="1" role="tab" aria-selected="false">
+          <button type="button" class="scenario-pill" data-scenario="1" role="tab" aria-selected="false">
             <span class="sc-code">STAGE 02</span>
             <span class="sc-name">Штрафний над стінкою</span>
           </button>
-          <button class="scenario-pill" data-scenario="2" role="tab" aria-selected="false">
+          <button type="button" class="scenario-pill" data-scenario="2" role="tab" aria-selected="false">
             <span class="sc-code">STAGE 03</span>
             <span class="sc-name">Маріонетка 4v4</span>
           </button>
-          <button class="scenario-pill" data-scenario="3" role="tab" aria-selected="false">
+          <button type="button" class="scenario-pill" data-scenario="3" role="tab" aria-selected="false">
             <span class="sc-code">STAGE 04</span>
             <span class="sc-name">Пробудження Flow U-20</span>
           </button>
-          <button class="scenario-pill is-endless" data-scenario="4" role="tab" aria-selected="false">
+          <button type="button" class="scenario-pill is-endless" data-scenario="4" role="tab" aria-selected="false">
             <span class="sc-code">ENDLESS</span>
             <span class="sc-name">Берсерк-аркада</span>
           </button>
@@ -1305,7 +1402,7 @@
               <strong id="hudFlowPct" class="chip-number flow-pct-text">50%</strong>
             </div>
             <div class="flow-meter-track">
-              <div id="hudFlowFill" class="flow-meter-fill" style="width: 50%;"></div>
+              <div id="hudFlowFill" class="flow-meter-fill"></div>
             </div>
           </div>
           <div class="hud-shot-meta">
@@ -1339,19 +1436,19 @@
               <span class="spin-dir-tag">ПРАВО</span>
             </div>
             <div class="spin-controls">
-              <button id="spinLeftBtn" class="spin-btn">◀ ЛІВІШЕ [A / Q]</button>
-              <button id="spinZeroBtn" class="spin-btn spin-reset-btn">0° ПРЯМИЙ</button>
-              <button id="spinRightBtn" class="spin-btn">ПРАВІШЕ [D / E] ▶</button>
+              <button type="button" id="spinLeftBtn" class="spin-btn">◀ ЛІВІШЕ [A / Q]</button>
+              <button type="button" id="spinZeroBtn" class="spin-btn spin-reset-btn">0° ПРЯМИЙ</button>
+              <button type="button" id="spinRightBtn" class="spin-btn">ПРАВІШЕ [D / E] ▶</button>
             </div>
           </div>
 
           <div class="deck-cluster deck-actions-cluster">
             <div class="cluster-title">ТАКТИЧНИЙ ТРИГЕР FLOW</div>
             <div class="deck-action-buttons">
-              <button id="triggerFlowBtn" class="flow-trigger-btn">
+              <button type="button" id="triggerFlowBtn" class="flow-trigger-btn">
                 АКТИВУВАТИ FLOW [ПРОБІЛ / F]
               </button>
-              <button id="resetShotBtn" class="spin-btn reset-round-btn" title="Оновити позицію [R]">
+              <button type="button" id="resetShotBtn" class="spin-btn reset-round-btn" title="Оновити позицію [R]">
                 ↺ НОВИЙ ПОСТРІЛ [R]
               </button>
             </div>
@@ -1386,7 +1483,7 @@
             <p class="q-intro-text">
               Тест охоплює офіційний гайдбук <em>Egoist Bible</em>, матчі Другого відбору, битву проти молодіжної збірної U-20, події клубу PXG у <em>Neo Egoist League</em> та старт Чемпіонату світу U-20.
             </p>
-            <button id="startEmbeddedQuizBtn" class="bl-btn bl-btn-primary">
+            <button type="button" id="startEmbeddedQuizBtn" class="bl-btn bl-btn-primary">
               <span>РОЗПОЧАТИ ТЕСТУВАННЯ</span>
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
             </button>
@@ -1420,7 +1517,7 @@
             </div>
             <p id="feedbackExplanation" class="feedback-text"></p>
             <div class="feedback-actions">
-              <button id="nextQuestionBtn" class="bl-btn bl-btn-next">
+              <button type="button" id="nextQuestionBtn" class="bl-btn bl-btn-next">
                 <span>ДАЛІ</span>
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
               </button>
@@ -1465,13 +1562,13 @@
           </div>
 
           <div class="result-actions">
-            <button id="restartBtn" class="bl-btn bl-btn-secondary">
+            <button type="button" id="restartBtn" class="bl-btn bl-btn-secondary">
               <span>ПРОЙТИ ЗНОВУ</span>
             </button>
-            <button id="shareBtn" class="bl-btn bl-btn-primary">
+            <button type="button" id="shareBtn" class="bl-btn bl-btn-primary">
               <span>СКОПІЮВАТИ РЕЗУЛЬТАТ</span>
             </button>
-            <button id="toggleReviewBtn" class="bl-btn bl-btn-ghost">
+            <button type="button" id="toggleReviewBtn" class="bl-btn bl-btn-ghost">
               <span>РОЗГОРНУТИ РОЗБІР ПОМИЛОК</span>
             </button>
           </div>
@@ -1538,7 +1635,7 @@
             <span class="respect-lbl">СТАВЛЕННЯ РІНА:</span>
             <span class="respect-rank" id="callRespectRank">ЗНЕВАГА</span>
             <div class="respect-bar-track">
-              <div class="respect-bar-fill" id="callRespectBar" style="width: 35%"></div>
+              <div class="respect-bar-fill" id="callRespectBar"></div>
             </div>
           </div>
 
@@ -1619,6 +1716,69 @@
 
   </div>
 
+  <!-- MODAL / LIGHTBOX DIALOG FOR GALLERY MOMENTS (TOP-LEVEL OVERLAY) -->
+  <div id="galleryModal" class="gallery-modal" aria-hidden="true">
+    <div class="gallery-modal-backdrop" id="modalBackdrop"></div>
+    <div class="gallery-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button type="button" id="closeModalBtn" class="modal-close-btn" title="Закрити" aria-label="Закрити вікно моменту">✕</button>
+
+      <div class="modal-layout-grid">
+        <!-- Left: Big Media Showcase -->
+        <div class="modal-media-col">
+          <div class="modal-media-frame">
+            <img id="modalImg" src="" alt="Moment Artwork" class="modal-artwork-img">
+            <div id="modalBadge" class="modal-frame-badge">FLOW STATE // U-20</div>
+            <div class="visual-corner corner-tl"></div>
+            <div class="visual-corner corner-tr"></div>
+            <div class="visual-corner corner-bl"></div>
+            <div class="visual-corner corner-br"></div>
+          </div>
+          <div class="modal-nav-toolbar">
+            <button type="button" id="prevMomentBtn" class="modal-btn-step">◀ ПОПЕРЕДНІЙ</button>
+            <div id="momentCounterText" class="moment-counter-indicator">01 / 23</div>
+            <button type="button" id="nextMomentBtn" class="modal-btn-step">НАСТУПНИЙ ▶</button>
+          </div>
+        </div>
+
+        <!-- Right: Lore Breakdown & Tactical Depth -->
+        <div class="modal-details-col">
+          <div class="modal-header-meta">
+            <span id="modalCanonTag" class="canon-tag-pill">МАТЧ U-20 // РОЗДІЛИ 146–148</span>
+            <span id="modalEgoBadge" class="ego-badge-pill">ORIGINAL EGO</span>
+          </div>
+
+          <h3 id="modalTitle" class="modal-event-title">Пробудження Flow: Потворне руйнування</h3>
+
+          <div class="modal-quote-container">
+            <p id="modalQuoteText" class="modal-quote-phrase">«Я витягну з тебе все найкраще і розтопчу перед твоїми очима!»</p>
+            <span id="modalQuoteContext" class="modal-quote-source">// Момент скидання маски Сае</span>
+          </div>
+
+          <div class="modal-narrative-section">
+            <h4 class="modal-sub-label">СУТЬ ТА ХІД ПОДІЇ В АНІМЕ / МАНЗІ:</h4>
+            <p id="modalEventNarrative" class="modal-body-desc"></p>
+          </div>
+
+          <div class="modal-narrative-section">
+            <h4 class="modal-sub-label">ТАКТИЧНИЙ ТА МЕНТАЛЬНИЙ ВПЛИВ:</h4>
+            <p id="modalTacticalImpact" class="modal-body-desc"></p>
+          </div>
+
+          <div class="modal-chips-row">
+            <div class="param-chip">
+              <span class="chip-k">ЕГО-СТАТУС:</span>
+              <span id="modalChipEgo" class="chip-v">BERSERKER FLOW</span>
+            </div>
+            <div class="param-chip">
+              <span class="chip-k">ГОЛОВНИЙ СУПЕРНИК:</span>
+              <span id="modalChipRival" class="chip-v">САЕ ІТОШІ / АЙКУ</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- CALL API & MODE SETTINGS MODAL (HIDDEN IN LOCAL-ONLY MODE) -->
   <div id="callSettingsModal" class="gallery-modal call-modal" aria-hidden="true" hidden>
     <div class="gallery-modal-backdrop" id="callSettingsBackdrop"></div>
@@ -1673,10 +1833,9 @@
         <div class="setting-group">
           <label class="setting-label" for="geminiModelSelect">МОДЕЛЬ GEMINI</label>
           <select id="geminiModelSelect" class="call-setting-select">
-            <option value="gemini-3.8-flash">gemini-3.8-flash — актуальна, швидка й рекомендована</option>
-            <option value="gemini-3.8-pro">gemini-3.8-pro — глибокий психологічний відіграш</option>
-            <option value="gemini-3-flash-preview">gemini-3-flash-preview — резервна серії 3</option>
-            <option value="gemini-2.5-flash">gemini-2.5-flash — лише для старих проєктів</option>
+            <option value="gemini-2.5-flash">gemini-2.5-flash — швидка й рекомендована модель</option>
+            <option value="gemini-2.5-pro">gemini-2.5-pro — глибокий психологічний відіграш</option>
+            <option value="gemini-2.5-flash-lite">gemini-2.5-flash-lite — полегшена резервна модель</option>
           </select>
         </div>
 
@@ -1727,6 +1886,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=20261113_quiz2" defer></script>
+  <script src="app.js?v=20261114_v2" defer></script>
 </body>
 </html>
