@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2306080d'/%3E%3Crect x='4' y='4' width='56' height='56' rx='11' fill='none' stroke='%2300ffc8' stroke-width='3'/%3E%3Ctext x='32' y='43' font-family='sans-serif' font-size='32' font-weight='900' text-anchor='middle' fill='%2300ffc8'%3E%E7%B3%B8%3C/text%3E%3C/svg%3E">
   <title>ITOSHI RIN // Blue Lock Official Egoist Archive</title>
   
   <!-- Fonts: Authentic Blue Lock Itoshi Rin Typography (Full Cyrillic & Japanese Coverage) -->
@@ -12,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,600;1,700;1,800&family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+JP:wght@700;900&family=Russo+One&family=Unbounded:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="style.css?v=20261114_v4">
+  <link rel="stylesheet" href="style.css?v=20261114_v5">
 </head>
 <body class="rin-theme">
   <!-- Background Ambience, Marionette Strings & Cyber Grid -->
@@ -556,24 +557,38 @@
                 <span id="tacticalPlayIcon">⏸</span>
                 <span id="tacticalPlayLabel">ПАУЗА</span>
               </button>
+              <button type="button" id="tacticalSpeedBtn" class="tactical-ctrl-btn" title="Змінити швидкість симуляції">1.0x</button>
               <button type="button" id="tacticalRestartBtn" class="tactical-ctrl-btn" title="Перезапустити симуляцію">↺ СПОЧАТКУ</button>
             </div>
           </div>
 
           <div class="tactical-plays-tabs" role="tablist" aria-label="Канонічні комбінації Ріна">
             <button type="button" class="tactical-play-tab active" data-play="u20_outside" role="tab" aria-selected="true">01 · TRIVELA VS U-20</button>
-            <button type="button" class="tactical-play-tab" data-play="blind_corner" role="tab" aria-selected="false">02 · КУТОВИЙ СУХИЙ ЛИСТ</button>
+            <button type="button" class="tactical-play-tab" data-play="blind_corner" role="tab" aria-selected="false">02 · СУХИЙ ЛИСТ</button>
             <button type="button" class="tactical-play-tab" data-play="puppet_web" role="tab" aria-selected="false">03 · МАРІОНЕТКА 4v4</button>
-            <button type="button" class="tactical-play-tab" data-play="destroyer_crash" role="tab" aria-selected="false">04 · CRASH-SHOT VS KAISER</button>
-            <button type="button" class="tactical-play-tab" data-play="predator_nigeria" role="tab" aria-selected="false">05 · ХЕТ-ТРИК VS НІГЕРІЯ</button>
+            <button type="button" class="tactical-play-tab" data-play="destroyer_crash" role="tab" aria-selected="false">04 · CRASH VS KAISER</button>
+            <button type="button" class="tactical-play-tab" data-play="predator_nigeria" role="tab" aria-selected="false">05 · ХЕТ-ТРИК НІГЕРІЯ</button>
           </div>
 
           <div class="tactical-canvas-frame">
-            <canvas id="tacticalPlayCanvas" width="900" height="500" aria-label="Анімована тактична схема дій Ітоші Ріна на футбольному полі"></canvas>
+            <canvas id="tacticalPlayCanvas" width="960" height="540" aria-label="Анімована тактична схема дій Ітоші Ріна на футбольному полі"></canvas>
             <div class="visual-corner corner-tl"></div>
             <div class="visual-corner corner-tr"></div>
             <div class="visual-corner corner-bl"></div>
             <div class="visual-corner corner-br"></div>
+          </div>
+
+          <div class="tactical-canvas-legend" aria-hidden="true">
+            <span class="tc-leg"><i class="dot-rin"></i> Рін #10</span>
+            <span class="tc-leg"><i class="dot-ally"></i> Союзник</span>
+            <span class="tc-leg"><i class="dot-def"></i> Захисник</span>
+            <span class="tc-leg"><i class="dot-gk"></i> Кіпер</span>
+            <span class="tc-leg"><i class="dot-spin"></i> Дуга удару</span>
+          </div>
+
+          <div class="tactical-scrubber-row">
+            <input type="range" id="tacticalScrubber" class="tactical-scrubber" min="0" max="100" step="1" value="8" aria-label="Прогрес тактичної комбінації">
+            <span id="tacticalProgressPct" class="tactical-scrubber-pct">08% · ФАЗА 01</span>
           </div>
 
           <div class="tactical-phase-bar">
@@ -583,9 +598,9 @@
               <button type="button" class="tactical-phase-btn" data-phase="2">ФАЗА 03 // ФІНІШ</button>
             </div>
             <div class="tactical-telemetry-pills">
-              <span class="tele-badge">ДУГА: <strong id="tacticalMetricCurve">34° ОФСАЙД-СІТКА</strong></span>
+              <span class="tele-badge">ДУГА: <strong id="tacticalMetricCurve">34° TRIVELA</strong></span>
               <span class="tele-badge">ШВИДКІСТЬ: <strong id="tacticalMetricSpeed">118 КМ/ГОД</strong></span>
-              <span class="tele-badge is-ego">ІНДЕКС ЕГО: <strong id="tacticalMetricEgo">99 / DESTROYER</strong></span>
+              <span class="tele-badge is-ego">ІНДЕКС ЕГО: <strong id="tacticalMetricEgo">96 / ПЕРЕРОСТАННЯ</strong></span>
             </div>
           </div>
 
@@ -605,19 +620,27 @@
               <span class="tactical-kicker">// EGOIST VERSUS MATRIX</span>
               <h3 class="tactical-card-title">КОМПАРАТОР ДУЕЛЕЙ</h3>
             </div>
-            <span id="duelEdgeBadge" class="duel-edge-pill">RIN EDGE: +2.4</span>
+            <span id="duelEdgeBadge" class="duel-edge-pill">RIN EDGE: +0.5</span>
+          </div>
+
+          <div class="duel-mode-bar">
+            <div class="duel-mode-switch" role="group" aria-label="Режим форми Ітоші Ріна">
+              <button type="button" class="duel-mode-btn active" data-rin-mode="base">💠 БАЗОВИЙ PXG</button>
+              <button type="button" class="duel-mode-btn" data-rin-mode="destroyer">🩸 DESTROYER FLOW</button>
+            </div>
+            <span id="duelWinSummary" class="duel-win-summary">ДУЕЛІ: 3 / 6 ЗА РІНОМ</span>
           </div>
 
           <div class="rival-selector-row" role="tablist" aria-label="Оберіть суперника для порівняння з Ріном">
-            <button type="button" class="rival-pill active" data-rival="sae" role="tab" aria-selected="true">❄️ ІТОШІ САЕ</button>
-            <button type="button" class="rival-pill" data-rival="isagi" role="tab" aria-selected="false">🧩 ІСАГІ ЙОІЧІ</button>
-            <button type="button" class="rival-pill" data-rival="kaiser" role="tab" aria-selected="false">🥀 М. КАЙЗЕР</button>
-            <button type="button" class="rival-pill" data-rival="shidou" role="tab" aria-selected="false">💥 Р. ШІДО</button>
-            <button type="button" class="rival-pill" data-rival="loki" role="tab" aria-selected="false">⚡ Ж. ЛОКІ</button>
+            <button type="button" class="rival-pill active" data-rival="sae" role="tab" aria-selected="true">❄️ САЕ</button>
+            <button type="button" class="rival-pill" data-rival="isagi" role="tab" aria-selected="false">🧩 ІСАГІ</button>
+            <button type="button" class="rival-pill" data-rival="kaiser" role="tab" aria-selected="false">🥀 КАЙЗЕР</button>
+            <button type="button" class="rival-pill" data-rival="shidou" role="tab" aria-selected="false">💥 ШІДО</button>
+            <button type="button" class="rival-pill" data-rival="loki" role="tab" aria-selected="false">⚡ ЛОКІ</button>
           </div>
 
           <div class="duel-legend-strip">
-            <span class="duel-legend-item is-rin"><i></i> ІТОШІ РІН · PXG #10</span>
+            <span class="duel-legend-item is-rin"><i></i> <span id="duelRinLegendLabel">ІТОШІ РІН · PXG #10</span></span>
             <span class="duel-legend-item is-rival"><i></i> <span id="duelRivalLegendLabel">ІТОШІ САЕ · REAL #10</span></span>
           </div>
 
@@ -628,7 +651,7 @@
           <div class="duel-verdict-box">
             <div class="duel-verdict-head">
               <span class="duel-verdict-kicker">// ТАКТИЧНИЙ ВЕРДИКТ ДУЕЛІ</span>
-              <span id="duelCanonRecord" class="duel-record-tag">ЦІННІСТЬ: 240M ¥ VS N/A</span>
+              <span id="duelCanonRecord" class="duel-record-tag">СТАТУС: NEW GEN WORLD XI</span>
             </div>
             <h4 id="duelVerdictTitle" class="duel-verdict-title"></h4>
             <p id="duelVerdictText" class="duel-verdict-desc"></p>
@@ -1886,6 +1909,6 @@
     </div>
   </footer>
 
-  <script src="app.js?v=20261114_v2" defer></script>
+  <script src="app.js?v=20261114_v4" defer></script>
 </body>
 </html>

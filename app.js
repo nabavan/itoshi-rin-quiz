@@ -5235,15 +5235,16 @@ function buildRadarSvg(opts) {
     primaryColor = '#00ffc8',
     primaryFill = 'rgba(0, 255, 200, 0.24)',
     secondaryColor = '#ff2a5f',
-    secondaryFill = 'rgba(255, 42, 95, 0.18)',
-    size = 310,
-    radius = 96,
+    secondaryFill = 'rgba(255, 42, 95, 0.2)',
+    width = 440,
+    height = 328,
+    radius = 92,
     showValues = true,
     cssClass = 'dossier-radar-svg'
   } = opts;
 
-  const cx = size / 2;
-  const cy = size / 2;
+  const cx = width / 2;
+  const cy = height / 2;
   const count = labels.length;
   const levels = [0.25, 0.5, 0.75, 1];
 
@@ -5263,50 +5264,68 @@ function buildRadarSvg(opts) {
       const [x, y] = getPoint(i, lvl);
       return `${x.toFixed(1)},${y.toFixed(1)}`;
     }).join(' ');
-    return `<polygon points="${pts}" fill="none" stroke="rgba(255,255,255,${lvl === 1 ? '0.2' : '0.09'})" stroke-width="1"/>`;
+    const pct = Math.round(lvl * 100);
+    const tickY = cy - radius * lvl;
+    const tickTag = lvl >= 0.5 && lvl < 1
+      ? `<text x="${(cx + 4).toFixed(1)}" y="${(tickY + 3).toFixed(1)}" fill="rgba(148,163,184,0.45)" font-family="Exo 2, sans-serif" font-size="8.5" font-weight="700">${pct}</text>`
+      : '';
+    return `<polygon points="${pts}" fill="none" stroke="rgba(255,255,255,${lvl === 1 ? '0.24' : '0.09'})" stroke-width="1"/>${tickTag}`;
   }).join('');
 
   const spokesAndLabelsSvg = labels.map((lbl, i) => {
     const [ex, ey] = getPoint(i, 1);
     const [lx, ly] = getPoint(i, 1, 22);
-    const val = primaryValues[i];
-    const cos = Math.cos((-Math.PI / 2) + (i * 2 * Math.PI) / count);
-    const anchor = Math.abs(cos) < 0.2 ? 'middle' : (cos > 0 ? 'start' : 'end');
-    const dyVal = ly < cy ? '-0.15em' : '0.35em';
+    const pVal = primaryValues[i];
+    const sVal = secondaryValues ? secondaryValues[i] : null;
+    const angle = (-Math.PI / 2) + (i * 2 * Math.PI) / count;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const anchor = Math.abs(cos) < 0.22 ? 'middle' : (cos > 0 ? 'start' : 'end');
+    const baseY = sin < -0.5 ? (secondaryValues ? ly - 10 : ly - 6) : (sin > 0.5 ? ly + 6 : ly);
+
+    let subValueSvg = '';
+    if (secondaryValues && sVal !== null) {
+      const winColor = pVal > sVal ? primaryColor : (pVal < sVal ? '#ff6b91' : '#94a3b8');
+      subValueSvg = `<tspan x="${lx.toFixed(1)}" dy="1.25em" fill="${winColor}" font-size="10.5" font-weight="800">${pVal} · ${sVal}</tspan>`;
+    } else if (showValues) {
+      subValueSvg = `<tspan fill="${primaryColor}" font-weight="800"> ${pVal}</tspan>`;
+    }
+
     return `
-      <line x1="${cx}" y1="${cy}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-      <text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}" dy="${dyVal}" fill="#cbd5e1" font-family="Orbitron, sans-serif" font-size="9.5" font-weight="700">${escapeV2Html(lbl)}${showValues ? ` ${val}` : ''}</text>
+      <line x1="${cx}" y1="${cy}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+      <text x="${lx.toFixed(1)}" y="${baseY.toFixed(1)}" text-anchor="${anchor}" fill="#e2e8f0" font-family="Exo 2, sans-serif" font-size="11" font-weight="700" letter-spacing="0.04em">${escapeV2Html(lbl)}${subValueSvg}</text>
     `;
   }).join('');
 
   const secondarySvg = secondaryValues ? `
-    <polygon points="${toPointsAttr(secondaryValues)}" fill="${secondaryFill}" stroke="${secondaryColor}" stroke-width="2" stroke-linejoin="round"/>
+    <polygon points="${toPointsAttr(secondaryValues)}" fill="${secondaryFill}" stroke="${secondaryColor}" stroke-width="2.2" stroke-linejoin="round"/>
     ${secondaryValues.map((v, i) => {
       const [x, y] = getPoint(i, Math.max(0, Math.min(100, v)) / 100);
-      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.4" fill="${secondaryColor}" stroke="#060a12" stroke-width="1.2"/>`;
+      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.6" fill="${secondaryColor}" stroke="#060a12" stroke-width="1.3"/>`;
     }).join('')}
   ` : '';
 
   const primarySvg = `
-    <polygon points="${toPointsAttr(primaryValues)}" fill="${primaryFill}" stroke="${primaryColor}" stroke-width="2.2" stroke-linejoin="round"/>
+    <polygon points="${toPointsAttr(primaryValues)}" fill="${primaryFill}" stroke="${primaryColor}" stroke-width="2.5" stroke-linejoin="round"/>
     ${primaryValues.map((v, i) => {
       const [x, y] = getPoint(i, Math.max(0, Math.min(100, v)) / 100);
-      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.8" fill="${primaryColor}" stroke="#060a12" stroke-width="1.3"/>`;
+      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.1" fill="${primaryColor}" stroke="#060a12" stroke-width="1.4"/>`;
     }).join('')}
   `;
 
-  return `<svg viewBox="0 0 ${size} ${size}" class="${cssClass}" role="img" aria-hidden="true">${ringsSvg}${spokesAndLabelsSvg}${secondarySvg}${primarySvg}</svg>`;
+  return `<svg viewBox="0 0 ${width} ${height}" class="${cssClass}" role="img" aria-hidden="true">${ringsSvg}${spokesAndLabelsSvg}${secondarySvg}${primarySvg}</svg>`;
 }
 
-/** Populate Dossier Card 2 with Rin's 7-Axis Spatial Attribute Radar. */
+/** Populate Dossier Card 2 with Rin's 7-Axis Spatial Attribute Radar matching the bars above. */
 function renderDossierAttributeRadar() {
   const host = document.getElementById('dossierAttrRadarWrap');
   if (!host) return;
   host.innerHTML = buildRadarSvg({
-    labels: ['УДАР', 'ОБРОБКА', 'ПАС', 'ШВИДК.', 'ФІЗИКА', 'ДРІБЛ.', 'ЗАХИСТ'],
+    labels: ['УДАР', 'IQ / VISION', 'ПАС', 'ДРИБЛІНГ', 'ШВИДКІСТЬ', 'ФІЗИКА', 'ЗАХИСТ'],
     primaryValues: [98, 99, 95, 90, 89, 88, 87],
-    size: 320,
-    radius: 94,
+    width: 440,
+    height: 328,
+    radius: 92,
     showValues: true,
     cssClass: 'dossier-radar-svg'
   });
@@ -5687,24 +5706,37 @@ const TACTICAL_PLAYS_DATA = {
     speed: '118 КМ/ГОД',
     ego: '96 / ПЕРЕРОСТАННЯ',
     isDestroyer: false,
-    rinPath: [{ x: 0.24, y: 0.72 }, { x: 0.48, y: 0.54 }, { x: 0.67, y: 0.34 }],
-    ballCtrl: { x: 0.85, y: 0.14 },
-    ballEnd: { x: 0.94, y: 0.44 },
-    allies: [{ label: 'ISAGI', x: 0.56, y: 0.72 }, { label: 'BACHIRA', x: 0.41, y: 0.28 }],
-    defenders: [{ label: 'AIKU', x: 0.77, y: 0.41 }, { label: 'NIO', x: 0.68, y: 0.56 }, { label: 'GK', x: 0.93, y: 0.5 }],
-    marionetteLinks: [[0, 1]],
+    isSetPiece: false,
+    shotTrigger: 0.50,
+    rinPath: [{ x: 0.21, y: 0.72 }, { x: 0.48, y: 0.53 }, { x: 0.68, y: 0.36 }],
+    rinLabelPos: 'top',
+    ballCtrl: { x: 0.83, y: 0.14 },
+    ballEnd: { x: 0.950, y: 0.415 },
+    allies: [
+      { label: 'BACHIRA', labelPos: 'top', pts: [{ x: 0.36, y: 0.28 }, { x: 0.46, y: 0.23 }, { x: 0.54, y: 0.21 }] },
+      { label: 'ISAGI', labelPos: 'bottom', pts: [{ x: 0.49, y: 0.74 }, { x: 0.63, y: 0.72 }, { x: 0.74, y: 0.68 }] }
+    ],
+    defenders: [
+      { label: 'AIKU', labelPos: 'bottom', pts: [{ x: 0.78, y: 0.37 }, { x: 0.75, y: 0.40 }, { x: 0.76, y: 0.43 }] },
+      { label: 'NIO', labelPos: 'bottom', pts: [{ x: 0.65, y: 0.58 }, { x: 0.70, y: 0.60 }, { x: 0.76, y: 0.59 }] },
+      { label: 'GK', labelPos: 'top', pts: [{ x: 0.908, y: 0.49 }, { x: 0.906, y: 0.46 }, { x: 0.910, y: 0.54 }] }
+    ],
+    marionetteLinks: [
+      { from: 'rin', to: { type: 'def', idx: 0 }, style: 'puppet' },
+      { from: { type: 'ally', idx: 1 }, to: { type: 'def', idx: 1 }, style: 'tether' }
+    ],
     phases: [
       {
         title: 'Фаза 01: Стягування блоку Айку',
-        desc: 'Рін навмисно входить у півфланг під кутом, змушуючи Олівера Айку перекрити ближній кут і відкрити зовнішній коридор.'
+        desc: 'Рін навмисно входить у півфланг під кутом, а Ісагі відтягує Ніо вправо — це змушує Олівера Айку закривати центр і оголити зовнішній коридор.'
       },
       {
-        title: 'Фаза 02: Зміщення під праву зовнішню',
-        desc: 'Замість стандартного зміщення в центр Рін підрізає траєкторію правою зовнішньою стороною стопи, ламаючи таймінг захисника.'
+        title: 'Фаза 02: Підкрутка правою зовнішньою',
+        desc: 'Замість стандартного зміщення під ліву ногу Рін підрізає траєкторію зовнішньою стороною стопи, миттєво ламаючи баланс захисника.'
       },
       {
-        title: 'Фаза 03: Висока дуга Trivela',
-        desc: 'М’яч обгинає руки воротаря по зовнішній параболі та опускається точно під дальню штангу з мінімальним кутом атаки.'
+        title: 'Фаза 03: Висока дуга Trivela у дальню дев’ятку',
+        desc: 'М’яч обгинає витягнуті руки воротаря по зовнішній параболі та влітає під саму дальню хрестовину воріт Японії U-20.'
       }
     ]
   },
@@ -5714,24 +5746,38 @@ const TACTICAL_PLAYS_DATA = {
     speed: '104 КМ/ГОД',
     ego: '94 / МАЕСТРО ДУГИ',
     isDestroyer: false,
-    rinPath: [{ x: 0.94, y: 0.93 }, { x: 0.94, y: 0.9 }, { x: 0.92, y: 0.86 }],
-    ballCtrl: { x: 0.8, y: 0.72 },
-    ballEnd: { x: 0.94, y: 0.42 },
-    allies: [{ label: 'ARYU', x: 0.86, y: 0.54 }, { label: 'TOKI', x: 0.82, y: 0.39 }],
-    defenders: [{ label: 'DEF 1', x: 0.88, y: 0.61 }, { label: 'DEF 2', x: 0.87, y: 0.48 }, { label: 'GK', x: 0.93, y: 0.52 }],
-    marionetteLinks: [],
+    isSetPiece: true,
+    shotTrigger: 0.38,
+    rinPath: [{ x: 0.914, y: 0.942 }, { x: 0.922, y: 0.946 }, { x: 0.928, y: 0.938 }],
+    rinLabelPos: 'left',
+    shotOrigin: { x: 0.924, y: 0.936 },
+    ballCtrl: { x: 0.74, y: 0.64 },
+    ballEnd: { x: 0.950, y: 0.405 },
+    allies: [
+      { label: 'ARYU', labelPos: 'top', pts: [{ x: 0.74, y: 0.40 }, { x: 0.79, y: 0.45 }, { x: 0.84, y: 0.51 }] },
+      { label: 'TOKI', labelPos: 'bottom', pts: [{ x: 0.71, y: 0.60 }, { x: 0.76, y: 0.63 }, { x: 0.81, y: 0.66 }] }
+    ],
+    defenders: [
+      { label: 'DEF 1', labelPos: 'top', pts: [{ x: 0.81, y: 0.34 }, { x: 0.84, y: 0.38 }, { x: 0.87, y: 0.42 }] },
+      { label: 'DEF 2', labelPos: 'bottom', pts: [{ x: 0.80, y: 0.55 }, { x: 0.83, y: 0.57 }, { x: 0.86, y: 0.59 }] },
+      { label: 'GK', labelPos: 'top', pts: [{ x: 0.910, y: 0.54 }, { x: 0.904, y: 0.58 }, { x: 0.908, y: 0.51 }] }
+    ],
+    marionetteLinks: [
+      { from: 'rin', to: { type: 'ally', idx: 0 }, style: 'tether' },
+      { from: 'rin', to: { type: 'ally', idx: 1 }, style: 'tether' }
+    ],
     phases: [
       {
         title: 'Фаза 01: Прорахунок сліпої зони біля прапорця',
-        desc: 'Гравці штрафного очікують високу подачу на Арю чи Токіміцу, залишаючи верхній край дальньої дев’ятки неконтрольованим.'
+        desc: 'Арю та Токіміцу атакують ближню й центральну зони, стягуючи захисників і воротаря вперед — дальня верхня дев’ятка залишається відкритою.'
       },
       {
         title: 'Фаза 02: Екстремальний Магнус-імпульс',
-        desc: 'Рін вкладає у м’яч зворотне бокове обертання, зміщуючи траєкторію подачі на кілька метрів у польоті.'
+        desc: 'Із самого кутового прапорця Рін вкладає в м’яч зворотне бокове обертання, відводячи дугу подачі за межі штрафного воротарського кола.'
       },
       {
-        title: 'Фаза 03: Пряме влучання без дотику',
-        desc: 'Оминаючи перекладину та витягнуту руку кіпера, кутовий перетворюється на самостійний гол чистої геометрії.'
+        title: 'Фаза 03: Пряме влучання без жодного дотику',
+        desc: 'Пролітаючи над головами гравців і витягнутою рукою кіпера, сухий лист скручується прямо в сітку під дальню стійку.'
       }
     ]
   },
@@ -5741,24 +5787,41 @@ const TACTICAL_PLAYS_DATA = {
     speed: '112 КМ/ГОД',
     ego: '97 / ЛЯЛЬКАР',
     isDestroyer: false,
-    rinPath: [{ x: 0.2, y: 0.5 }, { x: 0.46, y: 0.43 }, { x: 0.65, y: 0.5 }],
-    ballCtrl: { x: 0.79, y: 0.68 },
-    ballEnd: { x: 0.94, y: 0.55 },
-    allies: [{ label: 'ARYU', x: 0.52, y: 0.22 }, { label: 'TOKI', x: 0.6, y: 0.78 }],
-    defenders: [{ label: 'ISAGI', x: 0.63, y: 0.36 }, { label: 'NAGI', x: 0.74, y: 0.61 }, { label: 'BACHIRA', x: 0.55, y: 0.55 }],
-    marionetteLinks: [[0, 2], [1, 1], [0, 0]],
+    isSetPiece: false,
+    shotTrigger: 0.52,
+    rinPath: [{ x: 0.19, y: 0.50 }, { x: 0.44, y: 0.46 }, { x: 0.65, y: 0.50 }],
+    rinLabelPos: 'top',
+    ballCtrl: { x: 0.79, y: 0.63 },
+    ballEnd: { x: 0.952, y: 0.565 },
+    allies: [
+      { label: 'ARYU', labelPos: 'top', pts: [{ x: 0.45, y: 0.26 }, { x: 0.58, y: 0.20 }, { x: 0.72, y: 0.22 }] },
+      { label: 'TOKI', labelPos: 'bottom', pts: [{ x: 0.49, y: 0.75 }, { x: 0.63, y: 0.80 }, { x: 0.75, y: 0.77 }] }
+    ],
+    defenders: [
+      { label: 'ISAGI', labelPos: 'top', pts: [{ x: 0.58, y: 0.43 }, { x: 0.63, y: 0.34 }, { x: 0.69, y: 0.29 }] },
+      { label: 'NAGI', labelPos: 'bottom', pts: [{ x: 0.65, y: 0.58 }, { x: 0.71, y: 0.66 }, { x: 0.77, y: 0.70 }] },
+      { label: 'BACHIRA', labelPos: 'bottom', pts: [{ x: 0.44, y: 0.56 }, { x: 0.53, y: 0.59 }, { x: 0.58, y: 0.62 }] },
+      { label: 'GK', labelPos: 'top', pts: [{ x: 0.908, y: 0.49 }, { x: 0.908, y: 0.46 }, { x: 0.910, y: 0.43 }] }
+    ],
+    marionetteLinks: [
+      { from: 'rin', to: { type: 'def', idx: 0 }, style: 'puppet' },
+      { from: 'rin', to: { type: 'def', idx: 1 }, style: 'puppet' },
+      { from: 'rin', to: { type: 'def', idx: 2 }, style: 'puppet' },
+      { from: 'rin', to: { type: 'ally', idx: 0 }, style: 'tether' },
+      { from: 'rin', to: { type: 'ally', idx: 1 }, style: 'tether' }
+    ],
     phases: [
       {
-        title: 'Фаза 01: Зчитування его Бачіри та Ісагі',
-        desc: 'Рін заздалегідь визначає оптимальну дію для кожного суперника і будує пастку саме навколо їхніх кращих рішень.'
+        title: 'Фаза 01: Зчитування его Ісагі, Наґі та Бачіри',
+        desc: 'Рін прораховує найсильніші ходи суперників і плете мережу тиску навколо центру поля, тримаючи кожного на видимій нитці контролю.'
       },
       {
-        title: 'Фаза 02: Маніпуляція відкриванням союзників',
-        desc: 'Натягнуті нитки уваги примушують Наґі та Ісагі зміститися у вказані сектори, оголюючи центральний шов.'
+        title: 'Фаза 02: Розведення блоку через фланги',
+        desc: 'Ривки Арю вгору та Токіміцу вниз притягують Ісагі й Наґі до флангів, штучно розриваючи центральний коридор перед штрафним.'
       },
       {
-        title: 'Фаза 03: Розстріл через створений коридор',
-        desc: 'Уся комбінація завершується точним пострілом Ріна саме туди, де жоден опонент фізично не встигає закрити лінію.'
+        title: 'Фаза 03: Хірургічний фініш у вільний кут',
+        desc: 'Коли воротар зміщується під верхню штангу, Рін низовою дугою прошиває відкриту нижню шістку — маріонетковий мат за три ходи.'
       }
     ]
   },
@@ -5768,24 +5831,37 @@ const TACTICAL_PLAYS_DATA = {
     speed: '126 КМ/ГОД',
     ego: '100 / БЕРСЕРК',
     isDestroyer: true,
-    rinPath: [{ x: 0.26, y: 0.3 }, { x: 0.52, y: 0.47 }, { x: 0.71, y: 0.52 }],
-    ballCtrl: { x: 0.83, y: 0.35 },
-    ballEnd: { x: 0.94, y: 0.46 },
-    allies: [{ label: 'CHARLES', x: 0.38, y: 0.62 }, { label: 'NANASE', x: 0.44, y: 0.21 }],
-    defenders: [{ label: 'KAISER', x: 0.71, y: 0.46 }, { label: 'ISAGI', x: 0.66, y: 0.64 }, { label: 'GK', x: 0.93, y: 0.5 }],
-    marionetteLinks: [[0, 0]],
+    isSetPiece: false,
+    shotTrigger: 0.52,
+    clashWindow: [0.36, 0.64],
+    rinPath: [{ x: 0.24, y: 0.31 }, { x: 0.49, y: 0.49 }, { x: 0.67, y: 0.56 }],
+    rinLabelPos: 'bottom',
+    ballCtrl: { x: 0.81, y: 0.36 },
+    ballEnd: { x: 0.950, y: 0.42 },
+    allies: [
+      { label: 'CHARLES', labelPos: 'bottom', pts: [{ x: 0.28, y: 0.65 }, { x: 0.40, y: 0.67 }, { x: 0.50, y: 0.65 }] },
+      { label: 'NANASE', labelPos: 'top', pts: [{ x: 0.39, y: 0.21 }, { x: 0.53, y: 0.19 }, { x: 0.65, y: 0.20 }] }
+    ],
+    defenders: [
+      { label: 'KAISER', labelPos: 'top', pts: [{ x: 0.76, y: 0.30 }, { x: 0.69, y: 0.40 }, { x: 0.67, y: 0.435 }] },
+      { label: 'ISAGI', labelPos: 'bottom', pts: [{ x: 0.62, y: 0.69 }, { x: 0.68, y: 0.70 }, { x: 0.73, y: 0.72 }] },
+      { label: 'GK', labelPos: 'top', pts: [{ x: 0.908, y: 0.50 }, { x: 0.906, y: 0.53 }, { x: 0.910, y: 0.56 }] }
+    ],
+    marionetteLinks: [
+      { from: 'rin', to: { type: 'def', idx: 0 }, style: 'puppet' }
+    ],
     phases: [
       {
-        title: 'Фаза 01: Прямий контакт корпус-у-корпус із Кайзером',
-        desc: 'У режимі Руйнівника Рін відмовляється уникати боротьби й цілеспрямовано приймає силовий тиск Міхаеля Кайзера.'
+        title: 'Фаза 01: Прорив на пряме зіткнення з Кайзером',
+        desc: 'У режимі Руйнівника Рін не обходить силове зближення, а спеціально втягує Міхаеля Кайзера у жорстку дуель корпус-у-корпус.'
       },
       {
-        title: 'Фаза 02: Поглинання зіткнення в падінні',
-        desc: 'Навіть втрачаючи баланс, Рін використовує імпульс Кайзера як точку розкрутки та витискає неможливий кут удару.'
+        title: 'Фаза 02: Поглинання контакту в точці удару',
+        desc: 'Відштовхнувшись від імпульсу Кайзера на межі падіння, Рін перетворює силове блокування опонента на трамплін для замаху.'
       },
       {
-        title: 'Фаза 03: Демонічний Crash-Shot у дев’ятку',
-        desc: 'М’яч зривається з підйому прямо під час зіткнення, перетворюючи найсильнішу зброю суперника на фон для поразки.'
+        title: 'Фаза 03: Демонічний Crash-Shot у верхній кут',
+        desc: 'М’яч зривається з підйому прямо під тиском і пролітає над плечем кіпера глибоко в дев’ятку Bastard Munchen.'
       }
     ]
   },
@@ -5795,24 +5871,34 @@ const TACTICAL_PLAYS_DATA = {
     speed: '129 КМ/ГОД',
     ego: '99 / WORLD LEVEL',
     isDestroyer: true,
-    rinPath: [{ x: 0.22, y: 0.62 }, { x: 0.49, y: 0.55 }, { x: 0.73, y: 0.38 }],
-    ballCtrl: { x: 0.85, y: 0.26 },
-    ballEnd: { x: 0.94, y: 0.58 },
-    allies: [{ label: 'ISAGI', x: 0.61, y: 0.69 }, { label: 'SHIDOU', x: 0.76, y: 0.73 }],
-    defenders: [{ label: 'ONA', x: 0.68, y: 0.42 }, { label: 'CB', x: 0.78, y: 0.53 }, { label: 'GK', x: 0.93, y: 0.49 }],
+    isSetPiece: false,
+    shotTrigger: 0.50,
+    rinPath: [{ x: 0.22, y: 0.63 }, { x: 0.49, y: 0.52 }, { x: 0.72, y: 0.39 }],
+    rinLabelPos: 'top',
+    ballCtrl: { x: 0.84, y: 0.29 },
+    ballEnd: { x: 0.954, y: 0.555 },
+    allies: [
+      { label: 'ISAGI', labelPos: 'bottom', pts: [{ x: 0.53, y: 0.72 }, { x: 0.65, y: 0.69 }, { x: 0.77, y: 0.68 }] },
+      { label: 'SHIDOU', labelPos: 'top', pts: [{ x: 0.67, y: 0.24 }, { x: 0.77, y: 0.22 }, { x: 0.83, y: 0.23 }] }
+    ],
+    defenders: [
+      { label: 'ONA', labelPos: 'bottom', pts: [{ x: 0.61, y: 0.47 }, { x: 0.66, y: 0.48 }, { x: 0.63, y: 0.53 }] },
+      { label: 'CB', labelPos: 'bottom', pts: [{ x: 0.76, y: 0.47 }, { x: 0.79, y: 0.51 }, { x: 0.82, y: 0.56 }] },
+      { label: 'GK', labelPos: 'top', pts: [{ x: 0.908, y: 0.49 }, { x: 0.907, y: 0.45 }, { x: 0.910, y: 0.42 }] }
+    ],
     marionetteLinks: [],
     phases: [
       {
-        title: 'Фаза 01: Predator Eye сканує таймінг воротаря',
-        desc: 'Рін читає момент перенесення ваги кіпера Нігерії та приховує напрямок замаху за спиною центрального захисника.'
+        title: 'Фаза 01: Predator Eye фіксує опорну ногу кіпера',
+        desc: 'Поки Шідо й Ісагі зв’язують фланги оборони Нігерії, Рін сканує таймінг воротаря та ховає кут удару за спиною центрального захисника.'
       },
       {
-        title: 'Фаза 02: Злам пресингу ривком під себе',
-        desc: 'Короткий вибуховий дотик залишає двох опорників позаду без шансу на підкат.'
+        title: 'Фаза 02: Злам пресингу коротким фінт-ривком',
+        desc: 'Вибухова зміна ритму залишає Она та стоппера позаду на пів кроку — Рін відкриває чистий простір перед штрафним майданчиком.'
       },
       {
-        title: 'Фаза 03: Блискавичне завершення хет-трику',
-        desc: 'Максимальна швидкість польоту розриває ближню шістку, фіксуючи світовий статус нового лідера Японії.'
+        title: 'Фаза 03: Блискавичний постріл у нижню шістку',
+        desc: 'Кіпер смикається на верхній кут, а 129-кілометровий удар миттєво впивається в нижній правий кут воріт, оформлюючи хет-трик.'
       }
     ]
   }
@@ -5820,7 +5906,7 @@ const TACTICAL_PLAYS_DATA = {
 
 class TacticalPlaybookController {
   /**
-   * Animated 2D canvas simulation engine displaying Rin's canonical tactical sequences.
+   * Animated 2D pitch trajectory simulator displaying Rin's multi-actor canonical sequences.
    */
   constructor(sfx) {
     this.sfx = sfx;
@@ -5831,7 +5917,10 @@ class TacticalPlaybookController {
     this.playPauseBtn = document.getElementById('tacticalPlayPauseBtn');
     this.playIcon = document.getElementById('tacticalPlayIcon');
     this.playLabel = document.getElementById('tacticalPlayLabel');
+    this.speedBtn = document.getElementById('tacticalSpeedBtn');
     this.restartBtn = document.getElementById('tacticalRestartBtn');
+    this.scrubberEl = document.getElementById('tacticalScrubber');
+    this.progressPctEl = document.getElementById('tacticalProgressPct');
 
     this.tagEl = document.getElementById('tacticalPhaseTag');
     this.titleEl = document.getElementById('tacticalPhaseTitle');
@@ -5841,8 +5930,11 @@ class TacticalPlaybookController {
     this.egoEl = document.getElementById('tacticalMetricEgo');
 
     this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.speedPresets = [0.6, 1.0, 1.5];
+    this.speedIndex = 1;
     this.activePlayId = 'u20_outside';
-    this.progress = this.reducedMotion ? 0.92 : 0.08;
+    this.progress = this.reducedMotion ? 0.94 : 0.08;
+    this.holdElapsed = 0;
     this.isPlaying = !this.reducedMotion;
     this.isSectionVisible = false;
     this.lastTs = 0;
@@ -5852,6 +5944,7 @@ class TacticalPlaybookController {
     this.bindEvents();
     this.syncReadout();
     this.syncPlaybackButton();
+    this.syncSpeedButton();
     this.drawFrame();
   }
 
@@ -5861,7 +5954,13 @@ class TacticalPlaybookController {
         const nextId = tab.getAttribute('data-play');
         if (!TACTICAL_PLAYS_DATA[nextId]) return;
         this.activePlayId = nextId;
-        this.progress = this.reducedMotion ? 0.92 : 0.02;
+        this.progress = this.reducedMotion ? 0.94 : 0.02;
+        this.holdElapsed = 0;
+        if (!this.reducedMotion) {
+          this.isPlaying = true;
+          this.syncPlaybackButton();
+          if (this.isSectionVisible) this.startLoop();
+        }
         this.playTabs.forEach((b) => {
           const active = b === tab;
           b.classList.toggle('active', active);
@@ -5876,16 +5975,38 @@ class TacticalPlaybookController {
     this.phaseBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
         const idx = parseInt(btn.getAttribute('data-phase') || '0', 10);
-        this.progress = idx === 0 ? 0.14 : (idx === 1 ? 0.52 : 0.88);
+        // Pause on inspection keyframe so manual phase selection stays locked for study
+        this.isPlaying = false;
+        this.holdElapsed = 0;
+        this.stopLoop();
+        this.syncPlaybackButton();
+        this.progress = idx === 0 ? 0.22 : (idx === 1 ? 0.50 : 0.94);
         this.syncReadout();
         this.drawFrame();
         if (this.sfx) this.sfx.playClick();
       });
     });
 
+    if (this.scrubberEl) {
+      this.scrubberEl.addEventListener('input', () => {
+        const raw = parseFloat(this.scrubberEl.value || '0');
+        this.isPlaying = false;
+        this.holdElapsed = 0;
+        this.stopLoop();
+        this.syncPlaybackButton();
+        this.progress = Math.min(1, Math.max(0, raw / 100));
+        this.syncReadout();
+        this.drawFrame();
+      });
+    }
+
     if (this.playPauseBtn) {
       this.playPauseBtn.addEventListener('click', () => {
         this.isPlaying = !this.isPlaying;
+        this.holdElapsed = 0;
+        if (this.isPlaying && this.progress >= 0.99) {
+          this.progress = 0;
+        }
         this.syncPlaybackButton();
         if (this.isPlaying && this.isSectionVisible) this.startLoop();
         else this.stopLoop();
@@ -5893,9 +6014,23 @@ class TacticalPlaybookController {
       });
     }
 
+    if (this.speedBtn) {
+      this.speedBtn.addEventListener('click', () => {
+        this.speedIndex = (this.speedIndex + 1) % this.speedPresets.length;
+        this.syncSpeedButton();
+        if (this.sfx) this.sfx.playClick();
+      });
+    }
+
     if (this.restartBtn) {
       this.restartBtn.addEventListener('click', () => {
-        this.progress = 0.01;
+        this.progress = 0;
+        this.holdElapsed = 0;
+        if (!this.reducedMotion) {
+          this.isPlaying = true;
+          this.syncPlaybackButton();
+          if (this.isSectionVisible) this.startLoop();
+        }
         this.syncReadout();
         this.drawFrame();
         if (this.sfx) this.sfx.playClick();
@@ -5921,6 +6056,12 @@ class TacticalPlaybookController {
     if (this.playLabel) this.playLabel.textContent = this.isPlaying ? 'ПАУЗА' : 'ВІДТВОРИТИ';
   }
 
+  syncSpeedButton() {
+    if (!this.speedBtn) return;
+    const rate = this.speedPresets[this.speedIndex] || 1.0;
+    this.speedBtn.textContent = `${rate.toFixed(1)}x`;
+  }
+
   startLoop() {
     if (this.rafId !== null || this.reducedMotion) return;
     this.lastTs = performance.now();
@@ -5928,8 +6069,16 @@ class TacticalPlaybookController {
       const dt = Math.min(0.05, Math.max(0, (now - this.lastTs) / 1000));
       this.lastTs = now;
       if (this.isPlaying && this.isSectionVisible) {
-        this.progress += dt * 0.145;
-        if (this.progress > 1.15) this.progress = 0;
+        const rate = this.speedPresets[this.speedIndex] || 1.0;
+        if (this.progress < 1) {
+          this.progress = Math.min(1, this.progress + dt * 0.165 * rate);
+        } else {
+          this.holdElapsed += dt;
+          if (this.holdElapsed >= 1.15) {
+            this.progress = 0;
+            this.holdElapsed = 0;
+          }
+        }
         this.syncReadout();
         this.drawFrame();
         this.rafId = requestAnimationFrame(tick);
@@ -5948,9 +6097,8 @@ class TacticalPlaybookController {
   }
 
   getPhaseIndex() {
-    const clamped = Math.min(1, this.progress);
-    if (clamped < 0.34) return 0;
-    if (clamped < 0.72) return 1;
+    if (this.progress < 0.34) return 0;
+    if (this.progress < 0.68) return 1;
     return 2;
   }
 
@@ -5967,9 +6115,40 @@ class TacticalPlaybookController {
     if (this.speedEl) this.speedEl.textContent = play.speed;
     if (this.egoEl) this.egoEl.textContent = play.ego;
 
+    const pct = Math.round(Math.min(1, Math.max(0, this.progress)) * 100);
+    if (this.scrubberEl) {
+      this.scrubberEl.value = String(pct);
+    }
+    if (this.progressPctEl) {
+      this.progressPctEl.textContent = `${String(pct).padStart(2, '0')}% · ФАЗА 0${phaseIdx + 1}`;
+    }
+
     this.phaseBtns.forEach((btn, i) => {
       btn.classList.toggle('active', i === phaseIdx);
     });
+  }
+
+  smoothstep(t) {
+    const x = Math.min(1, Math.max(0, t));
+    return x * x * (3 - 2 * x);
+  }
+
+  evalWaypoint(pts, t, W, H) {
+    if (!pts || pts.length === 0) return { x: 0, y: 0 };
+    if (pts.length === 1) return { x: pts[0].x * W, y: pts[0].y * H };
+    const clamped = Math.min(1, Math.max(0, t));
+    if (pts.length === 2 || clamped <= 0.5) {
+      const local = pts.length === 2 ? this.smoothstep(clamped) : this.smoothstep(clamped / 0.5);
+      return {
+        x: (pts[0].x + (pts[1].x - pts[0].x) * local) * W,
+        y: (pts[0].y + (pts[1].y - pts[0].y) * local) * H
+      };
+    }
+    const local = this.smoothstep((clamped - 0.5) / 0.5);
+    return {
+      x: (pts[1].x + (pts[2].x - pts[1].x) * local) * W,
+      y: (pts[1].y + (pts[2].y - pts[1].y) * local) * H
+    };
   }
 
   evalQuadBezier(p0, cp, p1, t) {
@@ -5980,6 +6159,35 @@ class TacticalPlaybookController {
     };
   }
 
+  drawLabelPill(ctx, text, x, y, pos, color) {
+    ctx.save();
+    ctx.font = '800 11px "Exo 2", sans-serif';
+    ctx.textBaseline = 'middle';
+    let tx = x;
+    let ty = y - 22;
+    if (pos === 'bottom') {
+      ctx.textAlign = 'center';
+      ty = y + 23;
+    } else if (pos === 'left') {
+      ctx.textAlign = 'right';
+      tx = x - 19;
+      ty = y;
+    } else if (pos === 'right') {
+      ctx.textAlign = 'left';
+      tx = x + 19;
+      ty = y;
+    } else {
+      ctx.textAlign = 'center';
+      ty = y - 22;
+    }
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = 'rgba(4, 10, 18, 0.92)';
+    ctx.strokeText(text, tx, ty);
+    ctx.fillStyle = color;
+    ctx.fillText(text, tx, ty);
+    ctx.restore();
+  }
+
   drawFrame() {
     const canvas = this.canvas;
     const ctx = this.ctx;
@@ -5988,116 +6196,224 @@ class TacticalPlaybookController {
     const W = canvas.width;
     const H = canvas.height;
     const play = TACTICAL_PLAYS_DATA[this.activePlayId];
+    if (!play) return;
+
     const tTotal = Math.min(1, Math.max(0, this.progress));
     const accent = play.isDestroyer ? '#ff2a5f' : '#00ffc8';
+    const marginL = 32;
+    const marginT = 28;
+    const goalLineX = 892;
+    const pitchW = goalLineX - marginL;
+    const pitchH = H - marginT * 2;
+    const netDepth = 34;
+    const goalTopY = H / 2 - 66;
+    const goalBotY = H / 2 + 66;
 
     ctx.clearRect(0, 0, W, H);
 
-    // Pitch Background & Tactical Grid
+    // 1. Pitch Background & Mowed Turf Stripes
     const bgGrad = ctx.createLinearGradient(0, 0, W, H);
-    bgGrad.addColorStop(0, '#040a14');
-    bgGrad.addColorStop(1, '#071421');
+    bgGrad.addColorStop(0, '#040a13');
+    bgGrad.addColorStop(1, '#071522');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, W, H);
 
-    ctx.strokeStyle = 'rgba(0, 255, 200, 0.06)';
+    const stripeCount = 10;
+    const stripeW = pitchW / stripeCount;
+    for (let s = 0; s < stripeCount; s += 2) {
+      ctx.fillStyle = 'rgba(0, 255, 200, 0.018)';
+      ctx.fillRect(marginL + s * stripeW, marginT, stripeW, pitchH);
+    }
+
+    // Fine Telemetry Grid
+    ctx.strokeStyle = 'rgba(0, 255, 200, 0.05)';
     ctx.lineWidth = 1;
-    for (let x = 45; x < W; x += 45) {
+    for (let x = 48; x < W; x += 48) {
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
     }
-    for (let y = 45; y < H; y += 45) {
+    for (let y = 48; y < H; y += 48) {
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
     }
 
-    // Half-Pitch Markings (Right Goal)
-    const margin = 28;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+    // 2. Pitch Markings (Half Pitch toward Right Goal)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
     ctx.lineWidth = 2;
-    ctx.strokeRect(margin, margin, W - margin * 2, H - margin * 2);
+    ctx.strokeRect(marginL, marginT, pitchW, pitchH);
 
-    // Center Circle Arc & Penalty Area
+    // Center Circle Arc & Spot
     ctx.beginPath();
-    ctx.arc(margin, H / 2, 74, -Math.PI / 2, Math.PI / 2);
+    ctx.arc(marginL, H / 2, 78, -Math.PI / 2, Math.PI / 2);
     ctx.stroke();
 
-    const boxW = 165;
-    const boxH = 260;
-    ctx.strokeRect(W - margin - boxW, (H - boxH) / 2, boxW, boxH);
-    ctx.strokeRect(W - margin - 62, (H - 135) / 2, 62, 135);
+    // 18-Yard Box, 6-Yard Box, Penalty Spot & Arc
+    const boxW = 190;
+    const boxH = 304;
+    ctx.strokeRect(goalLineX - boxW, (H - boxH) / 2, boxW, boxH);
+    ctx.strokeRect(goalLineX - 68, (H - 156) / 2, 68, 156);
 
-    // Goal Post Highlight
+    const penSpotX = goalLineX - 128;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+    ctx.beginPath();
+    ctx.arc(penSpotX, H / 2, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(penSpotX, H / 2, 74, Math.PI - 0.65, Math.PI + 0.65);
+    ctx.stroke();
+
+    // Corner Arcs
+    ctx.beginPath();
+    ctx.arc(goalLineX, marginT, 16, Math.PI / 2, Math.PI);
+    ctx.stroke();
+
+    ctx.save();
+    if (play.isSetPiece) {
+      ctx.strokeStyle = accent;
+      ctx.lineWidth = 2.5;
+    }
+    ctx.beginPath();
+    ctx.arc(goalLineX, H - marginT, 16, Math.PI, Math.PI * 1.5);
+    ctx.stroke();
+    ctx.restore();
+
+    // 3. Shot Timing & Goal Net Mesh
+    const shotTrigger = play.shotTrigger || 0.50;
+    const shotFlyEnd = 0.92;
+    const shotT = tTotal <= shotTrigger
+      ? 0
+      : Math.min(1, (tTotal - shotTrigger) / (shotFlyEnd - shotTrigger));
+    const goalScored = shotT >= 0.96;
+
+    const ballEnd = { x: play.ballEnd.x * W, y: play.ballEnd.y * H };
+    const netRipple = goalScored ? Math.sin((tTotal - shotFlyEnd + 0.04) * 38) * 4 + 4 : 0;
+
+    // Goal Net Isometric Mesh
+    ctx.save();
+    ctx.fillStyle = goalScored
+      ? (play.isDestroyer ? 'rgba(255, 42, 95, 0.16)' : 'rgba(0, 255, 200, 0.16)')
+      : 'rgba(255, 255, 255, 0.03)';
+    ctx.beginPath();
+    ctx.moveTo(goalLineX, goalTopY);
+    ctx.lineTo(goalLineX + netDepth + netRipple * 0.5, goalTopY + 5);
+    ctx.lineTo(goalLineX + netDepth + netRipple * 0.5, goalBotY - 5);
+    ctx.lineTo(goalLineX, goalBotY);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
+    ctx.lineWidth = 1;
+    for (let ny = goalTopY + 14; ny < goalBotY; ny += 16) {
+      ctx.beginPath();
+      ctx.moveTo(goalLineX, ny);
+      ctx.lineTo(goalLineX + netDepth, ny);
+      ctx.stroke();
+    }
+    for (let nx = goalLineX + 11; nx < goalLineX + netDepth; nx += 11) {
+      ctx.beginPath();
+      ctx.moveTo(nx, goalTopY + 3);
+      ctx.lineTo(nx, goalBotY - 3);
+      ctx.stroke();
+    }
+
+    // Glowing Goal Frame
     ctx.strokeStyle = accent;
-    ctx.lineWidth = 4;
+    ctx.lineWidth = goalScored ? 4.5 : 3.5;
+    ctx.shadowBlur = goalScored ? 18 : 8;
+    ctx.shadowColor = accent;
     ctx.beginPath();
-    ctx.moveTo(W - margin, H / 2 - 46);
-    ctx.lineTo(W - margin + 10, H / 2 - 46);
-    ctx.lineTo(W - margin + 10, H / 2 + 46);
-    ctx.lineTo(W - margin, H / 2 + 46);
+    ctx.moveTo(goalLineX, goalTopY);
+    ctx.lineTo(goalLineX + netDepth, goalTopY + 4);
+    ctx.lineTo(goalLineX + netDepth, goalBotY - 4);
+    ctx.lineTo(goalLineX, goalBotY);
     ctx.stroke();
+    ctx.restore();
 
-    // Interpolate Rin Run & Ball Flight
-    const runT = Math.min(1, tTotal / 0.56);
-    const shotT = tTotal <= 0.52 ? 0 : Math.min(1, (tTotal - 0.52) / 0.48);
+    // 4. Compute Synchronized Positions for Rin, Allies & Defenders
+    const actorT = Math.min(1, tTotal / shotFlyEnd);
+    const runT = play.isSetPiece
+      ? Math.min(1, tTotal / shotTrigger)
+      : Math.min(1, tTotal / shotTrigger);
 
     const p0 = { x: play.rinPath[0].x * W, y: play.rinPath[0].y * H };
     const p1 = { x: play.rinPath[1].x * W, y: play.rinPath[1].y * H };
     const p2 = { x: play.rinPath[2].x * W, y: play.rinPath[2].y * H };
 
-    const rinPos = this.evalQuadBezier(p0, p1, p2, runT);
-    const shotStart = p2;
-    const shotCtrl = { x: play.ballCtrl.x * W, y: play.ballCtrl.y * H };
-    const shotEnd = { x: play.ballEnd.x * W, y: play.ballEnd.y * H };
+    const rinPos = this.evalQuadBezier(p0, p1, p2, this.smoothstep(runT));
+    const allyPositions = play.allies.map((a) => ({
+      ...a,
+      pos: this.evalWaypoint(a.pts, actorT, W, H)
+    }));
+    const defPositions = play.defenders.map((d) => ({
+      ...d,
+      pos: this.evalWaypoint(d.pts, actorT, W, H)
+    }));
 
-    // Puppet Manipulation Links
-    if (play.marionetteLinks.length) {
-      ctx.save();
-      ctx.setLineDash([5, 6]);
-      ctx.strokeStyle = play.isDestroyer ? 'rgba(255, 42, 95, 0.52)' : 'rgba(250, 204, 21, 0.45)';
-      ctx.lineWidth = 1.6;
-      play.marionetteLinks.forEach(([defIdx]) => {
-        const d = play.defenders[defIdx];
-        if (!d) return;
+    const shotStart = play.shotOrigin
+      ? { x: play.shotOrigin.x * W, y: play.shotOrigin.y * H }
+      : p2;
+    const shotCtrl = { x: play.ballCtrl.x * W, y: play.ballCtrl.y * H };
+
+    // 5. Marionette & Tactical Tethers
+    if (play.marionetteLinks && play.marionetteLinks.length) {
+      play.marionetteLinks.forEach((lnk) => {
+        const fromPt = lnk.from === 'rin'
+          ? rinPos
+          : allyPositions[lnk.from.idx]?.pos;
+        const toPt = lnk.to.type === 'ally'
+          ? allyPositions[lnk.to.idx]?.pos
+          : defPositions[lnk.to.idx]?.pos;
+        if (!fromPt || !toPt) return;
+
+        ctx.save();
+        ctx.setLineDash(lnk.style === 'puppet' ? [5, 5] : [3, 6]);
+        ctx.strokeStyle = lnk.style === 'puppet'
+          ? (play.isDestroyer ? 'rgba(255, 42, 95, 0.58)' : 'rgba(250, 204, 21, 0.55)')
+          : 'rgba(56, 189, 248, 0.42)';
+        ctx.lineWidth = lnk.style === 'puppet' ? 1.8 : 1.4;
         ctx.beginPath();
-        ctx.moveTo(rinPos.x, rinPos.y);
-        ctx.lineTo(d.x * W, d.y * H);
+        ctx.moveTo(fromPt.x, fromPt.y);
+        ctx.lineTo(toPt.x, toPt.y);
         ctx.stroke();
+        ctx.restore();
       });
+    }
+
+    // 6. Dribble Guide (hidden on static corner flag setup) & Pre-view Shot Curve
+    if (!play.isSetPiece) {
+      ctx.save();
+      ctx.setLineDash([6, 6]);
+      ctx.strokeStyle = 'rgba(0, 255, 200, 0.42)';
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.moveTo(p0.x, p0.y);
+      ctx.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y);
+      ctx.stroke();
       ctx.restore();
     }
 
-    // Dribble Spline Guide
-    ctx.save();
-    ctx.setLineDash([6, 6]);
-    ctx.strokeStyle = 'rgba(0, 255, 200, 0.45)';
-    ctx.lineWidth = 2.4;
-    ctx.beginPath();
-    ctx.moveTo(p0.x, p0.y);
-    ctx.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y);
-    ctx.stroke();
-    ctx.restore();
-
-    // Curved Shot Guide & Active Glowing Trail
     ctx.save();
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
     ctx.lineWidth = 2;
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
     ctx.moveTo(shotStart.x, shotStart.y);
-    ctx.quadraticCurveTo(shotCtrl.x, shotCtrl.y, shotEnd.x, shotEnd.y);
+    ctx.quadraticCurveTo(shotCtrl.x, shotCtrl.y, ballEnd.x, ballEnd.y);
     ctx.stroke();
     ctx.restore();
 
+    // Active Glowing Shot Trajectory
     if (shotT > 0) {
       ctx.save();
       ctx.strokeStyle = accent;
-      ctx.lineWidth = 4.2;
-      ctx.shadowBlur = 14;
+      ctx.lineWidth = 4.4;
+      ctx.lineCap = 'round';
+      ctx.shadowBlur = 16;
       ctx.shadowColor = accent;
       ctx.beginPath();
-      const steps = 28;
+      const steps = 34;
       for (let i = 0; i <= steps; i += 1) {
         const st = (i / steps) * shotT;
-        const pt = this.evalQuadBezier(shotStart, shotCtrl, shotEnd, st);
+        const pt = this.evalQuadBezier(shotStart, shotCtrl, ballEnd, st);
         if (i === 0) ctx.moveTo(pt.x, pt.y);
         else ctx.lineTo(pt.x, pt.y);
       }
@@ -6105,70 +6421,111 @@ class TacticalPlaybookController {
       ctx.restore();
     }
 
-    // Predator Eye Vision Cone during Approach/Strike
+    // 7. Predator Eye Vision Cone
     ctx.save();
-    const aimAngle = Math.atan2(shotEnd.y - rinPos.y, shotEnd.x - rinPos.x);
+    const aimAngle = Math.atan2(ballEnd.y - rinPos.y, ballEnd.x - rinPos.x);
     ctx.fillStyle = play.isDestroyer ? 'rgba(255, 42, 95, 0.11)' : 'rgba(0, 255, 200, 0.09)';
     ctx.beginPath();
     ctx.moveTo(rinPos.x, rinPos.y);
-    ctx.arc(rinPos.x, rinPos.y, 170, aimAngle - 0.18, aimAngle + 0.18);
+    ctx.arc(rinPos.x, rinPos.y, 175, aimAngle - 0.17, aimAngle + 0.17);
     ctx.closePath();
     ctx.fill();
     ctx.restore();
 
-    // Allies
-    play.allies.forEach((ally) => {
-      const ax = ally.x * W;
-      const ay = ally.y * H;
+    // Physical Body-Clash Impact Flash (Play 04 vs Kaiser)
+    if (play.clashWindow && tTotal >= play.clashWindow[0] && tTotal <= play.clashWindow[1]) {
+      const kPos = defPositions[0]?.pos;
+      if (kPos) {
+        const mx = (rinPos.x + kPos.x) / 2;
+        const my = (rinPos.y + kPos.y) / 2;
+        const pulse = 10 + Math.sin(tTotal * 40) * 4;
+        ctx.save();
+        ctx.strokeStyle = '#ff2a5f';
+        ctx.lineWidth = 2.2;
+        ctx.shadowBlur = 14;
+        ctx.shadowColor = '#ff2a5f';
+        for (let a = 0; a < 6; a += 1) {
+          const ang = (a * Math.PI) / 3 + tTotal * 6;
+          ctx.beginPath();
+          ctx.moveTo(mx + Math.cos(ang) * 4, my + Math.sin(ang) * 4);
+          ctx.lineTo(mx + Math.cos(ang) * (pulse + 6), my + Math.sin(ang) * (pulse + 6));
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+    }
+
+    // 8. Draw Allies
+    allyPositions.forEach((ally) => {
+      const { x, y } = ally.pos;
       ctx.fillStyle = '#0ea5e9';
-      ctx.beginPath(); ctx.arc(ax, ay, 11, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x, y, 11.5, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = '#bae6fd';
-      ctx.lineWidth = 1.6;
+      ctx.lineWidth = 1.8;
       ctx.stroke();
-      ctx.fillStyle = '#e0f2fe';
-      ctx.font = '700 10px Orbitron, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(ally.label, ax, ay - 16);
+      this.drawLabelPill(ctx, ally.label, x, y, ally.labelPos, '#e0f2fe');
     });
 
-    // Defenders
-    play.defenders.forEach((def) => {
-      const dx = def.x * W;
-      const dy = def.y * H;
-      ctx.fillStyle = def.label === 'GK' ? '#f59e0b' : '#dc2626';
-      ctx.beginPath(); ctx.arc(dx, dy, 12, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#fecaca';
-      ctx.lineWidth = 1.6;
+    // 9. Draw Defenders & Goalkeeper
+    defPositions.forEach((def) => {
+      const { x, y } = def.pos;
+      const isGk = def.label === 'GK';
+      ctx.fillStyle = isGk ? '#f59e0b' : '#dc2626';
+      ctx.beginPath(); ctx.arc(x, y, isGk ? 13 : 12, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = isGk ? '#fde68a' : '#fecaca';
+      ctx.lineWidth = 1.8;
       ctx.stroke();
-      ctx.fillStyle = '#fca5a5';
-      ctx.font = '700 10px Orbitron, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(def.label, dx, dy - 17);
+      this.drawLabelPill(ctx, def.label, x, y, def.labelPos, isGk ? '#fde68a' : '#fca5a5');
     });
 
-    // Itoshi Rin Node
+    // 10. Draw Itoshi Rin Node
     ctx.save();
-    ctx.shadowBlur = 18;
+    ctx.shadowBlur = 20;
     ctx.shadowColor = accent;
     ctx.fillStyle = accent;
     ctx.beginPath();
-    ctx.arc(rinPos.x, rinPos.y, 15, 0, Math.PI * 2);
+    ctx.arc(rinPos.x, rinPos.y, 15.5, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
+
     ctx.fillStyle = '#041016';
-    ctx.font = '800 11px Orbitron, sans-serif';
+    ctx.font = '800 11px "Exo 2", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('10', rinPos.x, rinPos.y);
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '800 11px Orbitron, sans-serif';
-    ctx.textBaseline = 'alphabetic';
-    ctx.fillText('RIN', rinPos.x, rinPos.y - 21);
+    ctx.fillText('10', rinPos.x, rinPos.y + 0.5);
+    this.drawLabelPill(ctx, 'RIN', rinPos.x, rinPos.y, play.rinLabelPos || 'top', '#ffffff');
 
-    // Ball Node
-    const ballPos = shotT > 0
-      ? this.evalQuadBezier(shotStart, shotCtrl, shotEnd, shotT)
-      : { x: rinPos.x + 14, y: rinPos.y + 8 };
+    // 11. Compute Seamless Ball Position (Zero Teleport Snap)
+    let ballPos;
+    if (shotT > 0) {
+      ballPos = this.evalQuadBezier(shotStart, shotCtrl, ballEnd, shotT);
+    } else if (play.isSetPiece) {
+      ballPos = { x: shotStart.x, y: shotStart.y };
+    } else {
+      const dtLook = Math.min(1, runT + 0.04);
+      const nextPt = this.evalQuadBezier(p0, p1, p2, this.smoothstep(dtLook));
+      const vx = nextPt.x - rinPos.x;
+      const vy = nextPt.y - rinPos.y;
+      const mag = Math.hypot(vx, vy) || 1;
+      const offsetFade = 1 - this.smoothstep(Math.max(0, (runT - 0.84) / 0.16));
+      ballPos = {
+        x: rinPos.x + (vx / mag) * 16 * offsetFade,
+        y: rinPos.y + (vy / mag) * 16 * offsetFade
+      };
+    }
+
+    // 12. Goal Impact Shockwave Ring & Ball Node
+    if (goalScored) {
+      const pulseRatio = ((tTotal - shotFlyEnd + 0.04) * 5) % 1;
+      ctx.save();
+      ctx.strokeStyle = accent;
+      ctx.globalAlpha = Math.max(0.15, 0.85 * (1 - pulseRatio));
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.arc(ballEnd.x, ballEnd.y, 12 + pulseRatio * 28, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
 
     ctx.save();
     ctx.shadowBlur = 16;
@@ -6177,6 +6534,32 @@ class TacticalPlaybookController {
     ctx.beginPath();
     ctx.arc(ballPos.x, ballPos.y, 7.2, 0, Math.PI * 2);
     ctx.fill();
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+    ctx.restore();
+
+    // 13. Top-Right Canvas Telemetry Overlay (Phase / Goal Badge)
+    const badgeText = goalScored
+      ? 'GOAL // У СІТЦІ'
+      : `ФАЗА 0${this.getPhaseIndex() + 1} // ${play.isDestroyer ? 'DESTROYER' : 'PRECISION'}`;
+    ctx.save();
+    ctx.font = '800 11px "Exo 2", sans-serif';
+    const textW = ctx.measureText(badgeText).width;
+    const pillW = textW + 22;
+    const pillX = marginL + 12;
+    const pillY = marginT + 12;
+    ctx.fillStyle = goalScored ? (play.isDestroyer ? 'rgba(255, 42, 95, 0.24)' : 'rgba(0, 255, 200, 0.22)') : 'rgba(6, 12, 22, 0.84)';
+    ctx.strokeStyle = goalScored ? accent : 'rgba(255, 255, 255, 0.2)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.roundRect(pillX, pillY, pillW, 24, 4);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = goalScored ? accent : '#e2e8f0';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(badgeText, pillX + 11, pillY + 12.5);
     ctx.restore();
   }
 }
@@ -6184,37 +6567,49 @@ class TacticalPlaybookController {
 // -------------------------------------------------------------
 // RIVAL DUEL COMPARATOR CONTROLLER (#tacticalSection)
 // -------------------------------------------------------------
-const RIN_BASE_METRICS = [98, 88, 95, 96, 90, 89];
-const DUEL_AXIS_LABELS = ['УДАР', 'ДРІБЛІНГ', 'VISION', 'КЛАТЧ', 'ШВИДКІСТЬ', 'ФІЗИКА'];
+const DUEL_AXIS_LABELS = ['УДАР', 'ДРИБЛІНГ', 'VISION', 'КЛАТЧ', 'ШВИДКІСТЬ', 'ФІЗИКА'];
+
+const RIN_DUEL_MODES = {
+  base: {
+    metrics: [98, 90, 99, 96, 89, 88],
+    legend: 'ІТОШІ РІН · PXG #10',
+    modeNote: ''
+  },
+  destroyer: {
+    metrics: [100, 95, 98, 100, 93, 95],
+    legend: 'ІТОШІ РІН · DESTROYER FLOW',
+    modeNote: 'У режимі Руйнівника вибуховість, 1v1-обіграш і контактна міць Ріна піднімаються на пік — жоден раціональний захист не витримує його хаосу.'
+  }
+};
 
 const RIVAL_PROFILES = {
   sae: {
     legend: 'ІТОШІ САЕ · REAL #10',
     record: 'СТАТУС: NEW GEN WORLD XI',
     stats: [91, 98, 99, 94, 89, 86],
-    verdictTitle: 'Хірург півзахисту vs Чистий Руйнівник',
-    verdictText: 'Сае переважає в дріблінгу та пасовій геометрії, проте в завершенні атак і ментальному тиску фінальної третини Рін уже виходить на рівень справжньої паритетної дуелі.'
+    verdictTitle: 'Хірург півзахисту vs Тотальний Страйкер',
+    verdictText: 'Сае переважає у дриблінгу та геометрії пасів, проте в ударі, клатчі й силовому тиску фінальної третини Рін уже виходить вперед.'
   },
   isagi: {
     legend: 'ІСАГІ ЙОІЧІ · BASTARD #11',
     record: 'ЦІННІСТЬ: 240M ¥ · РАВНИЙ ПІК',
     stats: [88, 79, 99, 98, 84, 81],
-    verdictTitle: 'Адаптивний Metavision проти Тотальної Дуелі 1v1',
-    verdictText: 'Ісагі зрівнявся за читанням поля та реалізацією Two-Gun Volley, але індивідуальна техніка удару, підкрутка та фізичний тиск Ріна залишаються стабільно вищими.'
+    verdictTitle: 'Адаптивний Metavision проти Дуелі 1v1',
+    verdictText: 'Ісагі зрівнявся за читанням поля та реалізацією Two-Gun Volley, але індивідуальна техніка удару, дриблінг і фізика Ріна залишаються вищими.'
   },
   kaiser: {
     legend: 'МІХАЕЛЬ КАЙЗЕР · BM #10',
     record: 'ЦІННІСТЬ: 320M ¥ · NEW GEN XI',
-    stats: [99, 86, 93, 93, 91, 88],
+    stats: [99, 86, 93, 94, 91, 88],
     verdictTitle: 'Kaiser Impact проти Непередбачуваного Flow',
-    verdictText: 'Німецький нападник володіє найшвидшим замахом удару у світі, проте Рін у режимі Берсерка нав’язує контактний тиск і розбиває раціональну дистанцію Кайзера.'
+    verdictText: 'Німецький нападник володіє найшвидшим замахом у світі, але Рін бере гору за читанням гри, технікою обіграшу та клатчем у хаосі.'
   },
   shidou: {
     legend: 'РЮСЕЙ ШІДО · PXG #99',
     record: 'ЦІННІСТЬ: 160M ¥ · ПОДВІЙНИЙ АС',
     stats: [95, 76, 80, 92, 91, 95],
     verdictTitle: 'Первісні рефлекси проти Контрольованого Хаосу',
-    verdictText: 'Шідо смертельно небезпечний у штрафному з будь-якої акробатичної позиції, та інтелектуальна глибина комбінацій і дальній постріл роблять Ріна більш універсальною зброєю.'
+    verdictText: 'Шідо небезпечний у штрафному з будь-якої акробатичної позиції, та інтелектуальна глибина комбінацій і дальній постріл роблять Ріна універсальнішим.'
   },
   loki: {
     legend: 'ЖУЛЬЄН ЛОКІ · PXG MASTER',
@@ -6227,19 +6622,24 @@ const RIVAL_PROFILES = {
 
 class RivalComparatorController {
   /**
-   * Compare Itoshi Rin's 6 core battle attributes against major rivals with live SVG radar and delta bars.
+   * Compare Itoshi Rin's Base or Destroyer metrics against rivals with interactive SVG radar and split bars.
    */
   constructor(sfx) {
     this.sfx = sfx;
+    this.cardEl = document.querySelector('.rival-duel-card');
+    this.modeBtns = document.querySelectorAll('.duel-mode-btn');
     this.pills = document.querySelectorAll('.rival-pill');
     this.radarHost = document.getElementById('duelRadarContainer');
     this.barsHost = document.getElementById('duelBarsList');
     this.edgePill = document.getElementById('duelEdgeBadge');
+    this.winSummaryEl = document.getElementById('duelWinSummary');
+    this.rinLegendLabel = document.getElementById('duelRinLegendLabel');
     this.legendLabel = document.getElementById('duelRivalLegendLabel');
     this.recordEl = document.getElementById('duelCanonRecord');
     this.verdictTitleEl = document.getElementById('duelVerdictTitle');
     this.verdictTextEl = document.getElementById('duelVerdictText');
     this.activeRival = 'sae';
+    this.rinMode = 'base';
 
     if (!this.radarHost || !this.barsHost) return;
     this.bindEvents();
@@ -6247,6 +6647,20 @@ class RivalComparatorController {
   }
 
   bindEvents() {
+    this.modeBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const mode = btn.getAttribute('data-rin-mode');
+        if (!RIN_DUEL_MODES[mode] || this.rinMode === mode) return;
+        this.rinMode = mode;
+        this.modeBtns.forEach((b) => b.classList.toggle('active', b === btn));
+        if (this.cardEl) {
+          this.cardEl.classList.toggle('is-destroyer-mode', mode === 'destroyer');
+        }
+        this.render();
+        if (this.sfx) this.sfx.playClick();
+      });
+    });
+
     this.pills.forEach((pill) => {
       pill.addEventListener('click', () => {
         const key = pill.getAttribute('data-rival');
@@ -6265,35 +6679,58 @@ class RivalComparatorController {
 
   render() {
     const rival = RIVAL_PROFILES[this.activeRival];
+    const rinProfile = RIN_DUEL_MODES[this.rinMode] || RIN_DUEL_MODES.base;
     if (!rival) return;
 
+    const rinMetrics = rinProfile.metrics;
+    const isDestroyer = this.rinMode === 'destroyer';
+
+    if (this.rinLegendLabel) this.rinLegendLabel.textContent = rinProfile.legend;
     if (this.legendLabel) this.legendLabel.textContent = rival.legend;
     if (this.recordEl) this.recordEl.textContent = rival.record;
     if (this.verdictTitleEl) this.verdictTitleEl.textContent = rival.verdictTitle;
-    if (this.verdictTextEl) this.verdictTextEl.textContent = rival.verdictText;
+    if (this.verdictTextEl) {
+      this.verdictTextEl.textContent = isDestroyer
+        ? `${rival.verdictText} ${rinProfile.modeNote}`
+        : rival.verdictText;
+    }
 
-    const rinAvg = RIN_BASE_METRICS.reduce((a, b) => a + b, 0) / RIN_BASE_METRICS.length;
+    const rinAvg = rinMetrics.reduce((a, b) => a + b, 0) / rinMetrics.length;
     const rivalAvg = rival.stats.reduce((a, b) => a + b, 0) / rival.stats.length;
     const diff = rinAvg - rivalAvg;
+
+    let wins = 0;
+    DUEL_AXIS_LABELS.forEach((_, i) => {
+      if (rinMetrics[i] > rival.stats[i]) wins += 1;
+    });
 
     if (this.edgePill) {
       this.edgePill.textContent = `RIN EDGE: ${diff >= 0 ? '+' : ''}${diff.toFixed(1)}`;
       this.edgePill.classList.toggle('is-negative', diff < 0);
     }
 
+    if (this.winSummaryEl) {
+      this.winSummaryEl.textContent = `ДУЕЛІ: ${wins} / ${DUEL_AXIS_LABELS.length} ЗА РІНОМ`;
+    }
+
     this.radarHost.innerHTML = buildRadarSvg({
       labels: DUEL_AXIS_LABELS,
-      primaryValues: RIN_BASE_METRICS,
+      primaryValues: rinMetrics,
       secondaryValues: rival.stats,
-      size: 310,
-      radius: 94,
-      showValues: false,
+      primaryColor: '#00ffc8',
+      primaryFill: isDestroyer ? 'rgba(0, 255, 200, 0.30)' : 'rgba(0, 255, 200, 0.24)',
+      secondaryColor: '#ff2a5f',
+      secondaryFill: 'rgba(255, 42, 95, 0.19)',
+      width: 440,
+      height: 328,
+      radius: 90,
+      showValues: true,
       cssClass: 'duel-radar-svg'
     });
 
     this.barsHost.innerHTML = '';
     DUEL_AXIS_LABELS.forEach((lbl, idx) => {
-      const rinVal = RIN_BASE_METRICS[idx];
+      const rinVal = rinMetrics[idx];
       const rVal = rival.stats[idx];
       const delta = rinVal - rVal;
 
@@ -6303,14 +6740,32 @@ class RivalComparatorController {
       const head = document.createElement('div');
       head.className = 'duel-bar-head';
 
+      const nameWrap = document.createElement('div');
+      nameWrap.className = 'duel-bar-label-group';
+
       const nameSpan = document.createElement('span');
-      nameSpan.textContent = `${lbl} · RIN ${rinVal} vs ${rVal}`;
+      nameSpan.className = 'duel-axis-name';
+      nameSpan.textContent = lbl;
+
+      const scorePair = document.createElement('span');
+      scorePair.className = 'duel-score-pair';
+      const rinStrong = document.createElement('strong');
+      rinStrong.className = 'is-rin';
+      rinStrong.textContent = String(rinVal);
+      const vsSep = document.createElement('span');
+      vsSep.textContent = ' vs ';
+      const rivalStrong = document.createElement('strong');
+      rivalStrong.className = 'is-rival';
+      rivalStrong.textContent = String(rVal);
+      scorePair.append(rinStrong, vsSep, rivalStrong);
+
+      nameWrap.append(nameSpan, scorePair);
 
       const deltaSpan = document.createElement('span');
       deltaSpan.className = `duel-delta ${delta > 0 ? '' : (delta < 0 ? 'is-loss' : 'is-even')}`;
-      deltaSpan.textContent = delta > 0 ? `+${delta}` : String(delta);
+      deltaSpan.textContent = delta > 0 ? `+${delta}` : (delta === 0 ? '0' : String(delta));
 
-      head.append(nameSpan, deltaSpan);
+      head.append(nameWrap, deltaSpan);
 
       const track = document.createElement('div');
       track.className = 'duel-dual-track';
@@ -6511,6 +6966,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const activeSection = document.getElementById(targetId);
+    if (targetId === 'tacticalSection' && activeSection) {
+      activeSection.querySelectorAll('.reveal-on-scroll').forEach((el) => el.classList.add('is-visible'));
+    }
     if (typeof refreshScrollReveals === 'function') {
       requestAnimationFrame(() => refreshScrollReveals(activeSection));
     }
@@ -6589,9 +7047,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const rect = el.getBoundingClientRect();
       if (rect.height === 0 && rect.width === 0) return;
-      if (rect.top < vh * 0.92 && rect.bottom > 0) {
+      if (rect.top < vh * 0.98 && rect.bottom > 0) {
         el.classList.add('is-visible');
-      } else if (rect.top >= vh * 0.92) {
+      } else if (rect.top >= vh * 0.98) {
         el.classList.remove('is-visible');
       }
     });
@@ -6606,13 +7064,13 @@ document.addEventListener('DOMContentLoaded', () => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               entry.target.classList.add('is-visible');
-            } else if (entry.boundingClientRect.top > vh * 0.92) {
+            } else if (entry.boundingClientRect.top > vh * 0.98) {
               // Reset blocks scrolled back below the viewport so scrolling down replays smoothly
               entry.target.classList.remove('is-visible');
             }
           });
         },
-        { threshold: 0.14, rootMargin: '0px 0px -56px 0px' }
+        { threshold: 0.01, rootMargin: '0px 0px 48px 0px' }
       );
       revealElements.forEach((el) => revealObserver.observe(el));
       refreshScrollReveals(document.querySelector('.content-section.active'));
